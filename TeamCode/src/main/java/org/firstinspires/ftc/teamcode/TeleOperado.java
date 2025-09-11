@@ -131,7 +131,12 @@ public class TeleOperado extends AprilTag{
                     ErroMovY = 0;
                 }
 
-
+                if (pose_atual.position.y > 35 && pose_atual.position.x > -20 && pose_atual.position.x < 20){
+                    leftBack.setPower(0);
+                    leftFront.setPower(0);
+                    rightBack.setPower(0);
+                    rightFront.setPower(0);
+                }
 
                 Base_Motriz();
 
