@@ -22,12 +22,6 @@
 package org.firstinspires.ftc.robotcontroller.external.samples;
 
 import com.qualcomm.hardware.digitalchickenlabs.OctoQuad;
-import com.qualcomm.hardware.digitalchickenlabs.OctoQuadBase;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.MovingStatistics;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -35,100 +29,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 import java.util.ArrayList;
 import java.util.List;
-
-/*
- * This OpMode illustrates how to use advanced features of the DigitalChickenLabs OctoQuad Quadrature
- *  Encoder & Pulse Width Interface Module.  The OctoQuad has 8 input channels that can used to read
- *  either Quadrature Encoder signals (like with most FTC motors) or Pulse-Width style Absolute Encoder
- *  inputs (eg: REV Through Bore encoder pulse width output).
- *
- * This OpMode illustrates several of the more advanced features of an OctoQuad, including Pulse Width
- * measurement and velocity measurement. For a more basic OpMode just showing how to read encoder
- * inputs, see the SensorOctoQuad sample.
- *
- * This OpMode assumes the OctoQuad is attached to an I2C interface named "octoquad" in the robot config.
- *
- * One system that requires a lot of encoder inputs is a Swerve Drive system.
- * Such a drive requires two encoders per drive module:
- * One encoder for the Drive motor/wheel position.velocity, and one for Steer motor angle.
- * The Drive motor requires a quadrature encoder, and the Steering motor requires an Absolute encoder.
- *
- * This sample will configure an OctoQuad for a swerve drive, as follows
- *  - Configure 4 Relative Quadrature Encoder inputs and 4 Absolute Pulse-Width Encoder inputs
- *  - Configure a velocity sample interval of 25 mSec
- *  - Configure a pulse width input range of 1-1024 uSec for a REV Encoder's Absolute Pulse output.
- *
- * An OctoSwerveDrive class will be created to initialize the OctoQuad, and manage 4 swerve modules.
- * An OctoSwerveModule class will be created to configure and read a single swerve module.
- *
- * Wiring:
- *  The OctoQuad will be configured to accept Quadrature encoders on the first four channels and
- *  Absolute (pulse width) encoders on the last four channels.
- *
- *  The standard encoder cable will connect each Driver Motor encoder to the OctoQuad. (channels 0-3)
- *
- *  A modified version of the REV 6-4 pin cable (shipped with the encoder) connects the steering encoder
- *  to the OctoQuad. (channels 4-7)
- *
- *  To connect the Absolute position signal from a REV Thru-Bore encoder to the OctoQuad, the
- *  Provided 6-pin to 4-pin cable will need to be modified.
- *  At the 6-pin connector end, move the yellow wire from its initial pin-3 position to the
- *  ABS pin-5 position. This can be done easily by using a small flathead screwdriver to lift the
- *  small white tab holding the metal wire crimp in place and gently pulling the wire out.
- *  See the OctoSwerveDrive() constructor below for the correct wheel/channel assignment.
- *
- * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
- *
- * See the sensor's product page: https://www.tindie.com/products/35114/
- */
-@Disabled
-@TeleOp(name="OctoQuad Advanced", group="OctoQuad")
-public class SensorOctoQuadAdv extends LinearOpMode {
-
-    @Override
-    public void runOpMode() throws InterruptedException {
-        // Connect to the OctoQuad by looking up its name in the hardwareMap.
-        OctoQuad octoquad = hardwareMap.get(OctoQuad.class, "octoquad");
-
-        // Create the interface for the Swerve Drive Encoders
-        OctoSwerveDrive octoSwerveDrive = new OctoSwerveDrive(octoquad);
-
-        // Display the OctoQuad firmware revision
-        telemetry.addLine("OctoQuad Firmware v" + octoquad.getFirmwareVersion());
-        telemetry.addLine("\nPress START to read encoder values");
-        telemetry.update();
-
-        waitForStart();
-
-        // Configure the telemetry for optimal display of data.
-        telemetry.setDisplayFormat(Telemetry.DisplayFormat.MONOSPACE);
-        telemetry.setMsTransmissionInterval(50);
-
-        // Run stats to determine cycle times.
-        MovingStatistics avgTime = new MovingStatistics(100);
-        ElapsedTime elapsedTime = new ElapsedTime();
-
-        while (opModeIsActive()) {
-            telemetry.addData(">", "Press X to Reset Encoders\n");
-
-            if(gamepad1.x) {
-                octoquad.resetAllPositions();
-            }
-
-            // read all the swerve drive encoders and update positions and velocities.
-            octoSwerveDrive.updateModules();
-            octoSwerveDrive.show(telemetry);
-
-            // Update cycle time stats
-            avgTime.add(elapsedTime.nanoseconds());
-            elapsedTime.reset();
-
-            telemetry.addData("Loop time", "%.1f mS", avgTime.getMean()/1000000);
-            telemetry.update();
-        }
-    }
-}
 
 // ============================  Internal (Inner) Classes  =============================
 
