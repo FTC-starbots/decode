@@ -28,6 +28,7 @@ public class TeleOperado extends AprilTag{
 
     double  controle_rotacao, Speed, angulo_desejado, angulo_robo, vectorX, vectorY, correcao_angular;
 
+    int zona_bloqueada = 1;
 
     double CorrLimeX, CorrLimeY;
 
@@ -131,16 +132,16 @@ public class TeleOperado extends AprilTag{
                     ErroMovY = 0;
                 }
 
-                if (pose_atual.position.y > 35 && pose_atual.position.x > -20 && pose_atual.position.x < 20){
-                    leftBack.setPower(0);
-                    leftFront.setPower(0);
-                    rightBack.setPower(0);
-                    rightFront.setPower(0);
-                }
+                if (pose_atual.position.y > 35 && pose_atual.position.x > -20 && pose_atual.position.x < 20)zona_bloqueada = 0;
+                else zona_bloqueada = 1;
 
                 Base_Motriz();
 
-                if (gamepad1.options) angulo_robo = 0;
+                if (gamepad1.options) {
+                    angulo_robo = 0;
+                    last_pose_X = pose_atual.position.x;
+                    last_pose_Y = pose_atual.position.y;
+                }
                 //_______________________________________________________________________________
 
                 CorrLimeY = 0;
@@ -171,19 +172,21 @@ public class TeleOperado extends AprilTag{
         double divisorY = 5 + 10 * Math.max(0, 1.0 - (Math.abs(ErroMovY) / 4.0));
 
         vectorX = (Math.cos(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_x+ (ErroMovY/divisorY)))
-                + Math.sin(-angulo_robo / 180 * Math.PI) * (-gamepad1.left_stick_y+(-ErroMovX/divisorX));
+                + Math.sin(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_y+(-ErroMovX/divisorX));
 
         vectorY = (-Math.sin(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_x+ (ErroMovY/divisorY)))
-                + Math.cos(-angulo_robo / 180 * Math.PI) * (-gamepad1.left_stick_y +(-ErroMovX/divisorX));
+                + Math.cos(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_y +(-ErroMovX/divisorX));
 
-        leftBack.setPower((vectorY * 0.9 + vectorX * -1) * Speed + ((gamepad1.right_trigger - gamepad1.left_trigger)  + correcao_angular ));
-        leftFront.setPower((vectorY * 0.9 + vectorX * 1) * Speed + ((gamepad1.right_trigger - gamepad1.left_trigger)  + correcao_angular ));
-        rightBack.setPower((vectorY * 0.9 + vectorX * 1) * Speed - ((gamepad1.right_trigger - gamepad1.left_trigger)  + correcao_angular ));
-        rightFront.setPower((vectorY * 0.9 + vectorX * -1) * Speed - ((gamepad1.right_trigger - gamepad1.left_trigger) + correcao_angular));
+        leftBack.setPower((vectorY * 0.9 + vectorX * 1) * Speed + ((gamepad1.left_trigger - gamepad1.right_trigger)  + correcao_angular ));
+        leftFront.setPower((vectorY * 0.9 + vectorX * -1) * Speed + ((gamepad1.left_trigger - gamepad1.right_trigger)  + correcao_angular ));
+        rightBack.setPower((vectorY * 0.9 + vectorX * -1) * Speed - ((gamepad1.left_trigger - gamepad1.right_trigger)  + correcao_angular ));
+        rightFront.setPower((vectorY * 0.9 + vectorX * 1) * Speed - ((gamepad1.left_trigger - gamepad1.right_trigger) + correcao_angular));
 
         if (RotacaoRobo.seconds() < 1) {
             correcao_angular = 0;
             angulo_desejado = angulo_robo;
+            last_pose_X = pose_atual.position.x;
+            last_pose_Y = pose_atual.position.y;
         }
         else {
             int rotate;
