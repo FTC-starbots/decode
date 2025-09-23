@@ -40,9 +40,7 @@ public class TeleOperado extends AprilTag{
     double T_atual = 0;
 
     Pose2d pose_atual;
-    public double encoder;
 
-    FtcDashboard dashboard;
 
 
     double ErroMovX, ErroMovY, last_pose_X, last_pose_Y;
@@ -53,8 +51,6 @@ public class TeleOperado extends AprilTag{
 
     @Override
     public void runOpMode() throws InterruptedException {
-        dashboard = FtcDashboard.getInstance();
-        telemetry = dashboard.getTelemetry();
         // Mapeamento dos sensores e motores
         {
 
@@ -260,8 +256,7 @@ public class TeleOperado extends AprilTag{
     } // OK
 
     private void Telemetria(){
-        telemetry.addData( null,leftFront.getCurrentPosition());
-/*
+
         telemetry.addData("","");
 
        // telemetry.addData("Posição", pose);
