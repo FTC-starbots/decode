@@ -171,11 +171,11 @@ public class TeleOperado extends AprilTag{
         double divisorX = 5 + 10 * Math.max(0, 1.0 - (Math.abs(ErroMovX) / 4.0));
         double divisorY = 5 + 10 * Math.max(0, 1.0 - (Math.abs(ErroMovY) / 4.0));
 
-        vectorX = (Math.cos(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_x+ (ErroMovY/divisorY)))
-                + Math.sin(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_y+(-ErroMovX/divisorX));
+        vectorX = (Math.cos(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_x/*+ (ErroMovY/divisorY)*/))
+                + Math.sin(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_y/*+(-ErroMovX/divisorX)*/);
 
-        vectorY = (-Math.sin(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_x+ (ErroMovY/divisorY)))
-                + Math.cos(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_y +(-ErroMovX/divisorX));
+        vectorY = (-Math.sin(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_x/*+ (ErroMovY/divisorY)*/))
+                + Math.cos(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_y /*+(-ErroMovX/divisorX)*/);
 
         leftBack.setPower((vectorY * 0.9 + vectorX * 1) * Speed + ((gamepad1.left_trigger - gamepad1.right_trigger)  + correcao_angular ));
         leftFront.setPower((vectorY * 0.9 + vectorX * -1) * Speed + ((gamepad1.left_trigger - gamepad1.right_trigger)  + correcao_angular ));
