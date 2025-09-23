@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
@@ -39,6 +40,10 @@ public class TeleOperado extends AprilTag{
     double T_atual = 0;
 
     Pose2d pose_atual;
+    public double encoder;
+
+    FtcDashboard dashboard;
+
 
     double ErroMovX, ErroMovY, last_pose_X, last_pose_Y;
     ElapsedTime RotacaoRobo, Tempo_de_ciclo,
@@ -48,7 +53,8 @@ public class TeleOperado extends AprilTag{
 
     @Override
     public void runOpMode() throws InterruptedException {
-
+        dashboard = FtcDashboard.getInstance();
+        telemetry = dashboard.getTelemetry();
         // Mapeamento dos sensores e motores
         {
 
@@ -111,6 +117,8 @@ public class TeleOperado extends AprilTag{
             angulo_desejado = 0;
 
             while (opModeIsActive()) {
+
+
                 //MOVIMENTO______________________________________________________________________________
 
                 drive.updatePoseEstimate();
@@ -171,11 +179,11 @@ public class TeleOperado extends AprilTag{
         double divisorX = 5 + 10 * Math.max(0, 1.0 - (Math.abs(ErroMovX) / 4.0));
         double divisorY = 5 + 10 * Math.max(0, 1.0 - (Math.abs(ErroMovY) / 4.0));
 
-        vectorX = (Math.cos(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_x+ (ErroMovY/divisorY)))
-                + Math.sin(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_y+(-ErroMovX/divisorX));
+        vectorX = (Math.cos(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_x/*+ (ErroMovY/divisorY)*/))
+                + Math.sin(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_y/*+(-ErroMovX/divisorX)*/);
 
-        vectorY = (-Math.sin(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_x+ (ErroMovY/divisorY)))
-                + Math.cos(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_y +(-ErroMovX/divisorX));
+        vectorY = (-Math.sin(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_x/*+ (ErroMovY/divisorY)*/))
+                + Math.cos(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_y /*+(-ErroMovX/divisorX)*/);
 
         leftBack.setPower((vectorY * 0.9 + vectorX * 1) * Speed + ((gamepad1.left_trigger - gamepad1.right_trigger)  + correcao_angular ));
         leftFront.setPower((vectorY * 0.9 + vectorX * -1) * Speed + ((gamepad1.left_trigger - gamepad1.right_trigger)  + correcao_angular ));
@@ -252,8 +260,8 @@ public class TeleOperado extends AprilTag{
     } // OK
 
     private void Telemetria(){
-
-
+        telemetry.addData( null,leftFront.getCurrentPosition());
+/*
         telemetry.addData("","");
 
        // telemetry.addData("Posição", pose);
@@ -299,7 +307,7 @@ public class TeleOperado extends AprilTag{
         telemetry.addData("Y", vectorY);
         telemetry.addData("", "");
 
-        // Atualiza os dados na tela
+        // Atualiza os dados na tela*/
         telemetry.update();
     }
 
