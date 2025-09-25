@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
@@ -40,6 +41,8 @@ public class TeleOperado extends AprilTag{
 
     Pose2d pose_atual;
 
+
+
     double ErroMovX, ErroMovY, last_pose_X, last_pose_Y;
     ElapsedTime RotacaoRobo, Tempo_de_ciclo,
            MASTER_TIMER;
@@ -48,7 +51,6 @@ public class TeleOperado extends AprilTag{
 
     @Override
     public void runOpMode() throws InterruptedException {
-
         // Mapeamento dos sensores e motores
         {
 
@@ -111,6 +113,8 @@ public class TeleOperado extends AprilTag{
             angulo_desejado = 0;
 
             while (opModeIsActive()) {
+
+
                 //MOVIMENTO______________________________________________________________________________
 
                 drive.updatePoseEstimate();
@@ -253,7 +257,6 @@ public class TeleOperado extends AprilTag{
 
     private void Telemetria(){
 
-
         telemetry.addData("","");
 
        // telemetry.addData("Posição", pose);
@@ -299,7 +302,7 @@ public class TeleOperado extends AprilTag{
         telemetry.addData("Y", vectorY);
         telemetry.addData("", "");
 
-        // Atualiza os dados na tela
+        // Atualiza os dados na tela*/
         telemetry.update();
     }
 
