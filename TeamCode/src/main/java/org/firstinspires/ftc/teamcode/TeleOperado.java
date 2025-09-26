@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -73,10 +74,10 @@ public class TeleOperado extends AprilTag{
             rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-            leftBack.setDirection(DcMotor.Direction.REVERSE);
-            leftFront.setDirection(DcMotor.Direction.REVERSE);
-            rightBack.setDirection(DcMotor.Direction.FORWARD);
-            rightFront.setDirection(DcMotor.Direction.FORWARD);
+            leftBack.setDirection(DcMotor.Direction.FORWARD);
+            leftFront.setDirection(DcMotor.Direction.FORWARD);
+            rightBack.setDirection(DcMotor.Direction.REVERSE);
+            rightFront.setDirection(DcMotor.Direction.REVERSE);
 
             leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -170,21 +171,21 @@ public class TeleOperado extends AprilTag{
 
     private void Base_Motriz(){
 
-        angulo_robo = (rightFront.getCurrentPosition() - leftBack.getCurrentPosition()) / 249.0;
+        angulo_robo = (rightFront.getCurrentPosition() - leftBack.getCurrentPosition()) / 370.0;
 
         double divisorX = 5 + 10 * Math.max(0, 1.0 - (Math.abs(ErroMovX) / 4.0));
         double divisorY = 5 + 10 * Math.max(0, 1.0 - (Math.abs(ErroMovY) / 4.0));
 
         vectorX = (Math.cos(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_x/*+ (ErroMovY/divisorY)*/))
-                + Math.sin(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_y/*+(-ErroMovX/divisorX)*/);
+                + Math.sin(-angulo_robo / 180 * Math.PI) * (-gamepad1.left_stick_y/*+(-ErroMovX/divisorX)*/);
 
-        vectorY = (-Math.sin(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_x/*+ (ErroMovY/divisorY)*/))
-                + Math.cos(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_y /*+(-ErroMovX/divisorX)*/);
+        vectorY = ((-Math.sin(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_x/*+ (ErroMovY/divisorY)*/))
+                + Math.cos(-angulo_robo / 180 * Math.PI) * (-gamepad1.left_stick_y /*+(-ErroMovX/divisorX)*/));
 
-        leftBack.setPower((vectorY * 0.9 + vectorX * 1) * Speed + ((gamepad1.left_trigger - gamepad1.right_trigger)  + correcao_angular ));
-        leftFront.setPower((vectorY * 0.9 + vectorX * -1) * Speed + ((gamepad1.left_trigger - gamepad1.right_trigger)  + correcao_angular ));
-        rightBack.setPower((vectorY * 0.9 + vectorX * -1) * Speed - ((gamepad1.left_trigger - gamepad1.right_trigger)  + correcao_angular ));
-        rightFront.setPower((vectorY * 0.9 + vectorX * 1) * Speed - ((gamepad1.left_trigger - gamepad1.right_trigger) + correcao_angular));
+        leftBack.setPower((vectorY * 0.9 + vectorX * -1) * Speed + ((gamepad1.right_trigger - gamepad1.left_trigger)  + correcao_angular ));
+        leftFront.setPower((vectorY * 0.9 + vectorX * 1) * Speed + ((gamepad1.right_trigger - gamepad1.left_trigger)  + correcao_angular ));
+        rightBack.setPower((vectorY * 0.9 + vectorX * 1) * Speed - ((gamepad1.right_trigger - gamepad1.left_trigger)  + correcao_angular ));
+        rightFront.setPower((vectorY * 0.9 + vectorX * -1) * Speed - ((gamepad1.right_trigger - gamepad1.left_trigger) + correcao_angular));
 
         if (RotacaoRobo.seconds() < 1) {
             correcao_angular = 0;

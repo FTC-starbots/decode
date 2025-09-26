@@ -33,38 +33,6 @@ public class Autonomo extends LinearOpMode {
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             //executa o movimento do braço em loop
 
-            int erroB;
-            double KpB = 0.002;
-            double potenciaB;
-
-            int erroV;
-            double KpV = 0.01;
-            double KiV = 0.001;
-            double potenciaV;
-
-            int erroH;
-            double KpH = 0.01;
-            double potenciaH;
-
-            erroB = posicaoDesejada_Braco - BracoOuttake.getCurrentPosition();
-            potenciaB = Math.min(Math.max(KpB * erroB, -0.7), 0.7);
-            BracoOuttake.setPower(potenciaB);
-            //-------------------------
-
-            //slide vertical PiD
-            erroV = posicaoDesejada_Slide - slide_vertical_e.getCurrentPosition();
-            double Ap = KpV * erroV;
-            double Ai = 0;
-            Ai = Ai + KiV * erroV;
-            potenciaV = Math.min(Math.max(-(Ap + Ai), -1), 0.8);
-            slide_vertical_d.setPower(potenciaV);
-            slide_vertical_e.setPower(potenciaV);
-            //-------------------------
-
-            erroH = - slide_horizontal.getCurrentPosition();
-            potenciaH = Math.min(Math.max((KpH * erroH), -0.8), 0.8);
-            slide_horizontal.setPower(potenciaH);
-
             return PIDs_state;
         }
     }
@@ -75,10 +43,9 @@ public class Autonomo extends LinearOpMode {
     boolean PIDs_state;
 
 
-    DcMotor leftBack, leftFront, rightBack, rightFront,
-            slide_vertical_d, slide_vertical_e, BracoOuttake, slide_horizontal;
+    DcMotor leftBack, leftFront, rightBack, rightFront;
 
-    Servo GarraIntake, GarraOuttake, BracoIntake, PulsoIntake,  RotacaoOuttake, RotacaoIntake;
+    //Servo;
 
     DigitalChannel FimDeCurso;
 
@@ -101,84 +68,18 @@ public class Autonomo extends LinearOpMode {
         leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
         rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
         rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
-        slide_vertical_d = hardwareMap.get(DcMotorEx.class, "slide_vertical_d");
-        slide_vertical_e = hardwareMap.get(DcMotorEx.class, "slide_vertical_e");
-        slide_horizontal = hardwareMap.get(DcMotorEx.class, "slide_horizontal");
-        BracoOuttake = hardwareMap.get(DcMotorEx.class, "BracoOuttake");
 
-        BracoIntake = hardwareMap.get(Servo.class, "BracoIntake");
-        GarraIntake = hardwareMap.get(Servo.class, "GarraIntake");
-        GarraOuttake = hardwareMap.get(Servo.class, "GarraOuttake");
-        PulsoIntake = hardwareMap.get(Servo.class, "PulsoIntake");
-        RotacaoOuttake = hardwareMap.get(Servo.class, "RotacaoOuttake");
-        RotacaoIntake = hardwareMap.get(Servo.class,"RotacaoIntake");
-
-        FimDeCurso = hardwareMap.get(DigitalChannel.class, "FimDeCursoSV");
         // limelight = hardwareMap.get(Limelight3A.class, "limelight");
 
 
 
-        slide_vertical_d.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slide_vertical_d.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        slide_vertical_d.setDirection(DcMotor.Direction.REVERSE);
-        slide_vertical_d.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        slide_vertical_e.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slide_vertical_e.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        slide_vertical_e.setDirection(DcMotor.Direction.FORWARD);
-        slide_vertical_e.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        slide_horizontal.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slide_horizontal.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        slide_horizontal.setDirection(DcMotor.Direction.FORWARD);
-        slide_horizontal.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        BracoOuttake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        BracoOuttake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        BracoOuttake.setDirection(DcMotor.Direction.REVERSE);
-        BracoOuttake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //--------Calcula Rotas e parametriza drivetrain---------------------
         Rotas();
         //------------------------------------------
-        GarraOuttake.setPosition(1.0);
-        RotacaoIntake.setPosition(0.45);
-        BracoIntake.setPosition(1);
-        PulsoIntake.setPosition(0.25);
-        RotacaoOuttake.setPosition(0.5);
         waitForStart();
         PIDs_state = true;
         Actions.runBlocking(new ParallelAction(rota1,new PIDs()));
-        GarraOuttake.setPosition(1);
-        sleep(305);
-
-        PIDs_state = true;
-        Actions.runBlocking(new ParallelAction(rota4,new PIDs()));
-        sleep(200);
-
-        PIDs_state = true;
-        Actions.runBlocking(new ParallelAction(rota5,new PIDs()));
-        GarraOuttake.setPosition(1);
-        sleep(305);
-
-        PIDs_state = true;
-        Actions.runBlocking(new ParallelAction(rota6,new PIDs()));
-        sleep(200);
-
-        PIDs_state = true;
-        Actions.runBlocking(new ParallelAction(rota7,new PIDs()));
-        GarraOuttake.setPosition(1);
-        sleep(305);
-
-        PIDs_state = true;
-        Actions.runBlocking(new ParallelAction(rota8,new PIDs()));
-        sleep(200);
-
-        PIDs_state = true;
-        Actions.runBlocking(new ParallelAction(rota9,new PIDs()));
-        PIDs_state = true;
-
-
     }
 
     public void Rotas(){
@@ -190,66 +91,19 @@ public class Autonomo extends LinearOpMode {
 
 
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, -65,
-                Math.toRadians(270)));
+                Math.toRadians(90)));
 
-        rota1 = drive.actionBuilder(new Pose2d(0, -65, Math.toRadians(270)))
-                .afterTime(0,()->{
-                    RotacaoOuttake.setPosition(0);
-                    posicaoDesejada_Braco = 240;
-                    posicaoDesejada_Slide = 1150;
-                })
-                .strafeToLinearHeading(new Vector2d(-0.5, -27), Math.toRadians(270))
-                .afterTime(0,()->{
-                    GarraOuttake.setPosition(0.3);
+        rota1 = drive.actionBuilder(new Pose2d(0, -65, Math.toRadians(90)))
 
-                })
-                .waitSeconds(0.175)
-                .setTangent(Math.toRadians(270))//trajetória de frente
-                .splineTo(new Vector2d(20, -38), Math.toRadians(0))
-                .afterTime(0,()->{
-                    posicaoDesejada_Slide = 100;
-                    posicaoDesejada_Braco = 0;
-                    RotacaoOuttake.setPosition(0.5);
+                .strafeTo(new Vector2d(32.5, -39))
 
-                })
+                .strafeTo(new Vector2d(-0, 20))
 
-                .splineTo(new Vector2d(34, -28), Math.toRadians(90))
-                .splineToConstantHeading(new Vector2d(34, -22), Math.toRadians(90))
-                .splineToConstantHeading(new Vector2d(46, -21), Math.toRadians(270))
-               .afterTime(0,()->{
-                    posicaoDesejada_Braco = 680;
+                .strafeTo(new Vector2d(-32.5, -35))
 
-                })
-                .splineToConstantHeading(new Vector2d(47, -60), Math.toRadians(270),new TranslationalVelConstraint(50),  new ProfileAccelConstraint(-46, 60))
-                .afterTime(0,()->{
-                    posicaoDesejada_Braco = 0;
-
-                })
-                //volta e empurra o segundo sample
-
-                .setTangent(Math.toRadians(90))
-                .splineToConstantHeading(new Vector2d(46, -24), Math.toRadians(90), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-42, 56))
-                .splineToConstantHeading(new Vector2d(55, -20), Math.toRadians(270))
-                .afterTime(0,()->{
-                    posicaoDesejada_Braco = 0;
-
-                })
-                .splineToConstantHeading(new Vector2d(58, -58), Math.toRadians(270), new TranslationalVelConstraint(35), new ProfileAccelConstraint(-46, 56))
-                .splineToConstantHeading(new Vector2d(37, -60), Math.toRadians(270), new TranslationalVelConstraint(18.5), new ProfileAccelConstraint(-46, 56))
-                .splineToConstantHeading(new Vector2d(37, -70.5), Math.toRadians(270), new TranslationalVelConstraint(18.5), new ProfileAccelConstraint(-46, 56))
-                .afterTime(0,()->{
-
-
-                })
-                //volta e empurra o terceiro sample
-
-                .afterTime(0,()->{
-                    GarraOuttake.setPosition(0.9);
-                    PIDs_state = false;
-                })
                 .build();
 
-        //clipa o segundo clipe
+        /*//clipa o segundo clipe
         rota4 = drive.actionBuilder(new Pose2d(37, -70.5, Math.toRadians(90)))
                 .afterTime(0,()->{
 
@@ -370,6 +224,6 @@ public class Autonomo extends LinearOpMode {
                 .afterTime(0,()->{
                     PIDs_state = false;
                 })
-                .build();
+                .build();*/
     }
 }
