@@ -167,7 +167,7 @@ public class TeleOperado extends AprilTag{
                 controle_rotacao = 0.5;
 
                 //-----------------------------------------------------------------------------------------------
-                if(gamepad1.cross) angulo_desejado = 180 - Math.toDegrees(alpha);
+                if(gamepad1.cross && (pose_atual.position.y >= Math.abs(pose_atual.position.x) || pose_atual.position.y <= -Math.abs(pose_atual.position.x)-40 )) angulo_desejado = 180 - Math.toDegrees(alpha);
 
 
                 Telemetria();
