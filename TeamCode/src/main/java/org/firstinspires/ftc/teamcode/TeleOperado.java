@@ -3,6 +3,9 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -14,17 +17,20 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import java.util.List;
+
 @Config
 @TeleOp
-public class TeleOperado extends AprilTag{
+public class TeleOperado extends Autonomo{
 
     boolean Movimento_robo = false,Base_Motriz_State = false;
 
+    private Limelight3A limelight;
 
+    private DcMotor leftBack, leftFront, rightBack, rightFront, Intake, Atirador_1, Atirador_2;
 
-    private DcMotor leftBack, leftFront, rightBack, rightFront;
+    private Servo Reservoir_2, Reservoir_1, Reservoir_3;
 
-    //private Limelight3A limelight;
 
     int pulse_reset, posicao_desejada_slide_horizontal = 0, posicao_desejada_braco_outtake = 0;
 
@@ -34,6 +40,8 @@ public class TeleOperado extends AprilTag{
 
     double CorrLimeX, CorrLimeY;
 
+    boolean areapermitida;
+
     private VoltageSensor ControlHub_VoltageSensor;
 
     double T_max = 0;
@@ -42,9 +50,10 @@ public class TeleOperado extends AprilTag{
 
     Pose2d pose_atual;
 
+    Autonomo auto = new Autonomo();
+    int padrao[] = {0,0,0};
 
-
-    double ErroMovX, ErroMovY, last_pose_X, last_pose_Y, goal_X, goal_Y = 70;
+    double ErroMovX, ErroMovY,limelight_posX,limelight_posY,limelight_yaw, last_pose_X, last_pose_Y, goal_X, goal_Y = 70;
     ElapsedTime RotacaoRobo, Tempo_de_ciclo,
            MASTER_TIMER;
 
@@ -59,9 +68,15 @@ public class TeleOperado extends AprilTag{
             leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
             rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
             rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
+            Intake = hardwareMap.get(DcMotorEx.class,"Intake");
+            Atirador_1 =hardwareMap.get(DcMotorEx.class,"Atirador_1");
+            Atirador_2 =hardwareMap.get(DcMotorEx.class,"Atirador_2");
+            limelight = hardwareMap.get(Limelight3A.class, "limelight");
+            Reservoir_2 = hardwareMap.get(Servo.class,"Reservoir_2");
+            Reservoir_1 = hardwareMap.get(Servo.class,"Reservoir_1");
+            Reservoir_3 = hardwareMap.get(Servo.class,"Reservoir_3");
 
 
-           // limelight = hardwareMap.get(Limelight3A.class, "limelight");
         }
         // Configuração dos motores da base
         {
@@ -69,21 +84,25 @@ public class TeleOperado extends AprilTag{
             leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            Intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
             leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            Intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
             leftBack.setDirection(DcMotor.Direction.FORWARD);
             leftFront.setDirection(DcMotor.Direction.FORWARD);
             rightBack.setDirection(DcMotor.Direction.REVERSE);
             rightFront.setDirection(DcMotor.Direction.REVERSE);
+            Intake.setDirection(DcMotorSimple.Direction.REVERSE);
 
             leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            Intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             // Configuração dos motores adicionais
         }
@@ -110,7 +129,15 @@ public class TeleOperado extends AprilTag{
             goal_X = 50;
         }
         // Aguardando o início da execução
+
+        if(auto.id_ap == 21) padrao[0] = 1;
+        else if(auto.id_ap == 22) padrao[1] = 1;
+        else if(auto.id_ap == 23) padrao[2] = 1;
+
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, -0,Math.toRadians(0)));
+        limelight.start();
+        limelight.pipelineSwitch(5);
+
         waitForStart();
 
         MASTER_TIMER.reset();
@@ -118,32 +145,46 @@ public class TeleOperado extends AprilTag{
         // Execução principal do OpMode
         if (opModeIsActive()) {
             angulo_desejado = 0;
-
             while (opModeIsActive()) {
-
+                LLResult result = limelight.getLatestResult();
+                List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
 
                 //MOVIMENTO______________________________________________________________________________
-            //Cálculo de posição e correção----------------------
+                //Cálculo de posição e correção----------------------
+
+                if (limelight.getLatestResult().isValid()) {
+
+                    for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                        if (fr.getFiducialId() == 24 || fr.getFiducialId() == 20) {
+                            limelight_posY = result.getBotpose().getPosition().x * 35.3;
+                            limelight_posX = result.getBotpose().getPosition().y * 35.3;
+                            limelight_yaw = result.getBotpose().getOrientation().getYaw();
+                            drive = new MecanumDrive(hardwareMap, new Pose2d(limelight_posX, limelight_posY, Math.toRadians(limelight_yaw)));
+
+                        }
+                    }
+                }
                 drive.updatePoseEstimate();
 
                 pose_atual = drive.localizer.getPose();
-                if (Math.abs(gamepad1.left_stick_x) >0.085|| Math.abs(gamepad1.left_stick_y) > 0.085) {
+                if (Math.abs(gamepad1.left_stick_x) > 0.085 || Math.abs(gamepad1.left_stick_y) > 0.085) {
                     last_pose_X = pose_atual.position.x;
                     last_pose_Y = pose_atual.position.y;
                     Movimento_robo = true;
-                }else {
+                } else {
                     Movimento_robo = false;
                 }
 
                 if (Movimento_robo == false) {
                     ErroMovX = pose_atual.position.x - last_pose_X;
                     ErroMovY = pose_atual.position.y - last_pose_Y;
-                }else {
+                } else {
                     ErroMovX = 0;
                     ErroMovY = 0;
                 }
 
-                if (pose_atual.position.y > 35 && pose_atual.position.x > -20 && pose_atual.position.x < 20)zona_bloqueada = 0;
+                if (pose_atual.position.y > 35 && pose_atual.position.x > -20 && pose_atual.position.x < 20)
+                    zona_bloqueada = 0;
                 else zona_bloqueada = 1;
 
                 Base_Motriz();
@@ -157,9 +198,9 @@ public class TeleOperado extends AprilTag{
                 //Cálculo de alinhamento com o alvo
                 double cateto_a = goal_X - pose_atual.position.x;
                 double cateto_b = goal_Y - pose_atual.position.y;
-                double hip = Math.sqrt(Math.pow(cateto_a,2) + Math.pow(cateto_b,2));
+                double hip = Math.sqrt(Math.pow(cateto_a, 2) + Math.pow(cateto_b, 2));
 
-                double alpha = Math.acos(cateto_a/hip);
+                double alpha = Math.acos(cateto_a / hip);
                 //_______________________________________________________________________________
 
                 CorrLimeY = 0;
@@ -167,8 +208,46 @@ public class TeleOperado extends AprilTag{
                 controle_rotacao = 0.5;
 
                 //-----------------------------------------------------------------------------------------------
-                if(gamepad1.cross && (pose_atual.position.y >= Math.abs(pose_atual.position.x) || pose_atual.position.y <= -Math.abs(pose_atual.position.x)-40 )) angulo_desejado = 180 - Math.toDegrees(alpha);
+                if ((gamepad1.left_bumper && pose_atual.position.y >= Math.abs(pose_atual.position.x)) || (gamepad1.left_bumper && pose_atual.position.y <= -Math.abs(pose_atual.position.x) - 40)){
+                    areapermitida = true;
+                angulo_desejado = 180 - Math.toDegrees(alpha);
+            }else areapermitida =false;
 
+                if(gamepad1.cross) Intake.setPower(1);
+                else if (gamepad1.circle) Intake.setPower(-1);
+                else Intake.setPower(0);
+
+                if (gamepad1.triangle){
+                    Atirador_1.setPower(1);
+                    Atirador_2.setPower(-1);
+
+                }
+                else {
+                    Atirador_1.setPower(0);
+                    Atirador_2.setPower(0);
+                }
+//--------------------Reservatorios
+                if (gamepad1.dpad_up){
+                    Reservoir_2.setPosition(1);
+                }
+                else {
+                    Reservoir_2.setPosition(0);
+                }
+
+                if (gamepad1.dpad_right){
+                    Reservoir_3.setPosition(1);
+                }
+                else {
+                    Reservoir_3.setPosition(0);
+                }
+
+                if (gamepad1.dpad_left){
+                    Reservoir_1.setPosition(1);
+                }
+                else {
+                    Reservoir_1.setPosition(0);
+                }
+//-----------------------------------------
 
                 Telemetria();
                 Tempo_de_ciclo.reset();
@@ -191,10 +270,10 @@ public class TeleOperado extends AprilTag{
         vectorY = ((-Math.sin(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_x/*+ (ErroMovY/divisorY)*/))
                 + Math.cos(-angulo_robo / 180 * Math.PI) * (-gamepad1.left_stick_y /*+(-ErroMovX/divisorX)*/));
 
-        leftBack.setPower((vectorY * 0.9 + vectorX * -1) * Speed + ((gamepad1.right_trigger - gamepad1.left_trigger)  + correcao_angular ));
-        leftFront.setPower((vectorY * 0.9 + vectorX * 1) * Speed + ((gamepad1.right_trigger - gamepad1.left_trigger)  + correcao_angular ));
-        rightBack.setPower((vectorY * 0.9 + vectorX * 1) * Speed - ((gamepad1.right_trigger - gamepad1.left_trigger)  + correcao_angular ));
-        rightFront.setPower((vectorY * 0.9 + vectorX * -1) * Speed - ((gamepad1.right_trigger - gamepad1.left_trigger) + correcao_angular));
+        leftBack.setPower((vectorY * 1 + vectorX * -1) * Speed + ((gamepad1.right_trigger - gamepad1.left_trigger)  + correcao_angular ));
+        leftFront.setPower((vectorY * 1 + vectorX * 1) * Speed + ((gamepad1.right_trigger - gamepad1.left_trigger)  + correcao_angular ));
+        rightBack.setPower((vectorY * 1 + vectorX * 1) * Speed - ((gamepad1.right_trigger - gamepad1.left_trigger)  + correcao_angular ));
+        rightFront.setPower((vectorY * 1 + vectorX * -1) * Speed - ((gamepad1.right_trigger - gamepad1.left_trigger) + correcao_angular));
 
         if (RotacaoRobo.seconds() < 1) {
             correcao_angular = 0;
@@ -236,7 +315,6 @@ public class TeleOperado extends AprilTag{
         }
 
 
-
         // Ajuste de velocidade baseado nos triggers do gamepad
         if (Math.abs(gamepad1.left_trigger) > 0.1 || Math.abs(gamepad1.right_trigger) > 0.1 || gamepad1.dpad_left) {
             angulo_desejado = angulo_robo;
@@ -267,6 +345,8 @@ public class TeleOperado extends AprilTag{
 
     private void Telemetria(){
 
+        telemetry.addData("Área de lançamento", areapermitida);
+
         telemetry.addData("","");
 
        // telemetry.addData("Posição", pose);
@@ -275,6 +355,9 @@ public class TeleOperado extends AprilTag{
 
         telemetry.addData("lastx", last_pose_X);
         telemetry.addData("lasty", last_pose_Y);
+
+        telemetry.addData("limex", limelight_posX);
+        telemetry.addData("limey", limelight_posY);
 
         telemetry.addData("","");
 
@@ -306,10 +389,13 @@ public class TeleOperado extends AprilTag{
 
         telemetry.addData("**Outros**", "");
         telemetry.addData("Ângulo Robô", angulo_robo);
+        telemetry.addData("Ângulo Lime", limelight_yaw);
         telemetry.addData("Ângulo Desejado", angulo_desejado);
         telemetry.addData("X", vectorX);
         telemetry.addData("Y", vectorY);
         telemetry.addData("", "");
+
+
 
         // Atualiza os dados na tela*/
         telemetry.update();

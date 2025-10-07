@@ -11,6 +11,9 @@ import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -18,6 +21,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
+
+import java.util.List;
 
 @Config
 @Autonomous
@@ -27,25 +32,31 @@ public class Autonomo extends LinearOpMode {
 
     public class PIDs implements Action{
         public PIDs(){
+
             //inicializa o braço
         }
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             //executa o movimento do braço em loop
+            LLResult result = limelight.getLatestResult();
+            List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
+            for (LLResultTypes.FiducialResult fr : fiducialResults) fr.getFiducialId();
+
 
             return PIDs_state;
         }
     }
 
+    private Limelight3A limelight;
 
     int posicaoDesejada_Braco, posicaoDesejada_Slide;
 
     boolean PIDs_state;
 
-
     DcMotor leftBack, leftFront, rightBack, rightFront;
 
-    //Servo;
+    public int pattern[] = {0,0,0};
+    public int id_ap;
 
     DigitalChannel FimDeCurso;
 
@@ -68,8 +79,7 @@ public class Autonomo extends LinearOpMode {
         leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
         rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
         rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
-
-        // limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
 
 
 
@@ -77,9 +87,16 @@ public class Autonomo extends LinearOpMode {
         //--------Calcula Rotas e parametriza drivetrain---------------------
         Rotas();
         //------------------------------------------
+        LLResult result = limelight.getLatestResult();
+        List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
+
+        if (fiducialResults.get(0).getFiducialId() == 21 || fiducialResults.get(1).getFiducialId() == 21 || fiducialResults.get(2).getFiducialId() == 21) id_ap = 21;pattern[0] = 1;
+        if (fiducialResults.get(0).getFiducialId() == 22 || fiducialResults.get(1).getFiducialId() == 22 || fiducialResults.get(2).getFiducialId() == 22) id_ap =22; pattern[1] = 1;
+        if (fiducialResults.get(0).getFiducialId() == 23 || fiducialResults.get(1).getFiducialId() == 23 || fiducialResults.get(2).getFiducialId() == 23) id_ap = 23; pattern[2] = 1;
         waitForStart();
         PIDs_state = true;
         Actions.runBlocking(new ParallelAction(rota1,new PIDs()));
+
     }
 
     public void Rotas(){
