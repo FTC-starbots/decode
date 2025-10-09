@@ -4,6 +4,7 @@ import android.transition.Slide;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -21,6 +22,7 @@ import java.sql.Time;
 
 @Config
 @TeleOp
+@Disabled
 public class TeleOp_LIMELIGHT extends AprilTag {
 
     boolean Base_Motriz_State = false, Slide_Horizontal_State = false,
