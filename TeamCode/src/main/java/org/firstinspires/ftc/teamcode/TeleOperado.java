@@ -27,12 +27,12 @@ public class TeleOperado extends Autonomo{
 
     private Limelight3A limelight;
 
-    private DcMotor leftBack, leftFront, rightBack, rightFront, Intake, Atirador_1, Atirador_2;
+    private DcMotor leftBack, leftFront, rightBack, rightFront, Intake, Atirador_1, Atirador_2, Indexer;
 
     private Servo Reservoir_2, Reservoir_1, Reservoir_3;
 
 
-    int pulse_reset, posicao_desejada_slide_horizontal = 0, posicao_desejada_braco_outtake = 0;
+    int pulse_reset, posicao_desejada_indexer = 0;
 
     double  controle_rotacao, Speed, angulo_desejado, angulo_robo, vectorX, vectorY, correcao_angular;
 
@@ -55,7 +55,7 @@ public class TeleOperado extends Autonomo{
 
     double ErroMovX, ErroMovY,limelight_posX,limelight_posY,limelight_yaw, last_pose_X, last_pose_Y, goal_X, goal_Y = 70;
     ElapsedTime RotacaoRobo, Tempo_de_ciclo,
-           MASTER_TIMER;
+           MASTER_TIMER, timer_shooter;
 
 
 
@@ -69,6 +69,7 @@ public class TeleOperado extends Autonomo{
             rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
             rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
             Intake = hardwareMap.get(DcMotorEx.class,"Intake");
+            Indexer = hardwareMap.get(DcMotorEx.class,"Indexer");
             Atirador_1 =hardwareMap.get(DcMotorEx.class,"Atirador_1");
             Atirador_2 =hardwareMap.get(DcMotorEx.class,"Atirador_2");
             limelight = hardwareMap.get(Limelight3A.class, "limelight");
@@ -85,24 +86,28 @@ public class TeleOperado extends Autonomo{
             rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             Intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            Indexer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
             leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             Intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            Indexer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
             leftBack.setDirection(DcMotor.Direction.FORWARD);
             leftFront.setDirection(DcMotor.Direction.FORWARD);
             rightBack.setDirection(DcMotor.Direction.REVERSE);
             rightFront.setDirection(DcMotor.Direction.REVERSE);
             Intake.setDirection(DcMotorSimple.Direction.REVERSE);
+            Indexer.setDirection(DcMotor.Direction.REVERSE);
 
             leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             Intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            Indexer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             // Configuração dos motores adicionais
         }
@@ -111,7 +116,9 @@ public class TeleOperado extends Autonomo{
             RotacaoRobo = new ElapsedTime();
             Tempo_de_ciclo = new ElapsedTime();
             MASTER_TIMER = new ElapsedTime();
+            timer_shooter = new ElapsedTime();
 
+            timer_shooter.reset();
             RotacaoRobo.reset();
             Tempo_de_ciclo.reset();
 
@@ -119,7 +126,6 @@ public class TeleOperado extends Autonomo{
         pulse_reset = 1;
         Speed = 1;
         angulo_desejado = 0;
-        posicao_desejada_slide_horizontal = 0;
 
         ControlHub_VoltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
         boolean blue_alliance = true; //false = red
@@ -129,11 +135,6 @@ public class TeleOperado extends Autonomo{
             goal_X = 50;
         }
         // Aguardando o início da execução
-
-        if(auto.id_ap == 21) padrao[0] = 1;
-        else if(auto.id_ap == 22) padrao[1] = 1;
-        else if(auto.id_ap == 23) padrao[2] = 1;
-
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, -0,Math.toRadians(0)));
         limelight.start();
         limelight.pipelineSwitch(5);
@@ -156,7 +157,7 @@ public class TeleOperado extends Autonomo{
 
                     for (LLResultTypes.FiducialResult fr : fiducialResults) {
                         if (fr.getFiducialId() == 24 || fr.getFiducialId() == 20) {
-                            limelight_posY = result.getBotpose().getPosition().x * 35.3;
+                            limelight_posY = -result.getBotpose().getPosition().x * 35.3;
                             limelight_posX = result.getBotpose().getPosition().y * 35.3;
                             limelight_yaw = result.getBotpose().getOrientation().getYaw();
                             drive = new MecanumDrive(hardwareMap, new Pose2d(limelight_posX, limelight_posY, Math.toRadians(limelight_yaw)));
@@ -183,11 +184,8 @@ public class TeleOperado extends Autonomo{
                     ErroMovY = 0;
                 }
 
-                if (pose_atual.position.y > 35 && pose_atual.position.x > -20 && pose_atual.position.x < 20)
-                    zona_bloqueada = 0;
-                else zona_bloqueada = 1;
-
                 Base_Motriz();
+                Indexer();
 
                 if (gamepad1.options) {
                     angulo_robo = 0;
@@ -208,10 +206,10 @@ public class TeleOperado extends Autonomo{
                 controle_rotacao = 0.5;
 
                 //-----------------------------------------------------------------------------------------------
-                if ((gamepad1.left_bumper && pose_atual.position.y >= Math.abs(pose_atual.position.x)) || (gamepad1.left_bumper && pose_atual.position.y <= -Math.abs(pose_atual.position.x) - 40)){
+                if ((pose_atual.position.y >= Math.abs(pose_atual.position.x)) || ( pose_atual.position.y <= -Math.abs(pose_atual.position.x) - 40)){
                     areapermitida = true;
-                angulo_desejado = 180 - Math.toDegrees(alpha);
-            }else areapermitida =false;
+                if(gamepad1.left_bumper)angulo_desejado = 180 - Math.toDegrees(alpha);
+                 }else areapermitida =false;
 
                 if(gamepad1.cross) Intake.setPower(1);
                 else if (gamepad1.circle) Intake.setPower(-1);
@@ -227,12 +225,12 @@ public class TeleOperado extends Autonomo{
                     Atirador_2.setPower(0);
                 }
 //--------------------Reservatorios
-                if (gamepad1.dpad_up){
-                    Reservoir_2.setPosition(1);
+                if (gamepad1.dpadUpWasPressed()){
+                    if (0 < timer_shooter.seconds() && 0.5 >= timer_shooter.seconds()) posicao_desejada_indexer = 200;
+                    else if (0.5 < timer_shooter.seconds() && 1.5 >= timer_shooter.seconds()) Reservoir_2.setPosition(1);
+                    else if (1.5 < timer_shooter.seconds() && 2.5 >= timer_shooter.seconds()) Reservoir_2.setPosition(0);
                 }
-                else {
-                    Reservoir_2.setPosition(0);
-                }
+
 
                 if (gamepad1.dpad_right){
                     Reservoir_3.setPosition(1);
@@ -343,9 +341,24 @@ public class TeleOperado extends Autonomo{
 
     } // OK
 
+    private void Indexer(){
+        double potencia_indexer;
+        double erro = posicao_desejada_indexer - Indexer.getCurrentPosition();
+        double Kp = 0.01;
+        double Ki = 0.001;
+        double Ap = Kp * erro;
+        double Ai = 0;
+        Ai = Ai + Ki * erro;  // Acumulando o erro para o integral
+        potencia_indexer = Math.min(Math.max(-(Ap + Ai), -0.1), 0.1);
+
+        Indexer.setPower(potencia_indexer);
+    }
+
     private void Telemetria(){
 
         telemetry.addData("Área de lançamento", areapermitida);
+
+        telemetry.addData("posicao indexador", Indexer.getCurrentPosition());
 
         telemetry.addData("","");
 
