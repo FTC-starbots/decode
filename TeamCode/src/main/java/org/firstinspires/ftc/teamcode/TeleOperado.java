@@ -24,17 +24,18 @@ import java.util.List;
 public class TeleOperado extends Autonomo {
 
     boolean Movimento_robo = false, Base_Motriz_State = false;
+    boolean Iniciar_atirador = false, Corrigir_velocidade = false;
 
     private Limelight3A limelight;
 
-    private DcMotor leftBack, leftFront, rightBack, rightFront, Intake, Atirador_1, Atirador_2, Indexer;
+    private DcMotorEx leftBack, leftFront, rightBack, rightFront, Intake, Atirador_1, Atirador_2, Indexer;
 
     private Servo Reservoir_2, Reservoir_1, Reservoir_3;
 
 
     int pulse_reset, posicao_desejada_indexer = 0;
 
-    double controle_rotacao, Speed, angulo_desejado, angulo_robo, vectorX, vectorY, correcao_angular, potencia_desejada;
+    double controle_rotacao, Speed, angulo_desejado, angulo_robo, vectorX, vectorY, correcao_angular, velocidade_desejada = 0;
 
     int zona_bloqueada = 1;
 
@@ -84,6 +85,9 @@ public class TeleOperado extends Autonomo {
             rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             Intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             Indexer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            Atirador_1.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+            Atirador_2.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+
 
             leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -91,6 +95,8 @@ public class TeleOperado extends Autonomo {
             rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             Intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             Indexer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            Atirador_1.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+            Atirador_2.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
             leftBack.setDirection(DcMotor.Direction.FORWARD);
             leftFront.setDirection(DcMotor.Direction.FORWARD);
@@ -128,9 +134,9 @@ public class TeleOperado extends Autonomo {
         ControlHub_VoltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
         boolean blue_alliance = true; //false = red
         if (blue_alliance) {
-            goal_X = -60;
+            goal_X = -57;
         } else {
-            goal_X = 60;
+            goal_X = 57;
         }
         // Aguardando o início da execução
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, -0, Math.toRadians(0)));
@@ -204,38 +210,26 @@ public class TeleOperado extends Autonomo {
                 //-----------------------------------------------------------------------------------------------
                 if ((pose_atual.position.y >= Math.abs(pose_atual.position.x)) || (pose_atual.position.y <= -Math.abs(pose_atual.position.x) - 40)) {
                     areapermitida = true;
-                    if (gamepad1.left_bumper) angulo_desejado = 180 - Math.toDegrees(alpha);
-                } else areapermitida = false;
+                    if (gamepad1.left_bumper){
+                        angulo_desejado = 180 - Math.toDegrees(alpha);
 
+                    }
+                } else {
+                    areapermitida = false;
+
+                }
                 if (gamepad1.cross) Intake.setPower(1);
                 else if (gamepad1.circle) Intake.setPower(-1);
                 else Intake.setPower(0);
-
-                if (gamepad1.triangle) {
-                    potencia_desejada = 0.95;
-
-                } else {
-                    Atirador_1.setPower(0);
-                    Atirador_2.setPower(0);
-                }
 //--------------------Reservatorios
-                if (gamepad1.dpad_up) {
-                    timer_shooter.reset();
-                    Shoot();
-                }
+                if(gamepad1.triangle){
+                    velocidade_desejada = 1245; //Math.min(1650, Math.max((1550 * hip/139), 1350));
+                }else velocidade_desejada = 0;
 
-
-                if (gamepad1.dpad_right) {
+                if(gamepad1.dpad_up){
                     Reservoir_2.setPosition(1);
-                } else {
-                    Reservoir_2.setPosition(0);
-                }
+                }else Reservoir_2.setPosition(0);
 
-                if (gamepad1.dpad_left) {
-                    posicao_desejada_indexer = 0;
-                } else {
-                    Reservoir_1.setPosition(0);
-                }
 //-----------------------------------------
 
                 Telemetria();
@@ -345,25 +339,23 @@ public class TeleOperado extends Autonomo {
     }
 
     private void Shooting_Vel() {
-        double potencia_atirar;
-        double erro = potencia_desejada - Indexer.getPower();
-        double Kp = 4;
-        double Ki = 0.001;
+        double power_correction;
+        double erro = velocidade_desejada + Atirador_1.getVelocity();
+        double Kp = 0.025;
+      //  double Ki = 0.001;
         double Ap = Kp * erro;
-        double Ai = 0;
-        Ai = Ai + Ki * erro;  // Acumulando o erro para o integral
-        potencia_atirar= Math.min(Math.max((Ap + Ai), -1), 1);
-
-        Indexer.setPower(potencia_atirar);
+        //double Ai = 0;
+       // Ai = Ai + Ki * erro;  // Acumulando o erro para o integral
+        power_correction = Ap;
+                //Math.min(Math.max((Ap + Ai), -1), 1);
+        if (velocidade_desejada == 0 ) Atirador_1.setPower(0);
+        else Atirador_1.setPower(1 + power_correction );
+        Atirador_2.setPower(-Atirador_1.getPower());
     }
 
     private void Shoot() {
-        if (0 < timer_shooter.seconds() && 0.5 >= timer_shooter.seconds()) {
-            posicao_desejada_indexer = 200;
-            Reservoir_2.setPosition(1);
-    }else if(4 < timer_shooter.seconds() && 5 >=timer_shooter.seconds()){
-            Reservoir_2.setPosition(0);
-        }
+
+
     }
 
     private void Telemetria(){
@@ -373,6 +365,15 @@ public class TeleOperado extends Autonomo {
         telemetry.addData("posicao indexador", Indexer.getCurrentPosition());
         telemetry.addData("potencia indexador", Indexer.getPower());
         telemetry.addData("posicao desejada", posicao_desejada_indexer);
+
+        telemetry.addData("Atirador1_vel", Atirador_1.getVelocity());
+        telemetry.addData("Atirador1_power", Atirador_1.getPower());
+        telemetry.addData("Atirador1_powdesejada",velocidade_desejada);
+
+        telemetry.addData("Corrigir_velocidade", Corrigir_velocidade);
+        telemetry.addData("Iniciar_atirador", Iniciar_atirador);
+
+
 
 
         telemetry.addData("","");
