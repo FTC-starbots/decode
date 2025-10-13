@@ -17,6 +17,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+
 import java.util.List;
 
 @Config
@@ -24,7 +25,7 @@ import java.util.List;
 public class TeleOperado extends Autonomo {
 
     boolean Movimento_robo = false, Base_Motriz_State = false, Shoot = false;
-    boolean Iniciar_atirador = false, Corrigir_velocidade = false, detecting_ap = false;
+    boolean Iniciar_atirador = false, Corrigir_velocidade = false, detecting_ap = false, goal_ap = false;
 
     private Limelight3A limelight;
 
@@ -34,10 +35,10 @@ public class TeleOperado extends Autonomo {
 
     private RevBlinkinLedDriver Led_Strip;
 
-
+    private VoltageSensor myControlHubVoltageSensor;
     int posicao_desejada_indexer = 0, reservatorio = 0;
 
-    double controle_rotacao, Speed, angulo_desejado, angulo_robo, vectorX, vectorY, correcao_angular, velocidade_desejada = 0;
+    double controle_rotacao, Speed, angulo_desejado, angulo_robo, vectorX, vectorY, correcao_angular, velocidade_desejada = 0, kf_atirar,kp_atirar, alpha;
 
     boolean areapermitida;
 
@@ -47,20 +48,30 @@ public class TeleOperado extends Autonomo {
     double T_min = 1000;
     double T_atual = 0;
 
+    //variáveis dos controladores PiDF____________________________
+    double integral_PiDF_Correcao_Angular = 0;
+    double lasterror_PiDF_Correcao_Angular = 0;
+
+    //____________________________________________________________
+
+    double cicle_time = 0;
+
     Pose2d pose_atual;
 
     Autonomo auto = new Autonomo();
 
 
-    double CorrTx,TxOffset, ErroMovX, ErroMovY, limelight_posX, limelight_posY, limelight_yaw, last_pose_X, last_pose_Y, goal_X, goal_Y = 56, Ai_shoot = 0, hip;
+    double CorrTx,TxOffset, ErroMovX, ErroMovY, limelight_posX, limelight_posY, limelight_yaw, last_pose_X, last_pose_Y, goal_X, goal_Y = 58, Ai_shoot = 0, hip;
     ElapsedTime RotacaoRobo, Tempo_de_ciclo,
-            MASTER_TIMER, timer_shooter;
+            MASTER_TIMER, timer_shooter, deltaTime;
 
 
     @Override
     public void runOpMode() throws InterruptedException {
         // Mapeamento dos sensores e motores
         {
+            myControlHubVoltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
+
 
             leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
             leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
@@ -117,15 +128,16 @@ public class TeleOperado extends Autonomo {
         }
         // Inicialização dos temporizadores
         {
-            RotacaoRobo = new ElapsedTime();
-            Tempo_de_ciclo = new ElapsedTime();
-            MASTER_TIMER = new ElapsedTime();
-            timer_shooter = new ElapsedTime();
+            RotacaoRobo     = new ElapsedTime();
+            Tempo_de_ciclo  = new ElapsedTime();
+            MASTER_TIMER    = new ElapsedTime();
+            timer_shooter   = new ElapsedTime();
+            deltaTime       = new ElapsedTime();
 
-            timer_shooter.reset();
-            RotacaoRobo.reset();
-            Tempo_de_ciclo.reset();
-
+            timer_shooter   .reset();
+            RotacaoRobo     .reset();
+            Tempo_de_ciclo  .reset();
+            deltaTime       .reset();
         }
         Speed = 1;
         angulo_desejado = 0;
@@ -134,9 +146,9 @@ public class TeleOperado extends Autonomo {
         ControlHub_VoltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
         boolean blue_alliance = true; //false = red
         if (blue_alliance) {
-            goal_X = -45;
+            goal_X = -58;
         } else {
-            goal_X = 45;
+            goal_X = 58;
         }
         // Aguardando o início da execução
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, Math.toRadians(180)));
@@ -149,6 +161,9 @@ public class TeleOperado extends Autonomo {
 
         // Execução principal do OpMode
         if (opModeIsActive()) {
+
+            cicle_time = deltaTime.milliseconds();
+            deltaTime.reset();
             angulo_desejado = 0;
             while (opModeIsActive()) {
                 LLResult result = limelight.getLatestResult();
@@ -162,10 +177,11 @@ public class TeleOperado extends Autonomo {
                     for (LLResultTypes.FiducialResult fr : fiducialResults) {
                         TxOffset = fr.getTargetXDegrees();
                         if (fr.getFiducialId() == 24 || fr.getFiducialId() == 20) {
+                            goal_ap = true;
                             limelight_posY = -result.getBotpose().getPosition().x * 35.3;
                             limelight_posX = result.getBotpose().getPosition().y * 35.3;
                             limelight_yaw = result.getBotpose().getOrientation().getYaw();
-                            drive = new MecanumDrive(hardwareMap, new Pose2d(limelight_posX, limelight_posY, Math.toRadians(limelight_yaw)));
+                            drive = new MecanumDrive(hardwareMap, new Pose2d(limelight_posX, limelight_posY, Math.toRadians(angulo_robo)));
 
                         }
                     }
@@ -206,17 +222,22 @@ public class TeleOperado extends Autonomo {
                 double cateto_b = goal_Y - pose_atual.position.y;
                 hip = Math.sqrt(Math.pow(cateto_a, 2) + Math.pow(cateto_b, 2));
 
-                double alpha = Math.acos(cateto_a / hip);
+                alpha = Math.acos(cateto_a / hip);
                 //_______________________________________________________________________________
                 controle_rotacao = 0.5;
                 //-----------------------------------------------------------------------------------------------
                 if ((pose_atual.position.y >= Math.abs(pose_atual.position.x)) || (pose_atual.position.y <= -Math.abs(pose_atual.position.x) - 40)) {
                     areapermitida = true;
                     if (gamepad1.triangle){
-                        CorrTx = Math.min(Math.max(-TxOffset/10, 0.5),-0.5);
-                        angulo_desejado = 360 - Math.toDegrees(alpha) - 2 * (reservatorio - 2);
+                        kf_atirar = -(ControlHub_VoltageSensor.getVoltage() - 13) / 2.5;
+                        kp_atirar= -(ControlHub_VoltageSensor.getVoltage() - 13) / 500;
+
+                        //CorrTx = Math.min(Math.max(-TxOffset/10, 0.5),-0.5);
+                        angulo_desejado = Math.toDegrees(alpha)  - 1.5 * (reservatorio - 2);
                         velocidade_desejada = 887.87 + 4.365 * hip;
                     }else{
+                        kf_atirar = 0;
+                        kp_atirar = 0;
                         CorrTx = 0;
                         velocidade_desejada = 0;
                     }
@@ -278,9 +299,30 @@ public class TeleOperado extends Autonomo {
     }
 
     //-------FUNÇÕES DE MOVIMENTO-----------------------------------------------------------------------------------------
+    private double PiDF_Correcao_Angular(double erro, double kp, double ki, double kd, double kf, double min, double max){
 
+        double BatVoltage = myControlHubVoltageSensor.getVoltage();
+        double feedfoward = kf * (13-BatVoltage);
+        double integrativo = ki * (erro * cicle_time);
+        double derivativo = kd * ((erro - lasterror_PiDF_Correcao_Angular) / cicle_time);
+        double proporcional = kp * erro;
+
+        integral_PiDF_Correcao_Angular += integrativo;
+        lasterror_PiDF_Correcao_Angular = erro;
+
+        if (Math.abs(erro)<0.005) integral_PiDF_Correcao_Angular = 0;
+        if (integral_PiDF_Correcao_Angular>0.2) integral_PiDF_Correcao_Angular=0.2;
+        else if (integral_PiDF_Correcao_Angular<-0.2) integral_PiDF_Correcao_Angular=-0.2;
+
+        double output = proporcional + integral_PiDF_Correcao_Angular + derivativo + feedfoward;
+
+        if ( output > max) output = max;
+        else if (output < min) output = min;
+
+        return output;
+
+    }
     private void Base_Motriz() {
-
         angulo_robo = ((rightFront.getCurrentPosition() - leftBack.getCurrentPosition()) / 370.0) % 360;
 
         double divisorX = 5 + 10 * Math.max(0, 1.0 - (Math.abs(ErroMovX) / 4.0));
@@ -292,18 +334,18 @@ public class TeleOperado extends Autonomo {
         vectorY = ((-Math.sin(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_x/*+ (ErroMovY/divisorY)*/))
                 + Math.cos(-angulo_robo / 180 * Math.PI) * (-gamepad1.left_stick_y /*+(-ErroMovX/divisorX)*/));
 
-        leftBack.setPower((vectorY * 1 + vectorX * -1) * Speed + ((gamepad1.right_trigger - gamepad1.left_trigger) + correcao_angular + CorrTx));
-        leftFront.setPower((vectorY * 1 + vectorX * 1) * Speed + ((gamepad1.right_trigger - gamepad1.left_trigger) + correcao_angular + CorrTx));
-        rightBack.setPower((vectorY * 1 + vectorX * 1) * Speed - ((gamepad1.right_trigger - gamepad1.left_trigger) + correcao_angular + CorrTx));
-        rightFront.setPower((vectorY * 1 + vectorX * -1) * Speed - ((gamepad1.right_trigger - gamepad1.left_trigger) + correcao_angular + CorrTx));
-
+        leftBack.setPower((vectorY * 1 + vectorX * -1) * Speed + ((gamepad1.right_trigger - gamepad1.left_trigger) + correcao_angular));
+        leftFront.setPower((vectorY * 1 + vectorX * 1) * Speed + ((gamepad1.right_trigger - gamepad1.left_trigger) + correcao_angular));
+        rightBack.setPower((vectorY * 1 + vectorX * 1) * Speed - ((gamepad1.right_trigger - gamepad1.left_trigger) + correcao_angular));
+        rightFront.setPower((vectorY * 1 + vectorX * -1) * Speed - ((gamepad1.right_trigger - gamepad1.left_trigger) + correcao_angular));
+        int rotate;
         if (RotacaoRobo.seconds() < 1) {
             correcao_angular = 0;
             angulo_desejado = angulo_robo;
             last_pose_X = pose_atual.position.x;
             last_pose_Y = pose_atual.position.y;
         } else {
-            int rotate;
+
             if (angulo_robo >= 0) {
                 rotate = 360;
             } else {
@@ -312,27 +354,13 @@ public class TeleOperado extends Autonomo {
 
             double corr_1 = angulo_robo - angulo_desejado;
             double corr_2 = angulo_desejado + rotate - angulo_robo;
-
-            // double div_corr1 = 0.003+ 0.0001 * Math.max(0, 1.0 - (Math.abs(corr_1) / 10));
-            // double div_corr2 = 0.003 + 0.0001 * Math.max(0, 1.0 - (Math.abs(corr_2) / 10 + rotate));
-
-            double erroAcumulado = 0;
-            erroAcumulado += (Math.abs(corr_1) < Math.abs(corr_2) ? corr_1 : corr_2);
-
-            erroAcumulado = (Math.abs(erroAcumulado) > 10 ? 0 : Math.max(Math.min(erroAcumulado, 10), -10));
-
-            double Ki = 0.0005;
-
-            double correcaoI = erroAcumulado * Ki;
-            double Kp = 0.013;
             double correcaoP;
 
-            if (Math.abs(corr_1) > Math.abs(corr_2)) {
-                correcaoP = corr_2 * Kp;
-            } else {
-                correcaoP = -corr_1 * Kp;
-            }
-            correcao_angular = Math.min(Math.max(correcaoP + correcaoI, -0.7), 0.7);
+            if (Math.abs(corr_1) > Math.abs(corr_2)) correcaoP =  corr_2;
+            else                                     correcaoP = -corr_1;
+
+            correcao_angular = PiDF_Correcao_Angular(correcaoP, 0.0135 + kp_atirar,0.000011, -0.001, 0.1 + kf_atirar,-0.7,0.7);
+
         }
 
 
@@ -425,6 +453,9 @@ public class TeleOperado extends Autonomo {
         telemetry.addData("potencia indexador", Indexer.getPower());
         telemetry.addData("posicao desejada", posicao_desejada_indexer);
         telemetry.addData("hipotenusa", hip);
+        telemetry.addData("hipotenusa", Math.toDegrees(alpha));
+
+
 
         telemetry.addData("","");
 
@@ -488,6 +519,7 @@ public class TeleOperado extends Autonomo {
         telemetry.addData("Ângulo Robô", angulo_robo);
         telemetry.addData("Ângulo Lime", limelight_yaw);
         telemetry.addData("Ângulo Desejado", angulo_desejado);
+        telemetry.addData("erro angulo", angulo_desejado-angulo_robo);
         telemetry.addData("X", vectorX);
         telemetry.addData("Y", vectorY);
         telemetry.addData("", "");
