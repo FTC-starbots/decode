@@ -385,7 +385,7 @@ public class TeleOperado extends Autonomo {
         } else {
             // Ajustando a velocidade com base na correção angular
             Speed = 1.2 - Math.abs(correcao_angular) - (ControlHub_VoltageSensor.getVoltage() - 11) / 10;
-
+//
         }
 
         // Reduzindo a velocidade caso o motor `slide_vertical_e` ultrapasse uma posição
