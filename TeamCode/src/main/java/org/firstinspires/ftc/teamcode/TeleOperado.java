@@ -36,9 +36,9 @@ public class TeleOperado extends Autonomo {
     private RevBlinkinLedDriver Led_Strip;
 
     private VoltageSensor myControlHubVoltageSensor;
-    int posicao_desejada_indexer = 0, reservatorio = 0;
+    int posicao_desejada_indexer = 0, reservatorio = 0, reservatorio_1, reservatorio_2, reservatorio_3;
 
-    double controle_rotacao, Speed, angulo_desejado, angulo_robo, vectorX, vectorY, correcao_angular, velocidade_desejada = 0, kf_atirar,kp_atirar, alpha;
+    double controle_rotacao, Speed, angulo_desejado, angulo_robo, vectorX, vectorY, correcao_angular, velocidade_desejada = 0, kf_atirar,kp_atirar, alpha, kp_ap, ki_ap;
 
     boolean areapermitida;
 
@@ -175,17 +175,21 @@ public class TeleOperado extends Autonomo {
                 if (limelight.getLatestResult().isValid()) {
                     detecting_ap = true;
                     for (LLResultTypes.FiducialResult fr : fiducialResults) {
-                        TxOffset = fr.getTargetXDegrees();
-                        if (fr.getFiducialId() == 24 || fr.getFiducialId() == 20) {
+
+                        if ((limelight.getLatestResult().isValid()) && (fr.getFiducialId() == 24 || fr.getFiducialId() == 20)){
+                            TxOffset = fr.getTargetXPixels();
                             goal_ap = true;
                             limelight_posY = -result.getBotpose().getPosition().x * 35.3;
                             limelight_posX = result.getBotpose().getPosition().y * 35.3;
-                            limelight_yaw = result.getBotpose().getOrientation().getYaw();
-                            drive = new MecanumDrive(hardwareMap, new Pose2d(limelight_posX, limelight_posY, Math.toRadians(angulo_robo)));
-
+                            limelight_yaw = -result.getBotpose().getOrientation().getYaw() + 180;
+                            drive = new MecanumDrive(hardwareMap, new Pose2d(limelight_posX, limelight_posY, Math.toRadians(limelight_yaw)));
                         }
+                        else goal_ap =false;
                     }
-                }else detecting_ap = false;
+                }else{
+                    TxOffset = 0;
+                    detecting_ap = false;
+                }
                 drive.updatePoseEstimate();
 
                 pose_atual = drive.localizer.getPose();
@@ -222,18 +226,14 @@ public class TeleOperado extends Autonomo {
                 double cateto_b = goal_Y - pose_atual.position.y;
                 hip = Math.sqrt(Math.pow(cateto_a, 2) + Math.pow(cateto_b, 2));
 
-                alpha = Math.acos(cateto_a / hip);
+                alpha =  Math.toDegrees(Math.atan2(-cateto_b , cateto_a));
                 //_______________________________________________________________________________
                 controle_rotacao = 0.5;
                 //-----------------------------------------------------------------------------------------------
                 if ((pose_atual.position.y >= Math.abs(pose_atual.position.x)) || (pose_atual.position.y <= -Math.abs(pose_atual.position.x) - 40)) {
                     areapermitida = true;
                     if (gamepad1.triangle){
-                        kf_atirar = -(ControlHub_VoltageSensor.getVoltage() - 13) / 2.5;
-                        kp_atirar= -(ControlHub_VoltageSensor.getVoltage() - 13) / 500;
-
-                        //CorrTx = Math.min(Math.max(-TxOffset/10, 0.5),-0.5);
-                        angulo_desejado = Math.toDegrees(alpha)  - 1.5 * (reservatorio - 2);
+                        angulo_desejado = alpha ;// - 1.5 * (reservatorio - 2);
                         velocidade_desejada = 887.87 + 4.365 * hip;
                     }else{
                         kf_atirar = 0;
@@ -283,13 +283,6 @@ public class TeleOperado extends Autonomo {
                     else Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
                 }
 
-                if (Shoot)Shoot();
-                else{
-                    Reservoir_1.setPosition(0);
-                    Reservoir_2.setPosition(0);
-                    Reservoir_3.setPosition(0);
-                }
-
 //-----------------------------------------
 
                 Telemetria();
@@ -310,9 +303,9 @@ public class TeleOperado extends Autonomo {
         integral_PiDF_Correcao_Angular += integrativo;
         lasterror_PiDF_Correcao_Angular = erro;
 
-        if (Math.abs(erro)<0.005) integral_PiDF_Correcao_Angular = 0;
-        if (integral_PiDF_Correcao_Angular>0.2) integral_PiDF_Correcao_Angular=0.2;
-        else if (integral_PiDF_Correcao_Angular<-0.2) integral_PiDF_Correcao_Angular=-0.2;
+        if (Math.abs(erro)<0.05) integral_PiDF_Correcao_Angular = 0;
+        if (integral_PiDF_Correcao_Angular>0.15) integral_PiDF_Correcao_Angular=0.15;
+        else if (integral_PiDF_Correcao_Angular<-0.15) integral_PiDF_Correcao_Angular=-0.15;
 
         double output = proporcional + integral_PiDF_Correcao_Angular + derivativo + feedfoward;
 
@@ -323,7 +316,7 @@ public class TeleOperado extends Autonomo {
 
     }
     private void Base_Motriz() {
-        angulo_robo = ((rightFront.getCurrentPosition() - leftBack.getCurrentPosition()) / 370.0) % 360;
+        angulo_robo = (((rightFront.getCurrentPosition() - leftBack.getCurrentPosition()) / 370.0) % 360);
 
         double divisorX = 5 + 10 * Math.max(0, 1.0 - (Math.abs(ErroMovX) / 4.0));
         double divisorY = 5 + 10 * Math.max(0, 1.0 - (Math.abs(ErroMovY) / 4.0));
@@ -355,11 +348,21 @@ public class TeleOperado extends Autonomo {
             double corr_1 = angulo_robo - angulo_desejado;
             double corr_2 = angulo_desejado + rotate - angulo_robo;
             double correcaoP;
+            if (goal_ap && gamepad1.triangle){
+                kp_ap = 0.04;
+                ki_ap = 0.1;
+                correcaoP = TxOffset/850;
+            }else {
+                kp_ap = 0;
+                ki_ap = 0;
+                if (Math.abs(corr_1) > Math.abs(corr_2)) correcaoP = corr_2;
+                else correcaoP = -corr_1;
+            }
 
-            if (Math.abs(corr_1) > Math.abs(corr_2)) correcaoP =  corr_2;
-            else                                     correcaoP = -corr_1;
+            //if (Math.abs(corr_1) > Math.abs(corr_2)) correcaoP = corr_2;
+            //else correcaoP = -corr_1;
 
-            correcao_angular = PiDF_Correcao_Angular(correcaoP, 0.0135 + kp_atirar,0.000011, -0.001, 0.1 + kf_atirar,-0.7,0.7);
+            correcao_angular = PiDF_Correcao_Angular(correcaoP, 0.0135 + kp_atirar + kp_ap,0.000011 + ki_ap, -0.001, 0.1 + kf_atirar,-0.7,0.7);
 
         }
 
@@ -420,8 +423,8 @@ public class TeleOperado extends Autonomo {
         Atirador_2.setPower(-Atirador_1.getPower());
     }
 
-    private void Shoot() {
-
+    private void Shoot_single(int reserv) {
+        reservatorio = reserv;
         if (0 < timer_shooter.seconds() && 0.9 >= timer_shooter.seconds()){
             if(reservatorio == 1)  posicao_desejada_indexer= 0;
             if(reservatorio == 2)  posicao_desejada_indexer= 210;
@@ -443,6 +446,32 @@ public class TeleOperado extends Autonomo {
 
     }
 
+    private void Shoot(int padrao){
+        //posições individuais--------------------------------
+        // Esquerda
+        if (padrao == 1) Shoot_single(1);
+        //Meio
+        if (padrao == 2) Shoot_single(2);
+        //Direita
+        if (padrao == 3) Shoot_single(3);
+        //verde mais próxima -------------------------------
+        if (padrao == 3);
+
+
+        //roxa mais próxima --------------------------------
+        if (padrao == 4);
+        //todas o mais rapido
+        if (padrao == 5){
+
+
+        };
+    }
+
+    private void SensorCor(){
+
+
+
+    }
     private void Telemetria(){
 
         telemetry.addData("Área de lançamento", areapermitida);
@@ -453,7 +482,7 @@ public class TeleOperado extends Autonomo {
         telemetry.addData("potencia indexador", Indexer.getPower());
         telemetry.addData("posicao desejada", posicao_desejada_indexer);
         telemetry.addData("hipotenusa", hip);
-        telemetry.addData("hipotenusa", Math.toDegrees(alpha));
+        telemetry.addData("alpha", alpha);
 
 
 
@@ -519,6 +548,7 @@ public class TeleOperado extends Autonomo {
         telemetry.addData("Ângulo Robô", angulo_robo);
         telemetry.addData("Ângulo Lime", limelight_yaw);
         telemetry.addData("Ângulo Desejado", angulo_desejado);
+        telemetry.addData("Correç~caoa Angularo", correcao_angular);
         telemetry.addData("erro angulo", angulo_desejado-angulo_robo);
         telemetry.addData("X", vectorX);
         telemetry.addData("Y", vectorY);
