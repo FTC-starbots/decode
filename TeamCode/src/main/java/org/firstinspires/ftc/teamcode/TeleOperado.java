@@ -339,7 +339,7 @@ public class TeleOperado extends Autonomo {
 
     }
 
-    private double PiDF_Vel(double erro, double kp, double ki, double kd, double kf, double min, double max){
+    public double PiDF_Vel(double erro, double kp, double ki, double kd, double kf, double min, double max){
 
         double BatVoltage = myControlHubVoltageSensor.getVoltage();
         double feedfoward = 1 + (kf * (12.5-BatVoltage));
@@ -479,19 +479,15 @@ public class TeleOperado extends Autonomo {
         double potencia_indexer;
         double erro = posicao_desejada_indexer - Indexer.getCurrentPosition();
         // Acumulando o erro para o integral
-        potencia_indexer =  PiDF_Vel(erro,0.005,0.015,0,0.15,-0.6,0.6);
+        potencia_indexer =  PiDF_Vel(erro,0.0085,0.0005,0,0.15,-0.6,0.6);
         Indexer.setPower(potencia_indexer);
     }
 
     private void Shooting_Vel() {
         double power_correction;
         double erro = velocidade_desejada + Atirador_1.getVelocity();
-        double Kp = 0.01;
-        double Ki = 0.01;
-        double Ap = Kp * erro;
+        power_correction =  PiDF_Vel(erro,0.005,0.015,0,0.15,-1,1);
 
-        Ai_shoot = Ai_shoot + Ki * erro;  // Acumulando o erro para o integral
-        power_correction = Ap;
 
         if (velocidade_desejada == 0 ) Atirador_1.setPower(0);
         else Atirador_1.setPower(1 + power_correction );
