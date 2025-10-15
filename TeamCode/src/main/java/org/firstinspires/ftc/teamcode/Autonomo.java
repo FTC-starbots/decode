@@ -14,6 +14,7 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -21,6 +22,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.List;
 
@@ -30,11 +33,12 @@ import java.util.List;
 
 public class Autonomo extends LinearOpMode {
 
-    public class PIDs implements Action{
-        public PIDs(){
+    public class PIDs implements Action {
+        public PIDs() {
 
             //inicializa o braço
         }
+
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             //executa o movimento do braço em loop
@@ -47,18 +51,27 @@ public class Autonomo extends LinearOpMode {
         }
     }
 
+
     private Limelight3A limelight;
 
-    int posicaoDesejada_Braco, posicaoDesejada_Slide;
+    private DcMotorEx leftBack, leftFront, rightBack, rightFront, Intake, Atirador_1, Atirador_2, Indexer;
+
+    private Servo Reservoir_2, Reservoir_1, Reservoir_3;
+
+    private RevBlinkinLedDriver Led_Strip;
+
+    int posicao_desejada_indexer = 0, reservatorio = 0;
+
+
+    private VoltageSensor ControlHub_VoltageSensor;
 
     boolean PIDs_state;
 
-    DcMotor leftBack, leftFront, rightBack, rightFront;
-
-    public int pattern[] = {0,0,0};
     public int id_ap;
 
-    DigitalChannel FimDeCurso;
+    ElapsedTime  timer_shooter;
+
+
 
     private Action rota1;
     private Action rota2;
@@ -79,27 +92,29 @@ public class Autonomo extends LinearOpMode {
         leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
         rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
         rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
+        Intake = hardwareMap.get(DcMotorEx.class, "Intake");
+        Indexer = hardwareMap.get(DcMotorEx.class, "Indexer");
+        Atirador_1 = hardwareMap.get(DcMotorEx.class, "Atirador_1");
+        Atirador_2 = hardwareMap.get(DcMotorEx.class, "Atirador_2");
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        Reservoir_2 = hardwareMap.get(Servo.class, "Reservoir_2");
+        Reservoir_1 = hardwareMap.get(Servo.class, "Reservoir_1");
+        Reservoir_3 = hardwareMap.get(Servo.class, "Reservoir_3");
+        Led_Strip = hardwareMap.get(RevBlinkinLedDriver.class, "Led_Strip");
 
-
-
+        timer_shooter   = new ElapsedTime();
+        timer_shooter.reset();
 
         //--------Calcula Rotas e parametriza drivetrain---------------------
         Rotas();
         //------------------------------------------
-        LLResult result = limelight.getLatestResult();
-        List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
-
-        if (fiducialResults.get(0).getFiducialId() == 21 || fiducialResults.get(1).getFiducialId() == 21 || fiducialResults.get(2).getFiducialId() == 21) id_ap = 21;pattern[0] = 1;
-        if (fiducialResults.get(0).getFiducialId() == 22 || fiducialResults.get(1).getFiducialId() == 22 || fiducialResults.get(2).getFiducialId() == 22) id_ap =22; pattern[1] = 1;
-        if (fiducialResults.get(0).getFiducialId() == 23 || fiducialResults.get(1).getFiducialId() == 23 || fiducialResults.get(2).getFiducialId() == 23) id_ap = 23; pattern[2] = 1;
         waitForStart();
         PIDs_state = true;
-        Actions.runBlocking(new ParallelAction(rota1,new PIDs()));
+        Actions.runBlocking(new ParallelAction(rota1, new PIDs()));
 
     }
 
-    public void Rotas(){
+    public void Rotas() {
 
         MecanumDrive.PARAMS.axialGain = 7.5;
         MecanumDrive.PARAMS.lateralGain = 40;
@@ -107,18 +122,54 @@ public class Autonomo extends LinearOpMode {
         MecanumDrive.PARAMS.maxWheelVel = 35;
 
 
-        drive = new MecanumDrive(hardwareMap, new Pose2d(0, -65,
-                Math.toRadians(90)));
+        drive = new MecanumDrive(hardwareMap, new Pose2d(35, -45,
+                Math.toRadians(180)));
 
-        rota1 = drive.actionBuilder(new Pose2d(0, -65, Math.toRadians(90)))
+        rota1 = drive.actionBuilder(new Pose2d(-35, -45, Math.toRadians(180)))
 
-                .strafeTo(new Vector2d(32.5, -39))
+                .strafeToLinearHeading(new Vector2d(30, -40), Math.toRadians(90))
+                .afterTime(0, () -> {
+                    LLResult result = limelight.getLatestResult();
+                    List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
 
-                .strafeTo(new Vector2d(-0, 20))
+                    if (fiducialResults.get(0).getFiducialId() == 21 || fiducialResults.get(1).getFiducialId() == 21 || fiducialResults.get(2).getFiducialId() == 21)
+                        id_ap = 21;
+                    if (fiducialResults.get(0).getFiducialId() == 22 || fiducialResults.get(1).getFiducialId() == 22 || fiducialResults.get(2).getFiducialId() == 22)
+                        id_ap = 22;
+                    if (fiducialResults.get(0).getFiducialId() == 23 || fiducialResults.get(1).getFiducialId() == 23 || fiducialResults.get(2).getFiducialId() == 23)
+                        id_ap = 23;
+
+                })
+                .strafeTo(new Vector2d(30, -10))
 
                 .strafeTo(new Vector2d(-32.5, -35))
 
                 .build();
+    }
+
+    private void Shoot_single() {
+
+        if (0 < timer_shooter.seconds() && 0.9 >= timer_shooter.seconds()){
+            if(reservatorio == 1)  posicao_desejada_indexer= 0;
+            if(reservatorio == 2)  posicao_desejada_indexer= 210;
+            if(reservatorio == 3)  posicao_desejada_indexer= 440;
+
+        }else if (0.9 < timer_shooter.seconds() && 1.7 >= timer_shooter.seconds()){
+
+            if(reservatorio == 1)Reservoir_1.setPosition(1);
+            if(reservatorio == 2) Reservoir_2.setPosition(1);
+            if(reservatorio == 3)Reservoir_3.setPosition(1);
+
+        }else if (1.7 < timer_shooter.seconds() && 1.8 >= timer_shooter.seconds()){
+            if(reservatorio == 1)Reservoir_1.setPosition(0);
+            if(reservatorio == 2) Reservoir_2.setPosition(0);
+            if(reservatorio == 3)Reservoir_3.setPosition(0);
+        }else if (1.8 < timer_shooter.seconds() && 1.9 >= timer_shooter.seconds()){
+            Shoot = false;
+        }
+
+    }
+}
 
         /*//clipa o segundo clipe
         rota4 = drive.actionBuilder(new Pose2d(37, -70.5, Math.toRadians(90)))
@@ -242,5 +293,5 @@ public class Autonomo extends LinearOpMode {
                     PIDs_state = false;
                 })
                 .build();*/
-    }
-}
+
+
