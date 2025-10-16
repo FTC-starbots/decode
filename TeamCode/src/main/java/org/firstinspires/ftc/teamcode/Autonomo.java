@@ -48,14 +48,41 @@ public class Autonomo extends LinearOpMode {
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             //executa o movimento do braço em loop
             Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
-            Atirador_1.setPower(0.01);
+
+            double erro_speed = velocidade_desejada + Atirador_1.getVelocity();
+            double speedsome = 0;
+
+            media_speed[0] = erro_speed;
+
+            for(int x=19;x>0;x--) media_speed[x] = media_speed[x-1];
+
+            for(int x = 19 ; x<20 ; x++) speedsome =+ media_speed[x];
+
+            erro_speed = speedsome/20;
+
+
+            double potencia_atirador = erro_speed/1000;
+
+            Atirador_1.setPower(potencia_atirador);
             Atirador_2.setPower(-Atirador_1.getPower());
+
+
+
+
 
 
             double erro = posicao_desejada_indexer - Indexer.getCurrentPosition();
             // Acumulando o erro para o integral
             potencia_indexer =  erro * 0.005;
             Indexer.setPower(potencia_indexer);
+
+            telemetry.addData("Velocidade atirador", Atirador_1.getVelocity());
+            telemetry.addData("erro speed", erro_speed);
+            telemetry.addData("potencia atirador", potencia_atirador);
+
+
+            // Atualiza os dados na tela*/
+            telemetry.update();
 
             return PIDs_state;
         }
@@ -70,6 +97,7 @@ public class Autonomo extends LinearOpMode {
 
     double power_correction;
     double potencia_indexer;
+    double[] media_speed = new double[20];
     private VoltageSensor ControlHub_VoltageSensor;
 
 
@@ -97,7 +125,7 @@ public class Autonomo extends LinearOpMode {
 
     ElapsedTime  timer_shooter;
 
-public double velocidade_desejada = 1280, Ai_shoot;
+public double velocidade_desejada = 1380, Ai_shoot;
 
     private Action rota1;
     private Action rota2;
@@ -208,7 +236,7 @@ public double velocidade_desejada = 1280, Ai_shoot;
 
         Actions.runBlocking(rota2);
 
-        velocidade_desejada = 1280;
+        velocidade_desejada = 1340;
 
         PIDs_state = true;
         Actions.runBlocking(new ParallelAction(rota3, new PIDs()));
@@ -223,23 +251,23 @@ public double velocidade_desejada = 1280, Ai_shoot;
         MecanumDrive.PARAMS.maxWheelVel = 50;
 
 
-        drive = new MecanumDrive(hardwareMap, new Pose2d(-52, -45,
-                Math.toRadians(180)));
+        drive = new MecanumDrive(hardwareMap, new Pose2d(10, 55,
+                Math.toRadians(90)));
 
-        rota1 = drive.actionBuilder(new Pose2d(-52, -45, Math.toRadians(180)))
+        rota1 = drive.actionBuilder(new Pose2d(10, 55, Math.toRadians(90)))
 
-                .strafeToLinearHeading(new Vector2d(-20, -20), Math.toRadians(110))
+                .strafeTo(new Vector2d(10, -5))
 
-                .waitSeconds(2)
+                .waitSeconds(3)
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
                 .build();
 
-        rota2 = drive.actionBuilder(new Pose2d(-20, -25, Math.toRadians(110)))
+        rota2 = drive.actionBuilder(new Pose2d(10, -5, Math.toRadians(90)))
 
-                .turnTo( Math.toRadians(150))
+                .turnTo( Math.toRadians(130))
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
@@ -247,7 +275,7 @@ public double velocidade_desejada = 1280, Ai_shoot;
 
                 .build();
 
-        rota3 = drive.actionBuilder(new Pose2d(0, -47, Math.toRadians(150)))
+        rota3 = drive.actionBuilder(new Pose2d(10, -5, Math.toRadians(135)))
                 .afterTime(0, ()->{
                     if (id_ap == 21) posicao_desejada_indexer = 0;
                     if (id_ap == 22) posicao_desejada_indexer = 210;
@@ -282,7 +310,7 @@ public double velocidade_desejada = 1280, Ai_shoot;
 
                 })
 
-                .waitSeconds(3)
+                .waitSeconds(2)
 
                 .afterTime(0, ()->{
                     if (id_ap == 21) Reservoir_2.setPosition(1);
@@ -309,7 +337,7 @@ public double velocidade_desejada = 1280, Ai_shoot;
 
                 })
 
-                .waitSeconds(3)
+                .waitSeconds(2)
 
                 .afterTime(0, ()->{
                     if (id_ap == 21) Reservoir_3.setPosition(1);
@@ -327,7 +355,6 @@ public double velocidade_desejada = 1280, Ai_shoot;
                     if (id_ap == 23) Reservoir_1.setPosition(0);
                 })
 
-                .waitSeconds(20)
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
