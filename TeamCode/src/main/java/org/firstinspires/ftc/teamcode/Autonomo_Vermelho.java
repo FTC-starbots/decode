@@ -7,8 +7,6 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.ProfileAccelConstraint;
-import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.limelightvision.LLResult;
@@ -20,7 +18,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -34,9 +31,9 @@ import java.util.List;
 @Autonomous
 
 
-public class Autonomo extends LinearOpMode {
+public class Autonomo_Vermelho extends LinearOpMode {
 
-    private static final Logger log = LoggerFactory.getLogger(Autonomo.class);
+    private static final Logger log = LoggerFactory.getLogger(Autonomo_Vermelho.class);
 
     public class PIDs implements Action {
         public PIDs() {
@@ -47,7 +44,6 @@ public class Autonomo extends LinearOpMode {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             //executa o movimento do braço em loop
-            Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
 
             double erro_speed = velocidade_desejada + Atirador_1.getVelocity();
             double speedsome = 0;
@@ -251,23 +247,22 @@ public double velocidade_desejada = 1380, Ai_shoot;
         MecanumDrive.PARAMS.maxWheelVel = 50;
 
 
-        drive = new MecanumDrive(hardwareMap, new Pose2d(10, 55,
+        drive = new MecanumDrive(hardwareMap, new Pose2d(-10, 55,
                 Math.toRadians(90)));
+        rota1 = drive.actionBuilder(new Pose2d(-10, 55, Math.toRadians(90)))
 
-        rota1 = drive.actionBuilder(new Pose2d(10, 55, Math.toRadians(90)))
+                .strafeTo(new Vector2d(-10, -5))
 
-                .strafeTo(new Vector2d(10, -5))
-
-                .waitSeconds(3)
+                .waitSeconds(0.5)
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
                 .build();
 
-        rota2 = drive.actionBuilder(new Pose2d(10, -5, Math.toRadians(90)))
+        rota2 = drive.actionBuilder(new Pose2d(-10, -5, Math.toRadians(90)))
 
-                .turnTo( Math.toRadians(130))
+                .turnTo( Math.toRadians(50))
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
@@ -275,7 +270,7 @@ public double velocidade_desejada = 1380, Ai_shoot;
 
                 .build();
 
-        rota3 = drive.actionBuilder(new Pose2d(10, -5, Math.toRadians(135)))
+        rota3 = drive.actionBuilder(new Pose2d(-10, -5, Math.toRadians(50)))
                 .afterTime(0, ()->{
                     if (id_ap == 21) posicao_desejada_indexer = 0;
                     if (id_ap == 22) posicao_desejada_indexer = 210;

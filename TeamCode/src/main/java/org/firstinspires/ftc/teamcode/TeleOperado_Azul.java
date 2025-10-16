@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.limelightvision.LLResult;
@@ -8,11 +7,9 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -22,7 +19,7 @@ import java.util.List;
 
 @Config
 @TeleOp
-public class TeleOperado extends Autonomo {
+public class TeleOperado_Azul extends Autonomo_Vermelho {
 
     boolean Movimento_robo = false, Base_Motriz_State = false, Shoot = false, gamepad_1 = true;
     boolean Iniciar_atirador = false, Corrigir_velocidade = false, detecting_ap = false, goal_ap = false;
@@ -58,7 +55,7 @@ public class TeleOperado extends Autonomo {
 
     Pose2d pose_atual;
 
-    Autonomo auto = new Autonomo();
+    Autonomo_Vermelho auto = new Autonomo_Vermelho();
 
     double CorrTx,TxOffset, ErroMovX, ErroMovY, limelight_posX, limelight_posY, limelight_yaw, last_pose_X, last_pose_Y, goal_X, goal_Y = 54, Ai_shoot = 0, hip;
     ElapsedTime RotacaoRobo, Tempo_de_ciclo,
@@ -150,7 +147,7 @@ public class TeleOperado extends Autonomo {
             goal_X = 56.5;
         }
         // Aguardando o início da execução
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, Math.toRadians(180)));
+        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(10, -5, Math.toRadians(135)));
         limelight.start();
         limelight.pipelineSwitch(5);
 
@@ -247,7 +244,7 @@ public class TeleOperado extends Autonomo {
                 //_______________________________________________________________________________
                 controle_rotacao = 0.5;
                 //-----------------------------------------------------------------------------------------------
-                if ((pose_atual.position.y >= Math.abs(pose_atual.position.x)) || (pose_atual.position.y <= -Math.abs(pose_atual.position.x) - 40)) {
+                if ((pose_atual.position.y >= (Math.abs(pose_atual.position.x))-7) || (pose_atual.position.y <= -Math.abs(pose_atual.position.x) - 33)) {
                     areapermitida = true;
                     if (gamepad2.triangle){
                         gamepad_1 = false;
