@@ -4,6 +4,7 @@ import android.transition.Slide;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -21,6 +22,7 @@ import java.sql.Time;
 
 @Config
 @TeleOp
+@Disabled
 public class TeleOp_LIMELIGHT extends AprilTag {
 
     boolean Base_Motriz_State = false, Slide_Horizontal_State = false,
@@ -97,25 +99,14 @@ public class TeleOp_LIMELIGHT extends AprilTag {
 
         // Mapeamento dos sensores e motores
         {
-            SensorDeCor = hardwareMap.get(ColorSensor.class, "SensorDeCor");
+
             leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
             leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
             rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
             rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
-            slide_vertical_d = hardwareMap.get(DcMotorEx.class, "slide_vertical_d");
-            slide_vertical_e = hardwareMap.get(DcMotorEx.class, "slide_vertical_e");
-            slide_horizontal = hardwareMap.get(DcMotorEx.class, "slide_horizontal");
-            BracoOuttake = hardwareMap.get(DcMotorEx.class, "BracoOuttake");
 
-            BracoIntake = hardwareMap.get(Servo.class, "BracoIntake");
-            GarraIntake = hardwareMap.get(Servo.class, "GarraIntake");
-            GarraOuttake = hardwareMap.get(Servo.class, "GarraOuttake");
-            PulsoIntake = hardwareMap.get(Servo.class, "PulsoIntake");
-            RotacaoOuttake = hardwareMap.get(Servo.class, "RotacaoOuttake");
-            RotacaoIntake = hardwareMap.get(Servo.class,"RotacaoIntake");
 
-            LEDs = hardwareMap.get(RevBlinkinLedDriver.class, "LEDs");
-            FimDeCurso = hardwareMap.get(DigitalChannel.class, "FimDeCursoSV");
+
            limelight = hardwareMap.get(Limelight3A.class, "limelight");
         }
         // Configuração dos motores da base
