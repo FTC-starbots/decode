@@ -38,28 +38,34 @@ public class Autonomo_Azul extends LinearOpMode {
     public class PIDs implements Action {
         public PIDs() {
 
-
+            cicle_time = deltaTime.milliseconds();
         }
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             //executa o movimento do braço em loop
+double erro = velocidade_desejada + Atirador_1.getVelocity();
+            double BatVoltage = myControlHubVoltageSensor.getVoltage();
+            double feedfoward = 1 + (0.15 * (12.5-BatVoltage));
+            double integrativo = 0.015 * (erro * cicle_time);
+            double derivativo = 0 * ((erro - lasterror_PiDF_Shooter) / cicle_time);
+            double proporcional = 0.00005 * erro;
 
-            double erro_speed = velocidade_desejada + Atirador_1.getVelocity();
-            double speedsome = 0;
+            integral_PiDF_Shooter += integrativo;
+            lasterror_PiDF_Shooter = erro;
 
-            media_speed[0] = erro_speed;
+            if (Math.abs(erro)<0.05) integral_PiDF_Shooter = 0;
+            if (integral_PiDF_Shooter>0.15) integral_PiDF_Shooter=0.15;
+            else if (integral_PiDF_Shooter<-0.15) integral_PiDF_Shooter=-0.15;
 
-            for(int x=9;x>0;x--) media_speed[x] = media_speed[x-1];
+            double power_correction = (proporcional + integral_PiDF_Shooter + derivativo ) * feedfoward;
 
-            for(int x = 9 ; x<10 ; x++) speedsome =+ media_speed[x];
+            if ( power_correction > 1) power_correction = 1;
+            else if (power_correction < -1) power_correction = -1;
 
-            erro_speed = speedsome/10;
-
-
-            double potencia_atirador = erro_speed/1150;
-
-            Atirador_1.setPower(potencia_atirador);
+            if (power_correction < 0) power_correction = 0;
+            if (velocidade_desejada == 0 ) Atirador_1.setPower(0);
+            else Atirador_1.setPower( power_correction );
             Atirador_2.setPower(-Atirador_1.getPower());
 
 
@@ -67,14 +73,29 @@ public class Autonomo_Azul extends LinearOpMode {
 
 
 
-            double erro = posicao_desejada_indexer - Indexer.getCurrentPosition();
+            double potencia_indexer;
+            double erro1 = posicao_desejada_indexer - Indexer.getCurrentPosition();
             // Acumulando o erro para o integral
-            potencia_indexer =  erro * 0.005;
+            double proporcional1 =  erro1 * 0.0045;
+
+
+            double integrativo1 = 0.0005 * (erro1 * cicle_time);
+            integral_Indexer += integrativo1;
+
+            if (Math.abs(erro)<2) integral_Indexer = 0;
+            if (integral_Indexer>0.1) integral_Indexer=0.1;
+            else if (integral_Indexer<-0.1) integral_Indexer=-0.1;
+
+            potencia_indexer = proporcional1 + integral_Indexer;
+
+            if ( potencia_indexer > 0.4) potencia_indexer = 0.4;
+            else if (potencia_indexer < -0.4) potencia_indexer = -0.4;
+
             Indexer.setPower(potencia_indexer);
 
             telemetry.addData("Velocidade atirador", Atirador_1.getVelocity());
-            telemetry.addData("erro speed", erro_speed);
-            telemetry.addData("potencia atirador", potencia_atirador);
+            telemetry.addData("erro speed", erro);
+            telemetry.addData("potencia atirador", power_correction);
 
 
             // Atualiza os dados na tela*/
@@ -92,7 +113,7 @@ public class Autonomo_Azul extends LinearOpMode {
     int posicao_desejada_indexer = 0, reservatorio = 0, reservatorio_1, reservatorio_2, reservatorio_3;
 
     double power_correction;
-    double potencia_indexer;
+    double potencia_indexer, integral_PiDF_Shooter, lasterror_PiDF_Shooter, integral_Indexer;
     double[] media_speed = new double[10];
     private VoltageSensor ControlHub_VoltageSensor;
 
@@ -119,7 +140,7 @@ public class Autonomo_Azul extends LinearOpMode {
 
     public int id_ap;
 
-    ElapsedTime  timer_shooter;
+    ElapsedTime  timer_shooter, deltaTime;
 
     public double velocidade_desejada = 1347, Ai_shoot;
 
@@ -188,7 +209,11 @@ public class Autonomo_Azul extends LinearOpMode {
 
 
         timer_shooter   = new ElapsedTime();
+        deltaTime = new ElapsedTime();
+
         timer_shooter.reset();
+        deltaTime.reset();
+
         limelight.start();
         limelight.pipelineSwitch(5);
         //--------Calcula Rotas e parametriza drivetrain---------------------
@@ -274,7 +299,7 @@ public class Autonomo_Azul extends LinearOpMode {
 
                 .build();
 
-        rota3 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(145)))
+        rota3 = drive.actionBuilder(new Pose2d(10, 55, Math.toRadians(90)))
                 .afterTime(0, ()->{
                     velocidade_desejada = 1280;
 
@@ -282,8 +307,8 @@ public class Autonomo_Azul extends LinearOpMode {
 
                 .afterTime(0, ()->{
                     if (id_ap == 21) posicao_desejada_indexer = 0;
-                    if (id_ap == 22) posicao_desejada_indexer = 210;
-                    if (id_ap == 23) posicao_desejada_indexer = 210;
+                    if (id_ap == 22) posicao_desejada_indexer = 218;
+                    if (id_ap == 23) posicao_desejada_indexer = 218;
 
                 })
 
@@ -308,7 +333,7 @@ public class Autonomo_Azul extends LinearOpMode {
                 .waitSeconds(1.2)
 
                 .afterTime(0, ()->{
-                    if (id_ap == 21) posicao_desejada_indexer = 210;
+                    if (id_ap == 21) posicao_desejada_indexer = 218;
                     if (id_ap == 22) posicao_desejada_indexer = 0;
                     if (id_ap == 23) posicao_desejada_indexer = 440;
 
