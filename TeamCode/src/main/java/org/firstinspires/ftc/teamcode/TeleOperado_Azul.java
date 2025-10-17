@@ -19,7 +19,7 @@ import java.util.List;
 
 @Config
 @TeleOp
-public class TeleOperado_Azul extends Autonomo_Vermelho {
+public class TeleOperado_Azul extends Autonomo_VermelhoPEQUENO {
 
     boolean Movimento_robo = false, Base_Motriz_State = false, Shoot = false, gamepad_1 = true;
     boolean Iniciar_atirador = false, Corrigir_velocidade = false, detecting_ap = false, goal_ap = false;
@@ -55,7 +55,7 @@ public class TeleOperado_Azul extends Autonomo_Vermelho {
 
     Pose2d pose_atual;
 
-    Autonomo_Vermelho auto = new Autonomo_Vermelho();
+    Autonomo_VermelhoPEQUENO auto = new Autonomo_VermelhoPEQUENO();
 
     double CorrTx,TxOffset, ErroMovX, ErroMovY, limelight_posX, limelight_posY, limelight_yaw, last_pose_X, last_pose_Y, goal_X, goal_Y = 56.5, Ai_shoot = 0, hip;
     ElapsedTime RotacaoRobo, Tempo_de_ciclo,
@@ -147,7 +147,7 @@ public class TeleOperado_Azul extends Autonomo_Vermelho {
             goal_X = 56.5;
         }
         // Aguardando o início da execução
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(10, -5, Math.toRadians(135)));
+        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(10, -20, Math.toRadians(0)));
         limelight.start();
         limelight.pipelineSwitch(5);
 

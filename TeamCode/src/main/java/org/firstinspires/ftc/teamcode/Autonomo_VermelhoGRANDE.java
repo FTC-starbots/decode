@@ -31,9 +31,9 @@ import java.util.List;
 @Autonomous
 
 
-public class Autonomo_Azul extends LinearOpMode {
+public class Autonomo_VermelhoGRANDE extends LinearOpMode {
 
-    private static final Logger log = LoggerFactory.getLogger(Autonomo_Azul.class);
+    private static final Logger log = LoggerFactory.getLogger(Autonomo_AzulPEQUENO.class);
 
     public class PIDs implements Action {
         public PIDs() {
@@ -44,7 +44,7 @@ public class Autonomo_Azul extends LinearOpMode {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             //executa o movimento do braço em loop
-double erro = velocidade_desejada + Atirador_1.getVelocity();
+            double erro = velocidade_desejada + Atirador_1.getVelocity();
             double BatVoltage = myControlHubVoltageSensor.getVoltage();
             double feedfoward = 1 + (0.15 * (12.5-BatVoltage));
             double integrativo = 0.015 * (erro * cicle_time);
@@ -221,7 +221,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
         //------------------------------------------
         waitForStart();
         PIDs_state = false;
-        //Actions.runBlocking(rota1);
+        Actions.runBlocking(rota1);
 
         LLResult result = limelight.getLatestResult();
         List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
@@ -258,7 +258,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
 
 
-        //Actions.runBlocking(rota2);
+        Actions.runBlocking(rota2);
 
         velocidade_desejada = 1280;
 
@@ -275,12 +275,12 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
         MecanumDrive.PARAMS.maxWheelVel = 50;
 
 
-        drive = new MecanumDrive(hardwareMap, new Pose2d(10, 55,
+        drive = new MecanumDrive(hardwareMap, new Pose2d(-10, -55,
                 Math.toRadians(90)));
 
-        rota1 = drive.actionBuilder(new Pose2d(10, 55, Math.toRadians(90)))
+        rota1 = drive.actionBuilder(new Pose2d(-10, -55, Math.toRadians(90)))
 
-                .strafeToLinearHeading(new Vector2d(10, -20),Math.toRadians(85))
+                .strafeToLinearHeading(new Vector2d(-10, -20),Math.toRadians(85))
 
                 .waitSeconds(0.5)
 
@@ -289,9 +289,9 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
                 })
                 .build();
 
-        rota2 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(85)))
+        rota2 = drive.actionBuilder(new Pose2d(-10, -20, Math.toRadians(95)))
 
-                .turnTo( Math.toRadians(145))
+                .turnTo( Math.toRadians(35))
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
@@ -299,7 +299,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
                 .build();
 
-        rota3 = drive.actionBuilder(new Pose2d(10, 55, Math.toRadians(90)))
+        rota3 = drive.actionBuilder(new Pose2d(-10, -20, Math.toRadians(35)))
                 .afterTime(0, ()->{
                     velocidade_desejada = 1280;
 
@@ -389,7 +389,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
                 .waitSeconds(2)
 
-                .turnTo(Math.toRadians(0))
+                .turnTo(Math.toRadians(180))
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
