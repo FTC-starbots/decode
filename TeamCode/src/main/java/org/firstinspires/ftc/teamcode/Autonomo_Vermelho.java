@@ -33,7 +33,7 @@ import java.util.List;
 
 public class Autonomo_Vermelho extends LinearOpMode {
 
-    private static final Logger log = LoggerFactory.getLogger(Autonomo_Vermelho.class);
+    private static final Logger log = LoggerFactory.getLogger(Autonomo_Azul.class);
 
     public class PIDs implements Action {
         public PIDs() {
@@ -50,14 +50,14 @@ public class Autonomo_Vermelho extends LinearOpMode {
 
             media_speed[0] = erro_speed;
 
-            for(int x=19;x>0;x--) media_speed[x] = media_speed[x-1];
+            for(int x=9;x>0;x--) media_speed[x] = media_speed[x-1];
 
-            for(int x = 19 ; x<20 ; x++) speedsome =+ media_speed[x];
+            for(int x = 9 ; x<10 ; x++) speedsome =+ media_speed[x];
 
-            erro_speed = speedsome/20;
+            erro_speed = speedsome/10;
 
 
-            double potencia_atirador = erro_speed/1000;
+            double potencia_atirador = erro_speed/1150;
 
             Atirador_1.setPower(potencia_atirador);
             Atirador_2.setPower(-Atirador_1.getPower());
@@ -93,7 +93,7 @@ public class Autonomo_Vermelho extends LinearOpMode {
 
     double power_correction;
     double potencia_indexer;
-    double[] media_speed = new double[20];
+    double[] media_speed = new double[10];
     private VoltageSensor ControlHub_VoltageSensor;
 
 
@@ -121,7 +121,7 @@ public class Autonomo_Vermelho extends LinearOpMode {
 
     ElapsedTime  timer_shooter;
 
-public double velocidade_desejada = 1380, Ai_shoot;
+    public double velocidade_desejada = 1347, Ai_shoot;
 
     private Action rota1;
     private Action rota2;
@@ -204,14 +204,14 @@ public double velocidade_desejada = 1380, Ai_shoot;
         for (LLResultTypes.FiducialResult fr : fiducialResults) {
             id_ap = fr.getFiducialId();
         }
-            if (id_ap == 21) {
-                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-            }else  if (id_ap == 22) {
-                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
+        if (id_ap == 21) {
+            Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+        }else  if (id_ap == 22) {
+            Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
 
-            }else  if (id_ap == 23) {
-                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
-            }else  Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+        }else  if (id_ap == 23) {
+            Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+        }else  Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
 
         LLResult result2 = limelight.getLatestResult();
         List<LLResultTypes.FiducialResult> fiducialResults2 = result2.getFiducialResults();
@@ -226,13 +226,16 @@ public double velocidade_desejada = 1380, Ai_shoot;
 
         }else  if (id_ap == 23) {
             Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
-        }else  Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+        }else  {
+            id_ap = 21;
+            Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+        }
 
 
 
         Actions.runBlocking(rota2);
 
-        velocidade_desejada = 1340;
+        velocidade_desejada = 1280;
 
         PIDs_state = true;
         Actions.runBlocking(new ParallelAction(rota3, new PIDs()));
@@ -247,11 +250,12 @@ public double velocidade_desejada = 1380, Ai_shoot;
         MecanumDrive.PARAMS.maxWheelVel = 50;
 
 
-        drive = new MecanumDrive(hardwareMap, new Pose2d(-10, 55,
+        drive = new MecanumDrive(hardwareMap, new Pose2d(10, 55,
                 Math.toRadians(90)));
+
         rota1 = drive.actionBuilder(new Pose2d(-10, 55, Math.toRadians(90)))
 
-                .strafeTo(new Vector2d(-10, -5))
+                .strafeToLinearHeading(new Vector2d(-10, -20),Math.toRadians(95))
 
                 .waitSeconds(0.5)
 
@@ -260,9 +264,9 @@ public double velocidade_desejada = 1380, Ai_shoot;
                 })
                 .build();
 
-        rota2 = drive.actionBuilder(new Pose2d(-10, -5, Math.toRadians(90)))
+        rota2 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(95)))
 
-                .turnTo( Math.toRadians(50))
+                .turnTo( Math.toRadians(35))
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
@@ -270,7 +274,12 @@ public double velocidade_desejada = 1380, Ai_shoot;
 
                 .build();
 
-        rota3 = drive.actionBuilder(new Pose2d(-10, -5, Math.toRadians(50)))
+        rota3 = drive.actionBuilder(new Pose2d(-10, -20, Math.toRadians(35)))
+                .afterTime(0, ()->{
+                    velocidade_desejada = 1280;
+
+                })
+
                 .afterTime(0, ()->{
                     if (id_ap == 21) posicao_desejada_indexer = 0;
                     if (id_ap == 22) posicao_desejada_indexer = 210;
@@ -278,7 +287,7 @@ public double velocidade_desejada = 1380, Ai_shoot;
 
                 })
 
-                .waitSeconds(3)
+                .waitSeconds(3.4)
 
                 .afterTime(0, ()->{
                     if (id_ap == 21) Reservoir_1.setPosition(1);
@@ -288,7 +297,7 @@ public double velocidade_desejada = 1380, Ai_shoot;
                     PIDs_state = true;
                 })
 
-                .waitSeconds(1.2)
+                .waitSeconds(1.5)
 
                 .afterTime(0, ()->{
                     if (id_ap == 21) Reservoir_1.setPosition(0);
@@ -321,6 +330,8 @@ public double velocidade_desejada = 1380, Ai_shoot;
                     if (id_ap == 21) Reservoir_2.setPosition(0);
                     if (id_ap == 22) Reservoir_1.setPosition(0);
                     if (id_ap == 23) Reservoir_3.setPosition(0);
+                    velocidade_desejada = 1292;
+
                 })
 
                 .waitSeconds(1.2)
@@ -332,7 +343,7 @@ public double velocidade_desejada = 1380, Ai_shoot;
 
                 })
 
-                .waitSeconds(2)
+                .waitSeconds(2.2)
 
                 .afterTime(0, ()->{
                     if (id_ap == 21) Reservoir_3.setPosition(1);
@@ -348,8 +359,12 @@ public double velocidade_desejada = 1380, Ai_shoot;
                     if (id_ap == 21) Reservoir_3.setPosition(0);
                     if (id_ap == 22) Reservoir_3.setPosition(0);
                     if (id_ap == 23) Reservoir_1.setPosition(0);
+                    posicao_desejada_indexer = 0;
                 })
 
+                .waitSeconds(2)
+
+                .turnTo(Math.toRadians(180))
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
