@@ -44,7 +44,7 @@ public class Autonomo_AzulGRANDE extends LinearOpMode {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             //executa o movimento do braço em loop
-double erro = velocidade_desejada + Atirador_1.getVelocity();
+            double erro = velocidade_desejada + Atirador_1.getVelocity();
             double BatVoltage = myControlHubVoltageSensor.getVoltage();
             double feedfoward = 1 + (0.15 * (12.5-BatVoltage));
             double integrativo = 0.015 * (erro * cicle_time);
