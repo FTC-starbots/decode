@@ -14,14 +14,13 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-
 import java.util.List;
 
 @Config
 @TeleOp
 public class TeleOperado_Vermelho extends Autonomo_VermelhoPEQUENO {
 
-    boolean Movimento_robo = false, Base_Motriz_State = false, Shoot = false, gamepad_1 = true;
+    boolean Movimento_robo = false, Base_Motriz_State = false, Shoot = false, gamepad_1 = true, PosDesejada = false, zone_system = true;
     boolean Iniciar_atirador = false, Corrigir_velocidade = false, detecting_ap = false, goal_ap = false;
 
     private Limelight3A limelight;
@@ -37,7 +36,7 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoPEQUENO {
 
     double controle_rotacao, Speed, angulo_desejado, angulo_robo, vectorX, vectorY, correcao_angular, velocidade_desejada = 0, kf_atirar,kp_atirar, alpha, kp_ap, ki_ap;
 
-    boolean areapermitida;
+    boolean areapermitida, zona_penal;
 
     private VoltageSensor ControlHub_VoltageSensor;
 
@@ -46,8 +45,8 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoPEQUENO {
     double T_atual = 0;
 
     //variáveis dos controladores PiDF____________________________
-    double integral_PiDF_Correcao_Angular = 0, integral_Indexer = 0, integral_PiDF_Shooter = 0;
-    double lasterror_PiDF_Correcao_Angular = 0, lasterror_PiDF_Shooter = 0;
+    double integral_PiDF_Correcao_Angular = 0;
+    double lasterror_PiDF_Correcao_Angular = 0;
 
     //____________________________________________________________
 
@@ -55,11 +54,9 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoPEQUENO {
 
     Pose2d pose_atual;
 
-    Autonomo_VermelhoPEQUENO auto = new Autonomo_VermelhoPEQUENO();
-
-    double CorrTx,TxOffset, ErroMovX, ErroMovY, limelight_posX, limelight_posY, limelight_yaw, last_pose_X, last_pose_Y, goal_X, goal_Y = 56.5, Ai_shoot = 0, hip;
-    ElapsedTime RotacaoRobo, Tempo_de_ciclo,
-            MASTER_TIMER, timer_shooter, deltaTime;
+    double CorrTx,TxOffset, ErroMovX, ErroMovY, limelight_posX, limelight_posY, limelight_yaw, last_pose_X, last_pose_Y, goal_X, goal_Y = 54, Ai_shoot = 0, hip;
+    ElapsedTime RotacaoRobo, Tempo_de_ciclo,posRobo,
+            MASTER_TIMER, timer_shooter, deltaTime, corrPen;
 
 
     @Override
@@ -129,7 +126,12 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoPEQUENO {
             MASTER_TIMER    = new ElapsedTime();
             timer_shooter   = new ElapsedTime();
             deltaTime       = new ElapsedTime();
+            posRobo = new ElapsedTime();
+            corrPen = new ElapsedTime();
 
+
+            corrPen.reset();
+            posRobo.reset();
             timer_shooter   .reset();
             RotacaoRobo     .reset();
             Tempo_de_ciclo  .reset();
@@ -147,7 +149,7 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoPEQUENO {
             goal_X = 56.5;
         }
         // Aguardando o início da execução
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(-10, -20, Math.toRadians(180)));
+        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(-10, -5, Math.toRadians(50)));
         limelight.start();
         limelight.pipelineSwitch(5);
 
@@ -178,7 +180,7 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoPEQUENO {
                             limelight_posY = -result.getBotpose().getPosition().x * 35.3;
                             limelight_posX = result.getBotpose().getPosition().y * 35.3;
                             limelight_yaw = -result.getBotpose().getOrientation().getYaw() + 180;
-                            //drive = new MecanumDrive(hardwareMap, new Pose2d(limelight_posX, limelight_posY, Math.toRadians(limelight_yaw)));
+                            drive = new MecanumDrive(hardwareMap, new Pose2d(limelight_posX, limelight_posY, Math.toRadians(limelight_yaw)));
                         }
                         else goal_ap =false;
                     }
@@ -186,18 +188,28 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoPEQUENO {
                     TxOffset = 0;
                     detecting_ap = false;
                 }
+
+            //Pose Control -------------------------------------------------------------------------
                 drive.updatePoseEstimate();
 
                 pose_atual = drive.localizer.getPose();
-                if (gamepad_1){
-                    if (Math.abs(gamepad1.left_stick_x) > 0.085 || Math.abs(gamepad1.left_stick_y) > 0.085) {
-                        last_pose_X = pose_atual.position.x;
-                        last_pose_Y = pose_atual.position.y;
-                        Movimento_robo = true;
-                    } else {
-                        Movimento_robo = false;
+                if(zona_penal){
+                    Movimento_robo = false;
+                    if(pose_atual.position.x > 0) {
+                        last_pose_X = pose_atual.position.x - 7;
+                    } else if (pose_atual.position.x < 0) {
+                        last_pose_X = pose_atual.position.x + 7;
                     }
-                }else{
+                } else if (!PosDesejada){
+                if (gamepad_1){
+                if (Math.abs(gamepad1.left_stick_x) > 0.085 || Math.abs(gamepad1.left_stick_y) > 0.085) {
+                    last_pose_X = pose_atual.position.x;
+                    last_pose_Y = pose_atual.position.y;
+                    Movimento_robo = true;
+                } else {
+                    Movimento_robo = false;
+                }
+                }else {
                     if (Math.abs(gamepad2.left_stick_x) > 0.085 || Math.abs(gamepad2.left_stick_y) > 0.085) {
                         last_pose_X = pose_atual.position.x;
                         last_pose_Y = pose_atual.position.y;
@@ -205,36 +217,45 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoPEQUENO {
                     } else {
                         Movimento_robo = false;
                     }
+                }
+
+                }else if (PosDesejada){
+                    Movimento_robo = false;
+                    last_pose_Y = -36;
+                    if (!blue_alliance){
+                        last_pose_X = -27;
+                    }else last_pose_X =27;
 
                 }
 
-                if (Movimento_robo == false) {
+                if (Movimento_robo == false && posRobo.seconds() >= 1) {
                     ErroMovX = pose_atual.position.x - last_pose_X;
                     ErroMovY = pose_atual.position.y - last_pose_Y;
                 } else {
+                    posRobo.reset();
                     ErroMovX = 0;
                     ErroMovY = 0;
                 }
 
-
+            //--------------------------------------------------------------------------------------
 
                 Base_Motriz();
                 Indexer();
                 Shooting_Vel();
-                if (gamepad_1) {
-                    if (gamepad1.options) {
-                        angulo_robo = 0;
-                        last_pose_X = pose_atual.position.x;
-                        last_pose_Y = pose_atual.position.y;
-                    }
-                }else{
-                    if (gamepad2.options) {
-                        angulo_robo = 0;
-                        last_pose_X = pose_atual.position.x;
-                        last_pose_Y = pose_atual.position.y;
-                    }
-
+            if (gamepad_1) {
+                if (gamepad1.options) {
+                    angulo_robo = 0;
+                    last_pose_X = pose_atual.position.x;
+                    last_pose_Y = pose_atual.position.y;
                 }
+            }else{
+                if (gamepad2.options) {
+                    angulo_robo = 0;
+                    last_pose_X = pose_atual.position.x;
+                    last_pose_Y = pose_atual.position.y;
+                }
+
+            }
                 //Cálculo de alinhamento com o alvo
                 double cateto_a = goal_X - pose_atual.position.x;
                 double cateto_b = goal_Y - pose_atual.position.y;
@@ -244,52 +265,85 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoPEQUENO {
                 //_______________________________________________________________________________
                 controle_rotacao = 0.5;
                 //-----------------------------------------------------------------------------------------------
-                if (true) {
-                    areapermitida = true;
-                    if (gamepad2.triangle) {
-                        gamepad_1 = false;
-                        //angulo_desejado = alpha;
-                        velocidade_desejada = 787.87 + 5.365 * hip;
-                    } else if (gamepad2.circle) {
-                        velocidade_desejada = 1280;
-                    } else if (gamepad2.square) {
-                        velocidade_desejada = 1650;
+
+
+                if(!blue_alliance) {
+                    if (pose_atual.position.x < -54 && -7 > pose_atual.position.y && pose_atual.position.y > -41) {
+                        corrPen.reset();
+                        zona_penal = true;
+                    } else if (pose_atual.position.x < -41 && -39 > pose_atual.position.y && pose_atual.position.y > -61) {
+                        corrPen.reset();
+                        zona_penal = true;
+                    } else if (pose_atual.position.x > 37 && 5 > pose_atual.position.y && pose_atual.position.y > -5) {
+                        corrPen.reset();
+                        zona_penal = true;
                     } else {
+                        if (corrPen.seconds() > 1.5) zona_penal = false;
+                    }
+                }else {
+                    if (pose_atual.position.x > 54 && -7 > pose_atual.position.y && pose_atual.position.y > -41){
+                        corrPen.reset();
+                        zona_penal = true;
+                    }else if (pose_atual.position.x > 41 && -39 > pose_atual.position.y && pose_atual.position.y > -61){
+                        corrPen.reset();
+                        zona_penal = true;
+                    }else if (pose_atual.position.x < -37 && 5 > pose_atual.position.y && pose_atual.position.y > -5){
+                        corrPen.reset();
+                        zona_penal = true;
+                    }else {
+                        if (corrPen.seconds() > 1.5) zona_penal = false;
+                    }
+                }
+
+
+                if ((pose_atual.position.y >= Math.abs(pose_atual.position.x)) || (pose_atual.position.y <= -Math.abs(pose_atual.position.x) - 40)) {
+                    areapermitida = true;
+                    if (gamepad2.triangle){
+                        gamepad_1 = false;
+                        angulo_desejado = alpha;
+                        velocidade_desejada = 787.87 + 5.365 * hip;
+                    }else{
                         kf_atirar = 0;
                         kp_atirar = 0;
                         CorrTx = 0;
                         velocidade_desejada = 0;
                     }
+
+                } else {
+                    areapermitida = false;
+                    Ai_shoot = 0;
+                    velocidade_desejada = 0;
                 }
 
+                    if (gamepad1.cross) Intake.setPower(1);
+                    else if (gamepad1.circle) Intake.setPower(-1);
+                    else Intake.setPower(0);
 
-                if (gamepad1.cross) Intake.setPower(1);
-                else if (gamepad1.circle) Intake.setPower(-1);
-                else Intake.setPower(0);
-
-
-                if(gamepad2.right_bumper) {
-                    Reservoir_1.setPosition(0);
-                    Reservoir_2.setPosition(0);
-                    Reservoir_3.setPosition(0);
-                }
 
                 if (gamepad2.cross) gamepad_1 = false;
                 else if (gamepad1.square) gamepad_1 = true;
+
+
+                if (gamepad2.left_bumper) PosDesejada = true;
+                else if (gamepad2.right_bumper) PosDesejada = false;
+
+                if (gamepad1.square) zone_system = true;
+                else if (gamepad2.circle)zone_system = false;
+
 //--------------------Reservatorios
 
-                if(gamepad2.dpad_left) {
+                if(gamepad2.dpad_left&& areapermitida) {
                     timer_shooter.reset();
                     Shoot(1);
                 }
 
-                if(gamepad2.dpad_up) {
+                if(gamepad2.dpad_up&& areapermitida) {
                     timer_shooter.reset();
                     Shoot(2);
 
                 }
 
-                if(gamepad2.dpad_right) {
+                if(gamepad2.dpad_right&& areapermitida) {
                     timer_shooter.reset();
                     Shoot(3);
 
@@ -347,17 +401,17 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoPEQUENO {
         double BatVoltage = myControlHubVoltageSensor.getVoltage();
         double feedfoward = 1 + (kf * (12.5-BatVoltage));
         double integrativo = ki * (erro * cicle_time);
-        double derivativo = kd * ((erro - lasterror_PiDF_Shooter) / cicle_time);
+        double derivativo = kd * ((erro - lasterror_PiDF_Correcao_Angular) / cicle_time);
         double proporcional = kp * erro;
 
-        integral_PiDF_Shooter += integrativo;
-        lasterror_PiDF_Shooter = erro;
+        integral_PiDF_Correcao_Angular += integrativo;
+        lasterror_PiDF_Correcao_Angular = erro;
 
-        if (Math.abs(erro)<0.05) integral_PiDF_Shooter = 0;
-        if (integral_PiDF_Shooter>0.15) integral_PiDF_Shooter=0.15;
-        else if (integral_PiDF_Shooter<-0.15) integral_PiDF_Shooter=-0.15;
+        if (Math.abs(erro)<0.05) integral_PiDF_Correcao_Angular = 0;
+        if (integral_PiDF_Correcao_Angular>0.15) integral_PiDF_Correcao_Angular=0.15;
+        else if (integral_PiDF_Correcao_Angular<-0.15) integral_PiDF_Correcao_Angular=-0.15;
 
-        double output = (proporcional + integral_PiDF_Shooter + derivativo ) * feedfoward;
+        double output = (proporcional + integral_PiDF_Correcao_Angular + derivativo ) * feedfoward;
 
         if ( output > max) output = max;
         else if (output < min) output = min;
@@ -370,20 +424,20 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoPEQUENO {
 
         double divisorX = 5 + 10 * Math.max(0, 1.0 - (Math.abs(ErroMovX) / 4.0));
         double divisorY = 5 + 10 * Math.max(0, 1.0 - (Math.abs(ErroMovY) / 4.0));
-        if (gamepad_1) {
-            vectorX = (Math.cos(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_x/*+ (ErroMovY/divisorY)*/))
-                    + Math.sin(-angulo_robo / 180 * Math.PI) * (-gamepad1.left_stick_y/*+(-ErroMovX/divisorX)*/);
+    if (gamepad_1) {
+        vectorX = (Math.cos(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_x+ (ErroMovY/divisorY)))
+                + Math.sin(-angulo_robo / 180 * Math.PI) * (-gamepad1.left_stick_y+(-ErroMovX/divisorX));
 
-            vectorY = ((-Math.sin(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_x/*+ (ErroMovY/divisorY)*/))
-                    + Math.cos(-angulo_robo / 180 * Math.PI) * (-gamepad1.left_stick_y /*+(-ErroMovX/divisorX)*/));
-        }else{
-            vectorX = (Math.cos(-angulo_robo / 180 * Math.PI) * (gamepad2.left_stick_x/*+ (ErroMovY/divisorY)*/))
-                    + Math.sin(-angulo_robo / 180 * Math.PI) * (-gamepad2.left_stick_y/*+(-ErroMovX/divisorX)*/);
+        vectorY = ((-Math.sin(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_x+ (ErroMovY/divisorY)))
+                + Math.cos(-angulo_robo / 180 * Math.PI) * (-gamepad1.left_stick_y +(-ErroMovX/divisorX)));
+    }else{
+        vectorX = (Math.cos(-angulo_robo / 180 * Math.PI) * (gamepad2.left_stick_x+ (ErroMovY/divisorY)))
+                + Math.sin(-angulo_robo / 180 * Math.PI) * (-gamepad2.left_stick_y+(-ErroMovX/divisorX));
 
-            vectorY = ((-Math.sin(-angulo_robo / 180 * Math.PI) * (gamepad2.left_stick_x/*+ (ErroMovY/divisorY)*/))
-                    + Math.cos(-angulo_robo / 180 * Math.PI) * (-gamepad2.left_stick_y /*+(-ErroMovX/divisorX)*/));
+        vectorY = ((-Math.sin(-angulo_robo / 180 * Math.PI) * (gamepad2.left_stick_x+ (ErroMovY/divisorY))
+                + Math.cos(-angulo_robo / 180 * Math.PI) * (-gamepad2.left_stick_y +(-ErroMovX/divisorX))));
 
-        }
+    }
 
         if (gamepad_1) {
             leftBack.setPower((vectorY * 1 + vectorX * -1) * Speed + ((gamepad1.right_trigger - gamepad1.left_trigger) + correcao_angular));
@@ -416,7 +470,7 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoPEQUENO {
             last_pose_Y = pose_atual.position.y;
         } else {
 
-            //if (goal_ap && gamepad2.triangle && TxOffset != 0) correcaoP = (TxOffset-512)/40;
+            if (goal_ap && gamepad2.triangle && TxOffset != 0) correcaoP = (TxOffset-512)/40;
 
             correcao_angular = PiDF_Correcao_Angular(correcaoP, 0.0135 /*+ kp_atirar*/,0.000004, -0.00, 0.15 + kf_atirar,-0.7,0.7);
 
@@ -449,7 +503,7 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoPEQUENO {
 //
             }
         }else{
-            if (Math.abs(gamepad2.left_trigger) > 0.1 || Math.abs(gamepad2.right_trigger) > 0.1 ) {
+            if (Math.abs(gamepad2.left_trigger) > 0.1 || Math.abs(gamepad2.right_trigger) > 0.1 || gamepad2.dpad_left) {
                 angulo_desejado = angulo_robo;
                 RotacaoRobo.reset();
 
@@ -482,48 +536,31 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoPEQUENO {
         double potencia_indexer;
         double erro = posicao_desejada_indexer - Indexer.getCurrentPosition();
         // Acumulando o erro para o integral
-        double proporcional =  erro * 0.0045;
-
-
-        double integrativo = 0.0005 * (erro * cicle_time);
-        integral_Indexer += integrativo;
-
-        if (Math.abs(erro)<2) integral_Indexer = 0;
-        if (integral_Indexer>0.1) integral_Indexer=0.1;
-        else if (integral_Indexer<-0.1) integral_Indexer=-0.1;
-
-        potencia_indexer = proporcional + integral_Indexer;
-
-        if ( potencia_indexer > 0.4) potencia_indexer = 0.4;
-        else if (potencia_indexer < -0.4) potencia_indexer = -0.4;
-
+        potencia_indexer =  PiDF_Vel(erro,0.0085,0.0005,0,0.15,-0.6,0.6);
         Indexer.setPower(potencia_indexer);
     }
 
     private void Shooting_Vel() {
         double power_correction;
         double erro = velocidade_desejada + Atirador_1.getVelocity();
-        power_correction =  PiDF_Vel(erro,0.00005,0.015,0,0.15,-1,1);
+        power_correction =  PiDF_Vel(erro,0.005,0.015,0,0.15,-1,1);
 
-        if (power_correction < 0) power_correction = 0;
+
         if (velocidade_desejada == 0 ) Atirador_1.setPower(0);
-        else Atirador_1.setPower( power_correction );
+        else Atirador_1.setPower(1 + power_correction );
         Atirador_2.setPower(-Atirador_1.getPower());
     }
 
     private void Shoot_single() {
 
         if (0 < timer_shooter.seconds() && 0.9 >= timer_shooter.seconds()){
-            if(reservatorio == 1)  posicao_desejada_indexer= -100;
-            if(reservatorio == 2)  posicao_desejada_indexer= 218;
+            if(reservatorio == 1)  posicao_desejada_indexer= 0;
+            if(reservatorio == 2)  posicao_desejada_indexer= 210;
             if(reservatorio == 3)  posicao_desejada_indexer= 440;
 
         }else if (0.9 < timer_shooter.seconds() && 1.7 >= timer_shooter.seconds()){
-            if(reservatorio == 1){
-                Indexer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                Indexer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                Reservoir_1.setPosition(1);
-            }
+
+            if(reservatorio == 1)Reservoir_1.setPosition(1);
             if(reservatorio == 2) Reservoir_2.setPosition(1);
             if(reservatorio == 3)Reservoir_3.setPosition(1);
 
@@ -606,7 +643,7 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoPEQUENO {
 
         telemetry.addData("","");
 
-        // telemetry.addData("Posição", pose);
+       // telemetry.addData("Posição", pose);
         telemetry.addData("x", pose_atual.position.x);
         telemetry.addData("y", pose_atual.position.y);
 
