@@ -275,12 +275,12 @@ public class Autonomo_VermelhoGRANDE extends LinearOpMode {
         MecanumDrive.PARAMS.maxWheelVel = 50;
 
 
-        drive = new MecanumDrive(hardwareMap, new Pose2d(-10, -55,
+        drive = new MecanumDrive(hardwareMap, new Pose2d(-40, -55,
                 Math.toRadians(90)));
 
-        rota1 = drive.actionBuilder(new Pose2d(-10, -55, Math.toRadians(90)))
+        rota1 = drive.actionBuilder(new Pose2d(-40, -55, Math.toRadians(90)))
 
-                .strafeToLinearHeading(new Vector2d(-10, -20),Math.toRadians(85))
+                .strafeToLinearHeading(new Vector2d(-10, -40),Math.toRadians(85))
 
                 .waitSeconds(0.5)
 
@@ -289,9 +289,9 @@ public class Autonomo_VermelhoGRANDE extends LinearOpMode {
                 })
                 .build();
 
-        rota2 = drive.actionBuilder(new Pose2d(-10, -20, Math.toRadians(95)))
+        rota2 = drive.actionBuilder(new Pose2d(-10, -40, Math.toRadians(95)))
 
-                .turnTo( Math.toRadians(35))
+                .turnTo( Math.toRadians(17))
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
@@ -299,7 +299,7 @@ public class Autonomo_VermelhoGRANDE extends LinearOpMode {
 
                 .build();
 
-        rota3 = drive.actionBuilder(new Pose2d(-10, -20, Math.toRadians(35)))
+        rota3 = drive.actionBuilder(new Pose2d(-10, -40, Math.toRadians(17)))
                 .afterTime(0, ()->{
                     velocidade_desejada = 1280;
 

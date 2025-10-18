@@ -291,7 +291,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
         rota2 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(85)))
 
-                .turnTo( Math.toRadians(145))
+                .turnTo( Math.toRadians(140))
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
@@ -299,7 +299,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
                 .build();
 
-        rota3 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(145)))
+        rota3 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(140)))
                 .afterTime(0, ()->{
                     velocidade_desejada = 1280;
 

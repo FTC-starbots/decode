@@ -268,6 +268,12 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoPEQUENO {
                 else Intake.setPower(0);
 
 
+                if(gamepad2.right_bumper) {
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(0);
+                    Reservoir_3.setPosition(0);
+                }
+
                 if (gamepad2.cross) gamepad_1 = false;
                 else if (gamepad1.square) gamepad_1 = true;
 //--------------------Reservatorios

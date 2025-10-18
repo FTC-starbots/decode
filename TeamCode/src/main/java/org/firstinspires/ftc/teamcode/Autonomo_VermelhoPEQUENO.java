@@ -291,7 +291,7 @@ public class Autonomo_VermelhoPEQUENO extends LinearOpMode {
 
         rota2 = drive.actionBuilder(new Pose2d(-10, -20, Math.toRadians(95)))
 
-                .turnTo( Math.toRadians(35))
+                .turnTo( Math.toRadians(40))
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
@@ -299,7 +299,7 @@ public class Autonomo_VermelhoPEQUENO extends LinearOpMode {
 
                 .build();
 
-        rota3 = drive.actionBuilder(new Pose2d(-10, -20, Math.toRadians(35)))
+        rota3 = drive.actionBuilder(new Pose2d(-10, -20, Math.toRadians(40)))
                 .afterTime(0, ()->{
                     velocidade_desejada = 1280;
 

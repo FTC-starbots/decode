@@ -275,12 +275,12 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
         MecanumDrive.PARAMS.maxWheelVel = 50;
 
 
-        drive = new MecanumDrive(hardwareMap, new Pose2d(10, -55,
+        drive = new MecanumDrive(hardwareMap, new Pose2d(40, -55,
                 Math.toRadians(90)));
 
-        rota1 = drive.actionBuilder(new Pose2d(10, -55, Math.toRadians(90)))
+        rota1 = drive.actionBuilder(new Pose2d(40, -55, Math.toRadians(90)))
 
-                .strafeToLinearHeading(new Vector2d(10, -20),Math.toRadians(85))
+                .strafeToLinearHeading(new Vector2d(10, -35),Math.toRadians(82))
 
                 .waitSeconds(0.5)
 
@@ -289,9 +289,9 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
                 })
                 .build();
 
-        rota2 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(85)))
+        rota2 = drive.actionBuilder(new Pose2d(10, -35, Math.toRadians(82)))
 
-                .turnTo( Math.toRadians(145))
+                .turnTo( Math.toRadians(163))
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
@@ -299,7 +299,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
                 .build();
 
-        rota3 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(145)))
+        rota3 = drive.actionBuilder(new Pose2d(10, -35, Math.toRadians(163)))
                 .afterTime(0, ()->{
                     velocidade_desejada = 1280;
 
