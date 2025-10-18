@@ -21,7 +21,6 @@ import java.security.acl.LastOwnerException;
 import java.sql.Time;
 
 @Config
-@TeleOp
 @Disabled
 public class TeleOp_LIMELIGHT extends AprilTag {
 

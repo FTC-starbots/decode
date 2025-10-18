@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp
+
 public class Teste_Motores extends LinearOpMode {
 
     boolean Base_Motriz_State = false, Slide_Horizontal_State = false,

@@ -12,7 +12,7 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.List;
-@TeleOp(name = "Concept: AprilTag Localization", group = "Concept")
+
 public class AprilTag extends LinearOpMode {
     double ErroX;
     double ErroY;

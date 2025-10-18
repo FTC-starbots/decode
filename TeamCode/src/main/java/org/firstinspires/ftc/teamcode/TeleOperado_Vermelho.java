@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.limelightvision.LLResult;
@@ -8,23 +7,20 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
 
 import java.util.List;
 
 @Config
 @TeleOp
-public class TeleOperado extends Autonomo {
+public class TeleOperado_Vermelho extends Autonomo_VermelhoPEQUENO {
 
-    boolean Movimento_robo = false, Base_Motriz_State = false, Shoot = false, gamepad_1 = true;
+    boolean Movimento_robo = false, Base_Motriz_State = false, Shoot = false, gamepad_1 = true, PosDesejada = false, zone_system = true;
     boolean Iniciar_atirador = false, Corrigir_velocidade = false, detecting_ap = false, goal_ap = false;
 
     private Limelight3A limelight;
@@ -40,7 +36,7 @@ public class TeleOperado extends Autonomo {
 
     double controle_rotacao, Speed, angulo_desejado, angulo_robo, vectorX, vectorY, correcao_angular, velocidade_desejada = 0, kf_atirar,kp_atirar, alpha, kp_ap, ki_ap;
 
-    boolean areapermitida;
+    boolean areapermitida, zona_penal;
 
     private VoltageSensor ControlHub_VoltageSensor;
 
@@ -58,11 +54,9 @@ public class TeleOperado extends Autonomo {
 
     Pose2d pose_atual;
 
-    Autonomo auto = new Autonomo();
-
     double CorrTx,TxOffset, ErroMovX, ErroMovY, limelight_posX, limelight_posY, limelight_yaw, last_pose_X, last_pose_Y, goal_X, goal_Y = 54, Ai_shoot = 0, hip;
-    ElapsedTime RotacaoRobo, Tempo_de_ciclo,
-            MASTER_TIMER, timer_shooter, deltaTime;
+    ElapsedTime RotacaoRobo, Tempo_de_ciclo,posRobo,
+            MASTER_TIMER, timer_shooter, deltaTime, corrPen;
 
 
     @Override
@@ -132,7 +126,12 @@ public class TeleOperado extends Autonomo {
             MASTER_TIMER    = new ElapsedTime();
             timer_shooter   = new ElapsedTime();
             deltaTime       = new ElapsedTime();
+            posRobo = new ElapsedTime();
+            corrPen = new ElapsedTime();
 
+
+            corrPen.reset();
+            posRobo.reset();
             timer_shooter   .reset();
             RotacaoRobo     .reset();
             Tempo_de_ciclo  .reset();
@@ -143,14 +142,14 @@ public class TeleOperado extends Autonomo {
         posicao_desejada_indexer = 0;
 
         ControlHub_VoltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
-        boolean blue_alliance = true; //false = red
+        boolean blue_alliance = false; //false = red
         if (blue_alliance) {
             goal_X = -56.5;
         } else {
             goal_X = 56.5;
         }
         // Aguardando o início da execução
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, Math.toRadians(180)));
+        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(-10, -5, Math.toRadians(50)));
         limelight.start();
         limelight.pipelineSwitch(5);
 
@@ -189,9 +188,19 @@ public class TeleOperado extends Autonomo {
                     TxOffset = 0;
                     detecting_ap = false;
                 }
+
+            //Pose Control -------------------------------------------------------------------------
                 drive.updatePoseEstimate();
 
                 pose_atual = drive.localizer.getPose();
+                if(zona_penal){
+                    Movimento_robo = false;
+                    if(pose_atual.position.x > 0) {
+                        last_pose_X = pose_atual.position.x - 7;
+                    } else if (pose_atual.position.x < 0) {
+                        last_pose_X = pose_atual.position.x + 7;
+                    }
+                } else if (!PosDesejada){
                 if (gamepad_1){
                 if (Math.abs(gamepad1.left_stick_x) > 0.085 || Math.abs(gamepad1.left_stick_y) > 0.085) {
                     last_pose_X = pose_atual.position.x;
@@ -200,7 +209,7 @@ public class TeleOperado extends Autonomo {
                 } else {
                     Movimento_robo = false;
                 }
-                }else{
+                }else {
                     if (Math.abs(gamepad2.left_stick_x) > 0.085 || Math.abs(gamepad2.left_stick_y) > 0.085) {
                         last_pose_X = pose_atual.position.x;
                         last_pose_Y = pose_atual.position.y;
@@ -208,18 +217,27 @@ public class TeleOperado extends Autonomo {
                     } else {
                         Movimento_robo = false;
                     }
+                }
+
+                }else if (PosDesejada){
+                    Movimento_robo = false;
+                    last_pose_Y = -36;
+                    if (!blue_alliance){
+                        last_pose_X = -27;
+                    }else last_pose_X =27;
 
                 }
 
-                if (Movimento_robo == false) {
+                if (Movimento_robo == false && posRobo.seconds() >= 1) {
                     ErroMovX = pose_atual.position.x - last_pose_X;
                     ErroMovY = pose_atual.position.y - last_pose_Y;
                 } else {
+                    posRobo.reset();
                     ErroMovX = 0;
                     ErroMovY = 0;
                 }
 
-
+            //--------------------------------------------------------------------------------------
 
                 Base_Motriz();
                 Indexer();
@@ -247,6 +265,37 @@ public class TeleOperado extends Autonomo {
                 //_______________________________________________________________________________
                 controle_rotacao = 0.5;
                 //-----------------------------------------------------------------------------------------------
+
+
+                if(!blue_alliance) {
+                    if (pose_atual.position.x < -54 && -7 > pose_atual.position.y && pose_atual.position.y > -41) {
+                        corrPen.reset();
+                        zona_penal = true;
+                    } else if (pose_atual.position.x < -41 && -39 > pose_atual.position.y && pose_atual.position.y > -61) {
+                        corrPen.reset();
+                        zona_penal = true;
+                    } else if (pose_atual.position.x > 37 && 5 > pose_atual.position.y && pose_atual.position.y > -5) {
+                        corrPen.reset();
+                        zona_penal = true;
+                    } else {
+                        if (corrPen.seconds() > 1.5) zona_penal = false;
+                    }
+                }else {
+                    if (pose_atual.position.x > 54 && -7 > pose_atual.position.y && pose_atual.position.y > -41){
+                        corrPen.reset();
+                        zona_penal = true;
+                    }else if (pose_atual.position.x > 41 && -39 > pose_atual.position.y && pose_atual.position.y > -61){
+                        corrPen.reset();
+                        zona_penal = true;
+                    }else if (pose_atual.position.x < -37 && 5 > pose_atual.position.y && pose_atual.position.y > -5){
+                        corrPen.reset();
+                        zona_penal = true;
+                    }else {
+                        if (corrPen.seconds() > 1.5) zona_penal = false;
+                    }
+                }
+
+
                 if ((pose_atual.position.y >= Math.abs(pose_atual.position.x)) || (pose_atual.position.y <= -Math.abs(pose_atual.position.x) - 40)) {
                     areapermitida = true;
                     if (gamepad2.triangle){
@@ -273,6 +322,14 @@ public class TeleOperado extends Autonomo {
 
                 if (gamepad2.cross) gamepad_1 = false;
                 else if (gamepad1.square) gamepad_1 = true;
+
+
+                if (gamepad2.left_bumper) PosDesejada = true;
+                else if (gamepad2.right_bumper) PosDesejada = false;
+
+                if (gamepad1.square) zone_system = true;
+                else if (gamepad2.circle)zone_system = false;
+
 //--------------------Reservatorios
 
                 if(gamepad2.dpad_left&& areapermitida) {
@@ -368,17 +425,17 @@ public class TeleOperado extends Autonomo {
         double divisorX = 5 + 10 * Math.max(0, 1.0 - (Math.abs(ErroMovX) / 4.0));
         double divisorY = 5 + 10 * Math.max(0, 1.0 - (Math.abs(ErroMovY) / 4.0));
     if (gamepad_1) {
-        vectorX = (Math.cos(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_x/*+ (ErroMovY/divisorY)*/))
-                + Math.sin(-angulo_robo / 180 * Math.PI) * (-gamepad1.left_stick_y/*+(-ErroMovX/divisorX)*/);
+        vectorX = (Math.cos(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_x+ (ErroMovY/divisorY)))
+                + Math.sin(-angulo_robo / 180 * Math.PI) * (-gamepad1.left_stick_y+(-ErroMovX/divisorX));
 
-        vectorY = ((-Math.sin(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_x/*+ (ErroMovY/divisorY)*/))
-                + Math.cos(-angulo_robo / 180 * Math.PI) * (-gamepad1.left_stick_y /*+(-ErroMovX/divisorX)*/));
+        vectorY = ((-Math.sin(-angulo_robo / 180 * Math.PI) * (gamepad1.left_stick_x+ (ErroMovY/divisorY)))
+                + Math.cos(-angulo_robo / 180 * Math.PI) * (-gamepad1.left_stick_y +(-ErroMovX/divisorX)));
     }else{
-        vectorX = (Math.cos(-angulo_robo / 180 * Math.PI) * (gamepad2.left_stick_x/*+ (ErroMovY/divisorY)*/))
-                + Math.sin(-angulo_robo / 180 * Math.PI) * (-gamepad2.left_stick_y/*+(-ErroMovX/divisorX)*/);
+        vectorX = (Math.cos(-angulo_robo / 180 * Math.PI) * (gamepad2.left_stick_x+ (ErroMovY/divisorY)))
+                + Math.sin(-angulo_robo / 180 * Math.PI) * (-gamepad2.left_stick_y+(-ErroMovX/divisorX));
 
-        vectorY = ((-Math.sin(-angulo_robo / 180 * Math.PI) * (gamepad2.left_stick_x/*+ (ErroMovY/divisorY)*/))
-                + Math.cos(-angulo_robo / 180 * Math.PI) * (-gamepad2.left_stick_y /*+(-ErroMovX/divisorX)*/));
+        vectorY = ((-Math.sin(-angulo_robo / 180 * Math.PI) * (gamepad2.left_stick_x+ (ErroMovY/divisorY))
+                + Math.cos(-angulo_robo / 180 * Math.PI) * (-gamepad2.left_stick_y +(-ErroMovX/divisorX))));
 
     }
 
