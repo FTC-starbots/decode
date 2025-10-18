@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.limelightvision.LLResult;
@@ -15,14 +16,17 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 import java.util.List;
 
 @Config
 @TeleOp
-public class TeleOperado_Azul extends Autonomo_VermelhoPEQUENO {
+public class TeleOperado_Azul extends Autonomo_VermelhoGRANDE {
 
     boolean Movimento_robo = false, Base_Motriz_State = false, Shoot = false, gamepad_1 = true;
     boolean Iniciar_atirador = false, Corrigir_velocidade = false, detecting_ap = false, goal_ap = false;
+
 
     private Limelight3A limelight;
 
@@ -47,11 +51,13 @@ public class TeleOperado_Azul extends Autonomo_VermelhoPEQUENO {
 
     //variáveis dos controladores PiDF____________________________
     double integral_PiDF_Correcao_Angular = 0, integral_Indexer = 0, integral_PiDF_Shooter = 0;
-    double lasterror_PiDF_Correcao_Angular = 0, lasterror_PiDF_Shooter = 0;
+    double lasterror_PiDF_Correcao_Angular = 0, lasterror_PiDF_Shooter = 0, lasterror_PiDF_Indexer = 0;
 
     //____________________________________________________________
 
     double cicle_time = 0;
+    double[] amortecimento = new double[3];
+
 
     Pose2d pose_atual;
 
@@ -60,6 +66,10 @@ public class TeleOperado_Azul extends Autonomo_VermelhoPEQUENO {
     double CorrTx,TxOffset, ErroMovX, ErroMovY, limelight_posX, limelight_posY, limelight_yaw, last_pose_X, last_pose_Y, goal_X, goal_Y = 56.5, Ai_shoot = 0, hip;
     ElapsedTime RotacaoRobo, Tempo_de_ciclo,
             MASTER_TIMER, timer_shooter, deltaTime;
+
+
+    FtcDashboard dashboard = FtcDashboard.getInstance();
+    Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
 
     @Override
@@ -311,6 +321,10 @@ public class TeleOperado_Azul extends Autonomo_VermelhoPEQUENO {
                 if(Shoot) Shoot_single();
 //-----------------------------------------
 
+
+                dashboardTelemetry.addData("Velocidade Atirador", -Atirador_1.getVelocity());
+                dashboardTelemetry.addData("Velocidade desejada", velocidade_desejada) ;
+                dashboardTelemetry.update();
                 Telemetria();
                 Tempo_de_ciclo.reset();
             }
@@ -329,11 +343,37 @@ public class TeleOperado_Azul extends Autonomo_VermelhoPEQUENO {
         integral_PiDF_Correcao_Angular += integrativo;
         lasterror_PiDF_Correcao_Angular = erro;
 
-        if (Math.abs(erro)<0.05) integral_PiDF_Correcao_Angular = 0;
-        if (integral_PiDF_Correcao_Angular>0.15) integral_PiDF_Correcao_Angular=0.15;
-        else if (integral_PiDF_Correcao_Angular<-0.15) integral_PiDF_Correcao_Angular=-0.15;
+        if (erro<0 && integral_PiDF_Correcao_Angular >  0)integral_PiDF_Correcao_Angular = 0;
+        if (erro>0 && integral_PiDF_Correcao_Angular <  0)integral_PiDF_Correcao_Angular = 0;
+        if (integral_PiDF_Correcao_Angular>0.15) integral_PiDF_Correcao_Angular=0.05;
+        else if (integral_PiDF_Correcao_Angular<-0.15) integral_PiDF_Correcao_Angular=-0.05;
 
         double output = (proporcional + integral_PiDF_Correcao_Angular + derivativo ) * feedfoward;
+
+        if ( output > max) output = max;
+        else if (output < min) output = min;
+
+        return output;
+
+    }
+
+    private double PiDF_Indexer(double erro, double kp, double ki, double kd, double kf, double min, double max){
+
+        double BatVoltage = myControlHubVoltageSensor.getVoltage();
+        double feedfoward = 1 + (kf * (12.5-BatVoltage));
+        double integrativo = ki * (erro * cicle_time);
+        double derivativo = kd * ((erro - lasterror_PiDF_Indexer) / cicle_time);
+        double proporcional = kp * erro;
+
+        integral_Indexer += integrativo;
+        lasterror_PiDF_Indexer = erro;
+
+        if (erro<0 && integral_Indexer >  0)integral_Indexer = 0;
+        if (erro>0 && integral_Indexer <  0)integral_Indexer = 0;
+        if (integral_Indexer>0.15) integral_Indexer=0.05;
+        else if (integral_Indexer<-0.15) integral_Indexer=-0.05;
+
+        double output = (proporcional + integral_Indexer + derivativo ) * feedfoward;
 
         if ( output > max) output = max;
         else if (output < min) output = min;
@@ -357,10 +397,22 @@ public class TeleOperado_Azul extends Autonomo_VermelhoPEQUENO {
         if (integral_PiDF_Shooter>0.15) integral_PiDF_Shooter=0.15;
         else if (integral_PiDF_Shooter<-0.15) integral_PiDF_Shooter=-0.15;
 
+
         double output = (proporcional + integral_PiDF_Shooter + derivativo ) * feedfoward;
 
         if ( output > max) output = max;
         else if (output < min) output = min;
+
+        amortecimento[0] = output;
+
+        for (int j = 2; j > 0; j--) amortecimento[j] = (amortecimento[j - 1]);
+
+        double soma = 0;
+
+        for(int x=0 ; x<3 ; x++) soma = soma + amortecimento[x];
+
+        output = soma/3;
+
 
         return output;
 
@@ -416,9 +468,12 @@ public class TeleOperado_Azul extends Autonomo_VermelhoPEQUENO {
             last_pose_Y = pose_atual.position.y;
         } else {
 
-            //if (goal_ap && gamepad2.triangle && TxOffset != 0) correcaoP = (TxOffset-512)/40;
-
-            correcao_angular = PiDF_Correcao_Angular(correcaoP, 0.0135 /*+ kp_atirar*/,0.000004, -0.00, 0.15 + kf_atirar,-0.7,0.7);
+            if (goal_ap && gamepad2.triangle && TxOffset != 0){
+                angulo_desejado = angulo_robo;
+                correcaoP = (TxOffset-1250)/47.5;
+            }
+//0.016 0.0000004 //0
+            correcao_angular = PiDF_Correcao_Angular(correcaoP, 0.014 /*+ kp_atirar*/,0.04, 1.3, 0.15 + kf_atirar,-0.2,0.2);
 
         }
 
@@ -426,7 +481,7 @@ public class TeleOperado_Azul extends Autonomo_VermelhoPEQUENO {
         // Ajuste de velocidade baseado nos triggers do gamepad
 
         if(gamepad_1) {
-            if (Math.abs(gamepad1.left_trigger) > 0.1 || Math.abs(gamepad1.right_trigger) > 0.1 || gamepad1.dpad_left) {
+            if (Math.abs(gamepad1.left_trigger) > 0.1 || Math.abs(gamepad1.right_trigger) > 0.1) {
                 angulo_desejado = angulo_robo;
                 RotacaoRobo.reset();
 
@@ -482,20 +537,13 @@ public class TeleOperado_Azul extends Autonomo_VermelhoPEQUENO {
         double potencia_indexer;
         double erro = posicao_desejada_indexer - Indexer.getCurrentPosition();
         // Acumulando o erro para o integral
-        double proporcional =  erro * 0.0045;
 
-
-        double integrativo = 0.0005 * (erro * cicle_time);
-        integral_Indexer += integrativo;
 
         if (Math.abs(erro)<2) integral_Indexer = 0;
         if (integral_Indexer>0.1) integral_Indexer=0.1;
         else if (integral_Indexer<-0.1) integral_Indexer=-0.1;
 
-        potencia_indexer = proporcional + integral_Indexer;
-
-        if ( potencia_indexer > 0.4) potencia_indexer = 0.4;
-        else if (potencia_indexer < -0.4) potencia_indexer = -0.4;
+        potencia_indexer = PiDF_Indexer(erro, 0.0048,0.0005,1,0.1,-0.4,0.4);
 
         Indexer.setPower(potencia_indexer);
     }
@@ -503,9 +551,10 @@ public class TeleOperado_Azul extends Autonomo_VermelhoPEQUENO {
     private void Shooting_Vel() {
         double power_correction;
         double erro = velocidade_desejada + Atirador_1.getVelocity();
-        power_correction =  PiDF_Vel(erro,0.00005,0.015,0,0.15,-1,1);
 
-        if (power_correction < 0) power_correction = 0;
+        power_correction =  PiDF_Vel(erro,0.0005,0.25,20,0.15,0,1);
+
+        //if (power_correction < 0) power_correction = 0;
         if (velocidade_desejada == 0 ) Atirador_1.setPower(0);
         else Atirador_1.setPower( power_correction );
         Atirador_2.setPower(-Atirador_1.getPower());
@@ -576,6 +625,7 @@ public class TeleOperado_Azul extends Autonomo_VermelhoPEQUENO {
 
         telemetry.addData("Área de lançamento", areapermitida);
 
+
         telemetry.addData("","");
 
         telemetry.addData("posicao indexador", Indexer.getCurrentPosition());
@@ -588,13 +638,14 @@ public class TeleOperado_Azul extends Autonomo_VermelhoPEQUENO {
 
         telemetry.addData("","");
 
-        telemetry.addData("Offset Tx", (TxOffset-512));
+        telemetry.addData("Offset Tx", (TxOffset-1250));
 
         telemetry.addData("","");
 
+        telemetry.addData("erro_vel",(velocidade_desejada + Atirador_1.getVelocity()));
         telemetry.addData("Atirador1_vel", Atirador_1.getVelocity());
         telemetry.addData("Atirador1_power", Atirador_1.getPower());
-        telemetry.addData("Atirador1_powdesejada",velocidade_desejada);
+        telemetry.addData("Atirador1_veldesejada",velocidade_desejada);
 
         telemetry.addData("Corrigir_velocidade", Corrigir_velocidade);
         telemetry.addData("Iniciar_atirador", Iniciar_atirador);
