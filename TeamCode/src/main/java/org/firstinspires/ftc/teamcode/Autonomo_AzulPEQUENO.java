@@ -417,7 +417,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
                 })
 
                 .build();
-
+//
         rota4 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(137)))
 
                 .splineTo(new Vector2d(46.5, -25),Math.toRadians(90))
