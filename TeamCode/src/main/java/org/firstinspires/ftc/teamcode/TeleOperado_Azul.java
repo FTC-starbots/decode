@@ -502,7 +502,7 @@ public static double /*kpt= 0.0005,kit = 0.25,kdt = 20 ,kft = 0.15,kot= 100,mint
     private void Base_Motriz() {
 
         {
-            angulo_robo = (((rightFront.getCurrentPosition() - leftBack.getCurrentPosition()) / 370.0) % 360);
+            angulo_robo = Math.toDegrees(Math.atan2(pose_atual.heading.real, pose_atual.heading.imag));
 
             double divisorX = 5 + 10 * Math.max(0, 1.0 - (Math.abs(ErroMovX) / 4.0));
             double divisorY = 5 + 10 * Math.max(0, 1.0 - (Math.abs(ErroMovY) / 4.0));
@@ -805,10 +805,6 @@ public static double /*kpt= 0.0005,kit = 0.25,kdt = 20 ,kft = 0.15,kot= 100,mint
             telemetry.addData("**Outros**", "");
             telemetry.addData("Ângulo Robô", angulo_robo);
 
-            telemetry.addData("Ang pose_real", (Math.toDegrees(Math.atan2(pose_atual.heading.real, pose_atual.heading.imag))));
-
-            telemetry.addData("Ang pose_real", (pose_atual.heading.real));
-            telemetry.addData("Ang pose_imag", (pose_atual.heading.imag));
 
             telemetry.addData("Ângulo Lime", limelight_yaw);
             telemetry.addData("Ângulo Desejado", angulo_desejado);
