@@ -266,7 +266,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
         Actions.runBlocking(rota2);
 
-        velocidade_desejada = 1280;
+        velocidade_desejada = 1200;
 
         PIDs_state = true;
         Actions.runBlocking(new ParallelAction(rota3, new PIDs()));
@@ -285,10 +285,11 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
         Actions.runBlocking(rota6);
 
-        velocidade_desejada = 1280;
+        velocidade_desejada = 1200;
 
         PIDs_state = true;
-        Actions.runBlocking(new ParallelAction(rota3, new PIDs()));
+        Actions.runBlocking(new ParallelAction(rota7, new PIDs()));
+
 
     }
 
@@ -297,7 +298,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
         MecanumDrive.PARAMS.axialGain = 7.5;
         MecanumDrive.PARAMS.lateralGain = 40;
         MecanumDrive.PARAMS.headingGain = 36;
-        MecanumDrive.PARAMS.maxWheelVel = 50;
+        MecanumDrive.PARAMS.maxWheelVel = 40;
 
 
         drive = new MecanumDrive(hardwareMap, new Pose2d(10, 55,
@@ -314,7 +315,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
         rota2 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(85)))
 
-                .turnTo( Math.toRadians(137))
+                .turnTo( Math.toRadians(138))
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
@@ -322,9 +323,10 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
                 .build();
 
-        rota3 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(137)))
+        rota3 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(138)))
+                .waitSeconds(0.65)
                 .afterTime(0, ()->{
-                    velocidade_desejada = 1280;
+                    velocidade_desejada = 1200;
 
                 })
 
@@ -335,7 +337,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
                 })
 
-                .waitSeconds(2.4)
+                .waitSeconds(1.5)
 
                 .afterTime(0, ()->{
                     if (id_ap == 21) Reservoir_1.setPosition(1);
@@ -345,7 +347,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
                     PIDs_state = true;
                 })
 
-                .waitSeconds(1.5)
+                .waitSeconds(0.8)
 
                 .afterTime(0, ()->{
                     if (id_ap == 21) Reservoir_1.setPosition(0);
@@ -353,7 +355,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
                     if (id_ap == 23) Reservoir_2.setPosition(1);
                 })
 
-                .waitSeconds(1.2)
+                .waitSeconds(0.8)
 
                 .afterTime(0, ()->{
                     if (id_ap == 21) posicao_desejada_indexer = 218;
@@ -362,7 +364,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
                 })
 
-                .waitSeconds(1.5)
+                .waitSeconds(0.8)
 
                 .afterTime(0, ()->{
                     if (id_ap == 21) Reservoir_2.setPosition(0);
@@ -372,7 +374,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
                     PIDs_state = true;
                 })
 
-                .waitSeconds(1.5)
+                .waitSeconds(0.8)
 
                 .afterTime(0, ()->{
                     if (id_ap == 21) Reservoir_2.setPosition(1);
@@ -382,7 +384,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
                 })
 
-                .waitSeconds(1.2)
+                .waitSeconds(0.8)
 
                 .afterTime(0, ()->{
                     if (id_ap == 21) posicao_desejada_indexer = 440;
@@ -391,7 +393,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
                 })
 
-                .waitSeconds(1.2)
+                .waitSeconds(0.8)
 
                 .afterTime(0, ()->{
                     if (id_ap == 21) Reservoir_3.setPosition(1);
@@ -401,7 +403,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
                     PIDs_state = true;
                 })
 
-                .waitSeconds(1.5)
+                .waitSeconds(0.8)
 
                 .afterTime(0, ()->{
                     if (id_ap == 21) Reservoir_3.setPosition(0);
@@ -410,39 +412,131 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
                     posicao_desejada_indexer = 0;
                 })
 
-                .waitSeconds(2)
-
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
 
                 .build();
 //
-        rota4 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(137)))
+        rota4 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(138)))
 
-                .splineTo(new Vector2d(46.5, -25),Math.toRadians(90))
+                .strafeTo(new Vector2d(46.5, -40))
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
                 .build();
 
-        rota5 = drive.actionBuilder(new Pose2d(46.5, -25, Math.toRadians(90)))
+        rota5 = drive.actionBuilder(new Pose2d(46.5, -40, Math.toRadians(138)))
 
-                .strafeTo(new Vector2d(46.5, -10))
-                .waitSeconds(0.5)
+                .strafeToLinearHeading(new Vector2d(46.5, -8.5),Math.toRadians(90))
+                .waitSeconds(0.65)
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
                 .build();
 
-        rota6 = drive.actionBuilder(new Pose2d(46.5, -10, Math.toRadians(90)))
+        rota6 = drive.actionBuilder(new Pose2d(46.5, -8.5, Math.toRadians(90)))
 
-                .splineTo(new Vector2d(10, -20),Math.toRadians(137))
-                .waitSeconds(0.5)
+                .strafeToLinearHeading(new Vector2d(10, -20),Math.toRadians(132))
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
+                .build();
+
+        rota7 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(132)))
+                .waitSeconds(0.65)
+                .afterTime(0, ()->{
+                    velocidade_desejada = 1200;
+
+                })
+
+                .afterTime(0, ()->{
+                    if (id_ap == 21) posicao_desejada_indexer = 0;
+                    if (id_ap == 22) posicao_desejada_indexer = 218;
+                    if (id_ap == 23) posicao_desejada_indexer = 218;
+
+                })
+
+                .waitSeconds(1.5)
+
+                .afterTime(0, ()->{
+                    if (id_ap == 21) Reservoir_1.setPosition(1);
+                    if (id_ap == 22) Reservoir_2.setPosition(0);
+                    if (id_ap == 23) Reservoir_2.setPosition(0);
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.8)
+
+                .afterTime(0, ()->{
+                    if (id_ap == 21) Reservoir_1.setPosition(0);
+                    if (id_ap == 22) Reservoir_2.setPosition(1);
+                    if (id_ap == 23) Reservoir_2.setPosition(1);
+                })
+
+                .waitSeconds(0.8)
+
+                .afterTime(0, ()->{
+                    if (id_ap == 21) posicao_desejada_indexer = 218;
+                    if (id_ap == 22) posicao_desejada_indexer = 0;
+                    if (id_ap == 23) posicao_desejada_indexer = 440;
+
+                })
+
+                .waitSeconds(0.8)
+
+                .afterTime(0, ()->{
+                    if (id_ap == 21) Reservoir_2.setPosition(0);
+                    if (id_ap == 22) Reservoir_1.setPosition(1);
+                    if (id_ap == 23) Reservoir_3.setPosition(1);
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.8)
+
+                .afterTime(0, ()->{
+                    if (id_ap == 21) Reservoir_2.setPosition(1);
+                    if (id_ap == 22) Reservoir_1.setPosition(0);
+                    if (id_ap == 23) Reservoir_3.setPosition(0);
+                    velocidade_desejada = 1292;
+
+                })
+
+                .waitSeconds(0.8)
+
+                .afterTime(0, ()->{
+                    if (id_ap == 21) posicao_desejada_indexer = 440;
+                    if (id_ap == 22) posicao_desejada_indexer = 440;
+                    if (id_ap == 23) posicao_desejada_indexer = 0;
+
+                })
+
+                .waitSeconds(0.8)
+
+                .afterTime(0, ()->{
+                    if (id_ap == 21) Reservoir_3.setPosition(1);
+                    if (id_ap == 22) Reservoir_3.setPosition(1);
+                    if (id_ap == 23) Reservoir_1.setPosition(1);
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.8)
+
+                .afterTime(0, ()->{
+                    if (id_ap == 21) Reservoir_3.setPosition(0);
+                    if (id_ap == 22) Reservoir_3.setPosition(0);
+                    if (id_ap == 23) Reservoir_1.setPosition(0);
+                    posicao_desejada_indexer = 0;
+                })
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+
                 .build();
 
     }
