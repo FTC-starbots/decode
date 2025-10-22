@@ -47,25 +47,25 @@ public class Autonomo_AzulPEQUENO extends LinearOpMode {
 double erro = velocidade_desejada + Atirador_1.getVelocity();
             double BatVoltage = myControlHubVoltageSensor.getVoltage();
             double feedfoward = 1 + (0.15 * (12.5-BatVoltage));
-            double integrativo = 0.015 * (erro * cicle_time);
+            double integrativo = 0.0000001 * (erro * cicle_time);
             double derivativo = 0 * ((erro - lasterror_PiDF_Shooter) / cicle_time);
-            double proporcional = 0.00005 * erro;
+            double proporcional = 0.005 * erro;
 
             integral_PiDF_Shooter += integrativo;
             lasterror_PiDF_Shooter = erro;
 
             if (Math.abs(erro)<0.05) integral_PiDF_Shooter = 0;
-            if (integral_PiDF_Shooter>0.15) integral_PiDF_Shooter=0.15;
-            else if (integral_PiDF_Shooter<-0.15) integral_PiDF_Shooter=-0.15;
+            if (integral_PiDF_Shooter>0.5) integral_PiDF_Shooter=0.5;
+            else if (integral_PiDF_Shooter<-0.5) integral_PiDF_Shooter=-0.5;
 
             double power_correction = (proporcional + integral_PiDF_Shooter + derivativo ) * feedfoward;
 
             if ( power_correction > 1) power_correction = 1;
-            else if (power_correction < -1) power_correction = -1;
+            else if (power_correction < 0) power_correction = 0;
 
-            if (power_correction < 0) power_correction = 0;
             if (velocidade_desejada == 0 ) Atirador_1.setPower(0);
             else Atirador_1.setPower( power_correction );
+
             Atirador_2.setPower(-Atirador_1.getPower());
 
 
@@ -76,17 +76,23 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
             double potencia_indexer;
             double erro1 = posicao_desejada_indexer - Indexer.getCurrentPosition();
             // Acumulando o erro para o integral
-            double proporcional1 =  erro1 * 0.0045;
+            double proporcional1 =  erro1 * 0.028;
 
 
-            double integrativo1 = 0.0005 * (erro1 * cicle_time);
+            double integrativo1 = 0.02 * (erro1 * cicle_time);
+
+            double derivativo1 = 1 * ((erro - lasterror_PiDF_Indexer) / cicle_time);
             integral_Indexer += integrativo1;
 
-            if (Math.abs(erro)<2) integral_Indexer = 0;
-            if (integral_Indexer>0.1) integral_Indexer=0.1;
-            else if (integral_Indexer<-0.1) integral_Indexer=-0.1;
+            lasterror_PiDF_Indexer = erro;
 
-            potencia_indexer = proporcional1 + integral_Indexer;
+            if (erro<0 && integral_Indexer >  0)integral_Indexer = 0;
+            if (erro>0 && integral_Indexer <  0)integral_Indexer = 0;
+            if (integral_Indexer>0.15) integral_Indexer=0.05;
+            else if (integral_Indexer<-0.15) integral_Indexer=-0.05;
+
+            potencia_indexer =(proporcional1 + integral_Indexer + derivativo1 ) * feedfoward;
+
 
             if ( potencia_indexer > 0.4) potencia_indexer = 0.4;
             else if (potencia_indexer < -0.4) potencia_indexer = -0.4;
@@ -113,7 +119,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
     int posicao_desejada_indexer = 0, reservatorio = 0, reservatorio_1, reservatorio_2, reservatorio_3;
 
     double power_correction;
-    double potencia_indexer, integral_PiDF_Shooter, lasterror_PiDF_Shooter, integral_Indexer;
+    double potencia_indexer, integral_PiDF_Shooter, lasterror_PiDF_Shooter, integral_Indexer, lasterror_PiDF_Indexer;
     double[] media_speed = new double[10];
     private VoltageSensor ControlHub_VoltageSensor;
 
@@ -219,6 +225,24 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
         //--------Calcula Rotas e parametriza drivetrain---------------------
         Rotas();
         //------------------------------------------
+        LLResult result2 = limelight.getLatestResult();
+        List<LLResultTypes.FiducialResult> fiducialResults2 = result2.getFiducialResults();
+
+        for (LLResultTypes.FiducialResult fr : fiducialResults2) {
+            id_ap = fr.getFiducialId();
+        }
+        if (id_ap == 21) {
+            Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+        }else  if (id_ap == 22) {
+            Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
+
+        }else  if (id_ap == 23) {
+            Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+        }else  {
+            id_ap = 21;
+            Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+        }
+
         waitForStart();
         PIDs_state = false;
         Actions.runBlocking(rota1);
@@ -238,27 +262,28 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
             Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
         }else  Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
 
-        LLResult result2 = limelight.getLatestResult();
-        List<LLResultTypes.FiducialResult> fiducialResults2 = result2.getFiducialResults();
-
-        for (LLResultTypes.FiducialResult fr : fiducialResults2) {
-            id_ap = fr.getFiducialId();
-        }
-        if (id_ap == 21) {
-            Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-        }else  if (id_ap == 22) {
-            Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
-
-        }else  if (id_ap == 23) {
-            Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
-        }else  {
-            id_ap = 21;
-            Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
-        }
-
 
 
         Actions.runBlocking(rota2);
+
+        velocidade_desejada = 1280;
+
+        PIDs_state = true;
+        Actions.runBlocking(new ParallelAction(rota3, new PIDs()));
+
+        Intake.setPower(1);
+
+        Atirador_1.setPower(0);
+        Atirador_2.setPower(0);
+
+        PIDs_state = false;
+        Actions.runBlocking(rota4);
+
+        Actions.runBlocking(rota5);
+
+        Intake.setPower(0);
+
+        Actions.runBlocking(rota6);
 
         velocidade_desejada = 1280;
 
@@ -282,8 +307,6 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
                 .strafeToLinearHeading(new Vector2d(10, -20),Math.toRadians(85))
 
-                .waitSeconds(0.5)
-
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
@@ -291,7 +314,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
         rota2 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(85)))
 
-                .turnTo( Math.toRadians(140))
+                .turnTo( Math.toRadians(137))
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
@@ -299,7 +322,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
                 .build();
 
-        rota3 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(140)))
+        rota3 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(137)))
                 .afterTime(0, ()->{
                     velocidade_desejada = 1280;
 
@@ -312,12 +335,12 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
                 })
 
-                .waitSeconds(3.4)
+                .waitSeconds(2.4)
 
                 .afterTime(0, ()->{
                     if (id_ap == 21) Reservoir_1.setPosition(1);
-                    if (id_ap == 22) Reservoir_2.setPosition(1);
-                    if (id_ap == 23) Reservoir_2.setPosition(1);
+                    if (id_ap == 22) Reservoir_2.setPosition(0);
+                    if (id_ap == 23) Reservoir_2.setPosition(0);
 
                     PIDs_state = true;
                 })
@@ -326,8 +349,8 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
                 .afterTime(0, ()->{
                     if (id_ap == 21) Reservoir_1.setPosition(0);
-                    if (id_ap == 22) Reservoir_2.setPosition(0);
-                    if (id_ap == 23) Reservoir_2.setPosition(0);
+                    if (id_ap == 22) Reservoir_2.setPosition(1);
+                    if (id_ap == 23) Reservoir_2.setPosition(1);
                 })
 
                 .waitSeconds(1.2)
@@ -339,20 +362,20 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
                 })
 
-                .waitSeconds(2)
+                .waitSeconds(1.5)
 
                 .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_2.setPosition(1);
+                    if (id_ap == 21) Reservoir_2.setPosition(0);
                     if (id_ap == 22) Reservoir_1.setPosition(1);
                     if (id_ap == 23) Reservoir_3.setPosition(1);
 
                     PIDs_state = true;
                 })
 
-                .waitSeconds(1.2)
+                .waitSeconds(1.5)
 
                 .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_2.setPosition(0);
+                    if (id_ap == 21) Reservoir_2.setPosition(1);
                     if (id_ap == 22) Reservoir_1.setPosition(0);
                     if (id_ap == 23) Reservoir_3.setPosition(0);
                     velocidade_desejada = 1292;
@@ -368,7 +391,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
                 })
 
-                .waitSeconds(2.2)
+                .waitSeconds(1.2)
 
                 .afterTime(0, ()->{
                     if (id_ap == 21) Reservoir_3.setPosition(1);
@@ -378,7 +401,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
                     PIDs_state = true;
                 })
 
-                .waitSeconds(1.2)
+                .waitSeconds(1.5)
 
                 .afterTime(0, ()->{
                     if (id_ap == 21) Reservoir_3.setPosition(0);
@@ -389,14 +412,38 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
                 .waitSeconds(2)
 
-                .turnTo(Math.toRadians(0))
-
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
 
                 .build();
+//
+        rota4 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(137)))
 
+                .splineTo(new Vector2d(46.5, -25),Math.toRadians(90))
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota5 = drive.actionBuilder(new Pose2d(46.5, -25, Math.toRadians(90)))
+
+                .strafeTo(new Vector2d(46.5, -10))
+                .waitSeconds(0.5)
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota6 = drive.actionBuilder(new Pose2d(46.5, -10, Math.toRadians(90)))
+
+                .splineTo(new Vector2d(10, -20),Math.toRadians(137))
+                .waitSeconds(0.5)
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
 
     }
 
