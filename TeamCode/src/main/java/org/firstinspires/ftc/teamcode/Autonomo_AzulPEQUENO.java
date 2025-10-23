@@ -315,7 +315,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
         rota2 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(85)))
 
-                .turnTo( Math.toRadians(138))
+                .turnTo( Math.toRadians(138.5))
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
@@ -323,7 +323,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
                 .build();
 
-        rota3 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(138)))
+        rota3 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(138.5)))
                 .waitSeconds(0.65)
                 .afterTime(0, ()->{
                     velocidade_desejada = 1200;
@@ -418,7 +418,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
                 .build();
 //
-        rota4 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(138)))
+        rota4 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(138.5)))
 
                 .strafeTo(new Vector2d(46.5, -40))
 
@@ -427,7 +427,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
                 })
                 .build();
 
-        rota5 = drive.actionBuilder(new Pose2d(46.5, -40, Math.toRadians(138)))
+        rota5 = drive.actionBuilder(new Pose2d(46.5, -40, Math.toRadians(138.5)))
 
                 .strafeToLinearHeading(new Vector2d(46.5, -8.5),Math.toRadians(90))
                 .waitSeconds(0.65)
