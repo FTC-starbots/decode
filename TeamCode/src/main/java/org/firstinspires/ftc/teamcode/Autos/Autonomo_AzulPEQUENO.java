@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Autos;
 
 import androidx.annotation.NonNull;
 
@@ -22,6 +22,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -150,17 +151,17 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
     public double velocidade_desejada = 1347, Ai_shoot;
 
-    private Action rota1;
-    private Action rota2;
-    private Action rota3;
-    private Action rota4;
-    private Action rota5;
-    private Action rota6;
-    private Action rota7;
-    private Action rota8;
-    private Action rota9;
-
     MecanumDrive drive;
+
+    public Action rota1;
+    public Action rota2;
+    public Action rota3;
+    public Action rota4;
+    public Action rota5;
+    public Action rota6;
+    public Action rota7;
+    public Action rota8;
+    public Action rota9;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -223,6 +224,9 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
         limelight.start();
         limelight.pipelineSwitch(5);
         //--------Calcula Rotas e parametriza drivetrain---------------------
+       //Rotas rotas = new  Rotas();
+       //rotas.Rotas_APequeno();
+
         Rotas();
         //------------------------------------------
         LLResult result2 = limelight.getLatestResult();
@@ -266,7 +270,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
         Actions.runBlocking(rota2);
 
-        velocidade_desejada = 1200;
+        velocidade_desejada = 1225;
 
         PIDs_state = true;
         Actions.runBlocking(new ParallelAction(rota3, new PIDs()));
@@ -281,11 +285,12 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
         Actions.runBlocking(rota5);
 
-        Intake.setPower(0);
-
         Actions.runBlocking(rota6);
 
-        velocidade_desejada = 1200;
+        Intake.setPower(0);
+
+
+        velocidade_desejada = 1225;
 
         PIDs_state = true;
         Actions.runBlocking(new ParallelAction(rota7, new PIDs()));
@@ -324,9 +329,8 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
                 .build();
 
         rota3 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(138.5)))
-                .waitSeconds(0.65)
                 .afterTime(0, ()->{
-                    velocidade_desejada = 1200;
+                    velocidade_desejada = 1225;
 
                 })
 
@@ -337,7 +341,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
                 })
 
-                .waitSeconds(1.5)
+                .waitSeconds(1.2)
 
                 .afterTime(0, ()->{
                     if (id_ap == 21) Reservoir_1.setPosition(1);
@@ -350,21 +354,17 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
                 .waitSeconds(0.8)
 
                 .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_1.setPosition(0);
-                    if (id_ap == 22) Reservoir_2.setPosition(1);
-                    if (id_ap == 23) Reservoir_2.setPosition(1);
-                })
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
 
-                .waitSeconds(0.8)
-
-                .afterTime(0, ()->{
                     if (id_ap == 21) posicao_desejada_indexer = 218;
                     if (id_ap == 22) posicao_desejada_indexer = 0;
                     if (id_ap == 23) posicao_desejada_indexer = 440;
 
                 })
 
-                .waitSeconds(0.8)
+                .waitSeconds(0.6)
 
                 .afterTime(0, ()->{
                     if (id_ap == 21) Reservoir_2.setPosition(0);
@@ -376,24 +376,20 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
                 .waitSeconds(0.8)
 
-                .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_2.setPosition(1);
-                    if (id_ap == 22) Reservoir_1.setPosition(0);
-                    if (id_ap == 23) Reservoir_3.setPosition(0);
-                    velocidade_desejada = 1292;
-
-                })
-
-                .waitSeconds(0.8)
 
                 .afterTime(0, ()->{
+
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
                     if (id_ap == 21) posicao_desejada_indexer = 440;
                     if (id_ap == 22) posicao_desejada_indexer = 440;
                     if (id_ap == 23) posicao_desejada_indexer = 0;
 
                 })
 
-                .waitSeconds(0.8)
+                .waitSeconds(0.6)
 
                 .afterTime(0, ()->{
                     if (id_ap == 21) Reservoir_3.setPosition(1);
@@ -406,9 +402,9 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
                 .waitSeconds(0.8)
 
                 .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_3.setPosition(0);
-                    if (id_ap == 22) Reservoir_3.setPosition(0);
-                    if (id_ap == 23) Reservoir_1.setPosition(0);
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
                     posicao_desejada_indexer = 0;
                 })
 
@@ -445,9 +441,8 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
                 .build();
 
         rota7 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(132)))
-                .waitSeconds(0.65)
                 .afterTime(0, ()->{
-                    velocidade_desejada = 1200;
+                    velocidade_desejada = 1225;
 
                 })
 
@@ -458,7 +453,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
                 })
 
-                .waitSeconds(1.5)
+                .waitSeconds(1.2)
 
                 .afterTime(0, ()->{
                     if (id_ap == 21) Reservoir_1.setPosition(1);
@@ -471,21 +466,17 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
                 .waitSeconds(0.8)
 
                 .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_1.setPosition(0);
-                    if (id_ap == 22) Reservoir_2.setPosition(1);
-                    if (id_ap == 23) Reservoir_2.setPosition(1);
-                })
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
 
-                .waitSeconds(0.8)
-
-                .afterTime(0, ()->{
                     if (id_ap == 21) posicao_desejada_indexer = 218;
                     if (id_ap == 22) posicao_desejada_indexer = 0;
                     if (id_ap == 23) posicao_desejada_indexer = 440;
 
                 })
 
-                .waitSeconds(0.8)
+                .waitSeconds(0.6)
 
                 .afterTime(0, ()->{
                     if (id_ap == 21) Reservoir_2.setPosition(0);
@@ -497,24 +488,20 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
                 .waitSeconds(0.8)
 
-                .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_2.setPosition(1);
-                    if (id_ap == 22) Reservoir_1.setPosition(0);
-                    if (id_ap == 23) Reservoir_3.setPosition(0);
-                    velocidade_desejada = 1292;
-
-                })
-
-                .waitSeconds(0.8)
 
                 .afterTime(0, ()->{
+
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
                     if (id_ap == 21) posicao_desejada_indexer = 440;
                     if (id_ap == 22) posicao_desejada_indexer = 440;
                     if (id_ap == 23) posicao_desejada_indexer = 0;
 
                 })
 
-                .waitSeconds(0.8)
+                .waitSeconds(0.6)
 
                 .afterTime(0, ()->{
                     if (id_ap == 21) Reservoir_3.setPosition(1);
@@ -527,9 +514,9 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
                 .waitSeconds(0.8)
 
                 .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_3.setPosition(0);
-                    if (id_ap == 22) Reservoir_3.setPosition(0);
-                    if (id_ap == 23) Reservoir_1.setPosition(0);
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
                     posicao_desejada_indexer = 0;
                 })
 

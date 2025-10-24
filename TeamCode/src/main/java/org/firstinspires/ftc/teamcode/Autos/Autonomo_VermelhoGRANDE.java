@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Autos;
 
 import androidx.annotation.NonNull;
 
@@ -22,6 +22,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +32,7 @@ import java.util.List;
 @Autonomous
 
 
-public class Autonomo_VermelhoPEQUENO extends LinearOpMode {
+public class Autonomo_VermelhoGRANDE extends LinearOpMode {
 
     private static final Logger log = LoggerFactory.getLogger(Autonomo_AzulPEQUENO.class);
 
@@ -275,12 +276,12 @@ public class Autonomo_VermelhoPEQUENO extends LinearOpMode {
         MecanumDrive.PARAMS.maxWheelVel = 50;
 
 
-        drive = new MecanumDrive(hardwareMap, new Pose2d(-10, 55,
+        drive = new MecanumDrive(hardwareMap, new Pose2d(-40, -55,
                 Math.toRadians(90)));
 
-        rota1 = drive.actionBuilder(new Pose2d(-10, 55, Math.toRadians(90)))
+        rota1 = drive.actionBuilder(new Pose2d(-40, -55, Math.toRadians(90)))
 
-                .strafeToLinearHeading(new Vector2d(-10, -20),Math.toRadians(85))
+                .strafeToLinearHeading(new Vector2d(-10, -40),Math.toRadians(85))
 
                 .waitSeconds(0.5)
 
@@ -289,9 +290,9 @@ public class Autonomo_VermelhoPEQUENO extends LinearOpMode {
                 })
                 .build();
 
-        rota2 = drive.actionBuilder(new Pose2d(-10, -20, Math.toRadians(95)))
+        rota2 = drive.actionBuilder(new Pose2d(-10, -40, Math.toRadians(95)))
 
-                .turnTo( Math.toRadians(40))
+                .turnTo( Math.toRadians(17))
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
@@ -299,7 +300,7 @@ public class Autonomo_VermelhoPEQUENO extends LinearOpMode {
 
                 .build();
 
-        rota3 = drive.actionBuilder(new Pose2d(-10, -20, Math.toRadians(40)))
+        rota3 = drive.actionBuilder(new Pose2d(-10, -40, Math.toRadians(17)))
                 .afterTime(0, ()->{
                     velocidade_desejada = 1280;
 
