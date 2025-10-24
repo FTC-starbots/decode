@@ -32,11 +32,9 @@ import java.util.List;
 @Autonomous
 
 
-public class Autonomo_AzulPEQUENO extends LinearOpMode {
+public class Autonomo_AzulPEQUENO extends Rotas {
 
-    private static final Logger log = LoggerFactory.getLogger(Autonomo_AzulPEQUENO.class);
-
-    public class PIDs implements Action {
+    public  class PIDs implements Action {
         public PIDs() {
 
             cicle_time = deltaTime.milliseconds();
@@ -116,53 +114,6 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
 
 
-    public VoltageSensor myControlHubVoltageSensor;
-    int posicao_desejada_indexer = 0, reservatorio = 0, reservatorio_1, reservatorio_2, reservatorio_3;
-
-    double power_correction;
-    double potencia_indexer, integral_PiDF_Shooter, lasterror_PiDF_Shooter, integral_Indexer, lasterror_PiDF_Indexer;
-    double[] media_speed = new double[10];
-    private VoltageSensor ControlHub_VoltageSensor;
-
-
-    //variáveis dos controladores PiDF____________________________
-    double integral_PiDF_Correcao_Angular = 0;
-    double lasterror_PiDF_Correcao_Angular = 0;
-
-    //____________________________________________________________
-
-    double cicle_time = 0;
-
-
-
-    private Limelight3A limelight;
-
-    private DcMotorEx leftBack, leftFront, rightBack, rightFront, Intake, Atirador_1, Atirador_2, Indexer;
-
-    private Servo Reservoir_2, Reservoir_1, Reservoir_3;
-
-    private RevBlinkinLedDriver Led_Strip;
-
-    boolean PIDs_state;
-
-    public int id_ap;
-
-    ElapsedTime  timer_shooter, deltaTime;
-
-    public double velocidade_desejada = 1347, Ai_shoot;
-
-    MecanumDrive drive;
-
-    public Action rota1;
-    public Action rota2;
-    public Action rota3;
-    public Action rota4;
-    public Action rota5;
-    public Action rota6;
-    public Action rota7;
-    public Action rota8;
-    public Action rota9;
-
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -224,53 +175,66 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
         limelight.start();
         limelight.pipelineSwitch(5);
         //--------Calcula Rotas e parametriza drivetrain---------------------
-       //Rotas rotas = new  Rotas();
-       //rotas.Rotas_APequeno();
 
-        Rotas();
+
+
+
+        Rotas_APequeno();
         //------------------------------------------
-        LLResult result2 = limelight.getLatestResult();
-        List<LLResultTypes.FiducialResult> fiducialResults2 = result2.getFiducialResults();
+        //Leitura de AP
+        {
+            LLResult result2 = limelight.getLatestResult();
+            List<LLResultTypes.FiducialResult> fiducialResults2 = result2.getFiducialResults();
 
-        for (LLResultTypes.FiducialResult fr : fiducialResults2) {
-            id_ap = fr.getFiducialId();
+            for (LLResultTypes.FiducialResult fr : fiducialResults2) {
+                id_ap = fr.getFiducialId();
+            }
+            if (id_ap == 21) {
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+            } else if (id_ap == 22) {
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
+
+            } else if (id_ap == 23) {
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+            } else {
+                id_ap = 21;
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+            }
         }
-        if (id_ap == 21) {
-            Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-        }else  if (id_ap == 22) {
-            Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
-
-        }else  if (id_ap == 23) {
-            Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
-        }else  {
-            id_ap = 21;
-            Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
-        }
-
         waitForStart();
+
+        Auto_APequeno();
+    }
+
+    public void Auto_APequeno() {
+
         PIDs_state = false;
+
+
         Actions.runBlocking(rota1);
+        //Leitura de AP
 
-        LLResult result = limelight.getLatestResult();
-        List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
+        {
+            LLResult result = limelight.getLatestResult();
+            List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
 
-        for (LLResultTypes.FiducialResult fr : fiducialResults) {
-            id_ap = fr.getFiducialId();
+            for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                id_ap = fr.getFiducialId();
+            }
+            if (id_ap == 21) {
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+            } else if (id_ap == 22) {
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
+
+            } else if (id_ap == 23) {
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+            } else Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+
         }
-        if (id_ap == 21) {
-            Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-        }else  if (id_ap == 22) {
-            Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
-
-        }else  if (id_ap == 23) {
-            Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
-        }else  Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
-
-
 
         Actions.runBlocking(rota2);
 
-        velocidade_desejada = 1225;
+        velocidade_desejada = 1235;
 
         PIDs_state = true;
         Actions.runBlocking(new ParallelAction(rota3, new PIDs()));
@@ -290,291 +254,13 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
         Intake.setPower(0);
 
 
-        velocidade_desejada = 1225;
+        velocidade_desejada = 1215;
 
         PIDs_state = true;
         Actions.runBlocking(new ParallelAction(rota7, new PIDs()));
 
-
     }
 
-    public void Rotas() {
-
-        MecanumDrive.PARAMS.axialGain = 7.5;
-        MecanumDrive.PARAMS.lateralGain = 40;
-        MecanumDrive.PARAMS.headingGain = 36;
-        MecanumDrive.PARAMS.maxWheelVel = 40;
-
-
-        drive = new MecanumDrive(hardwareMap, new Pose2d(10, 55,
-                Math.toRadians(90)));
-
-        rota1 = drive.actionBuilder(new Pose2d(10, 55, Math.toRadians(90)))
-
-                .strafeToLinearHeading(new Vector2d(10, -20),Math.toRadians(85))
-
-                .afterTime(0, ()->{
-                    PIDs_state = false;
-                })
-                .build();
-
-        rota2 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(85)))
-
-                .turnTo( Math.toRadians(138.5))
-
-                .afterTime(0, ()->{
-                    PIDs_state = false;
-                })
-
-                .build();
-
-        rota3 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(138.5)))
-                .afterTime(0, ()->{
-                    velocidade_desejada = 1225;
-
-                })
-
-                .afterTime(0, ()->{
-                    if (id_ap == 21) posicao_desejada_indexer = 0;
-                    if (id_ap == 22) posicao_desejada_indexer = 218;
-                    if (id_ap == 23) posicao_desejada_indexer = 218;
-
-                })
-
-                .waitSeconds(1.2)
-
-                .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_1.setPosition(1);
-                    if (id_ap == 22) Reservoir_2.setPosition(0);
-                    if (id_ap == 23) Reservoir_2.setPosition(0);
-
-                    PIDs_state = true;
-                })
-
-                .waitSeconds(0.8)
-
-                .afterTime(0, ()->{
-                    Reservoir_1.setPosition(0);
-                    Reservoir_2.setPosition(1);
-                    Reservoir_3.setPosition(0);
-
-                    if (id_ap == 21) posicao_desejada_indexer = 218;
-                    if (id_ap == 22) posicao_desejada_indexer = 0;
-                    if (id_ap == 23) posicao_desejada_indexer = 440;
-
-                })
-
-                .waitSeconds(0.6)
-
-                .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_2.setPosition(0);
-                    if (id_ap == 22) Reservoir_1.setPosition(1);
-                    if (id_ap == 23) Reservoir_3.setPosition(1);
-
-                    PIDs_state = true;
-                })
-
-                .waitSeconds(0.8)
-
-
-                .afterTime(0, ()->{
-
-                    Reservoir_1.setPosition(0);
-                    Reservoir_2.setPosition(1);
-                    Reservoir_3.setPosition(0);
-
-                    if (id_ap == 21) posicao_desejada_indexer = 440;
-                    if (id_ap == 22) posicao_desejada_indexer = 440;
-                    if (id_ap == 23) posicao_desejada_indexer = 0;
-
-                })
-
-                .waitSeconds(0.6)
-
-                .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_3.setPosition(1);
-                    if (id_ap == 22) Reservoir_3.setPosition(1);
-                    if (id_ap == 23) Reservoir_1.setPosition(1);
-
-                    PIDs_state = true;
-                })
-
-                .waitSeconds(0.8)
-
-                .afterTime(0, ()->{
-                    Reservoir_1.setPosition(0);
-                    Reservoir_2.setPosition(1);
-                    Reservoir_3.setPosition(0);
-                    posicao_desejada_indexer = 0;
-                })
-
-                .afterTime(0, ()->{
-                    PIDs_state = false;
-                })
-
-                .build();
-//
-        rota4 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(138.5)))
-
-                .strafeTo(new Vector2d(46.5, -40))
-
-                .afterTime(0, ()->{
-                    PIDs_state = false;
-                })
-                .build();
-
-        rota5 = drive.actionBuilder(new Pose2d(46.5, -40, Math.toRadians(138.5)))
-
-                .strafeToLinearHeading(new Vector2d(46.5, -8.5),Math.toRadians(90))
-                .waitSeconds(0.65)
-                .afterTime(0, ()->{
-                    PIDs_state = false;
-                })
-                .build();
-
-        rota6 = drive.actionBuilder(new Pose2d(46.5, -8.5, Math.toRadians(90)))
-
-                .strafeToLinearHeading(new Vector2d(10, -20),Math.toRadians(132))
-                .afterTime(0, ()->{
-                    PIDs_state = false;
-                })
-                .build();
-
-        rota7 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(132)))
-                .afterTime(0, ()->{
-                    velocidade_desejada = 1225;
-
-                })
-
-                .afterTime(0, ()->{
-                    if (id_ap == 21) posicao_desejada_indexer = 0;
-                    if (id_ap == 22) posicao_desejada_indexer = 218;
-                    if (id_ap == 23) posicao_desejada_indexer = 218;
-
-                })
-
-                .waitSeconds(1.2)
-
-                .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_1.setPosition(1);
-                    if (id_ap == 22) Reservoir_2.setPosition(0);
-                    if (id_ap == 23) Reservoir_2.setPosition(0);
-
-                    PIDs_state = true;
-                })
-
-                .waitSeconds(0.8)
-
-                .afterTime(0, ()->{
-                    Reservoir_1.setPosition(0);
-                    Reservoir_2.setPosition(1);
-                    Reservoir_3.setPosition(0);
-
-                    if (id_ap == 21) posicao_desejada_indexer = 218;
-                    if (id_ap == 22) posicao_desejada_indexer = 0;
-                    if (id_ap == 23) posicao_desejada_indexer = 440;
-
-                })
-
-                .waitSeconds(0.6)
-
-                .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_2.setPosition(0);
-                    if (id_ap == 22) Reservoir_1.setPosition(1);
-                    if (id_ap == 23) Reservoir_3.setPosition(1);
-
-                    PIDs_state = true;
-                })
-
-                .waitSeconds(0.8)
-
-
-                .afterTime(0, ()->{
-
-                    Reservoir_1.setPosition(0);
-                    Reservoir_2.setPosition(1);
-                    Reservoir_3.setPosition(0);
-
-                    if (id_ap == 21) posicao_desejada_indexer = 440;
-                    if (id_ap == 22) posicao_desejada_indexer = 440;
-                    if (id_ap == 23) posicao_desejada_indexer = 0;
-
-                })
-
-                .waitSeconds(0.6)
-
-                .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_3.setPosition(1);
-                    if (id_ap == 22) Reservoir_3.setPosition(1);
-                    if (id_ap == 23) Reservoir_1.setPosition(1);
-
-                    PIDs_state = true;
-                })
-
-                .waitSeconds(0.8)
-
-                .afterTime(0, ()->{
-                    Reservoir_1.setPosition(0);
-                    Reservoir_2.setPosition(1);
-                    Reservoir_3.setPosition(0);
-                    posicao_desejada_indexer = 0;
-                })
-
-                .afterTime(0, ()->{
-                    PIDs_state = false;
-                })
-
-                .build();
-
-    }
-
-    public double PiDF_Ind(double erro, double kp, double ki, double kd, double kf, double min, double max){
-
-        double BatVoltage = myControlHubVoltageSensor.getVoltage();
-        double feedfoward = 1 + (kf * (12.5-BatVoltage));
-        double integrativo = ki * (erro * cicle_time);
-        double derivativo = kd * ((erro - lasterror_PiDF_Correcao_Angular) / cicle_time);
-        double proporcional = kp * erro;
-
-        integral_PiDF_Correcao_Angular += integrativo;
-        lasterror_PiDF_Correcao_Angular = erro;
-
-        if (Math.abs(erro)<0.05) integral_PiDF_Correcao_Angular = 0;
-        if (integral_PiDF_Correcao_Angular>0.15) integral_PiDF_Correcao_Angular=0.15;
-        else if (integral_PiDF_Correcao_Angular<-0.15) integral_PiDF_Correcao_Angular=-0.15;
-
-        double output = (proporcional + integral_PiDF_Correcao_Angular + derivativo ) * feedfoward;
-
-        if ( output > max) output = max;
-        else if (output < min) output = min;
-
-        return output;
-
-    }
-
-    public double PiDF_Vel(double erro, double kp, double ki, double kd, double kf, double min, double max){
-
-        double BatVoltage = myControlHubVoltageSensor.getVoltage();
-        double feedfoward = 1 + (kf * (12.5-BatVoltage));
-        double integrativo = ki * (erro * cicle_time);
-        double derivativo = kd * ((erro - lasterror_PiDF_Correcao_Angular) / cicle_time);
-        double proporcional = kp * erro;
-
-        integral_PiDF_Correcao_Angular += integrativo;
-        lasterror_PiDF_Correcao_Angular = erro;
-
-        if (Math.abs(erro)<0.05) integral_PiDF_Correcao_Angular = 0;
-        if (integral_PiDF_Correcao_Angular>0.15) integral_PiDF_Correcao_Angular=0.15;
-        else if (integral_PiDF_Correcao_Angular<-0.15) integral_PiDF_Correcao_Angular=-0.15;
-
-        double output = (proporcional + integral_PiDF_Correcao_Angular + derivativo ) * feedfoward;
-
-        if ( output > max) output = max;
-        else if (output < min) output = min;
-
-        return output;
-
-    }
 
 
 }
