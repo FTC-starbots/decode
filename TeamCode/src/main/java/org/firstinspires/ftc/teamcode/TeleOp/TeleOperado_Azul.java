@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.TeleOp;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -17,6 +17,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Autos.Autonomo_VermelhoGRANDE;
+import org.firstinspires.ftc.teamcode.MecanumDrive;
 
 import java.util.List;
 
@@ -26,10 +28,17 @@ import java.util.List;
 
 public class TeleOperado_Azul extends Autonomo_VermelhoGRANDE {
 
-    boolean Manual = false, Movimento_robo = false, Base_Motriz_State = false, Shoot = false, gamepad_1 = true, atualizar_limelight = false;
+
+    public static double NEW_P = 0;
+    public static double NEW_I = 0.1;
+    public static double NEW_D = 0;
+    public static double NEW_F = 0.5;
+
+
+    boolean Manual = false, Movimento_robo = false, Base_Motriz_State = false, Shoot_mul = false, Shoot = false, gamepad_1 = true, atualizar_limelight = false;
     boolean Iniciar_atirador = false, Corrigir_velocidade = false, detecting_ap = false, goal_ap = false;
 
-public static double/* kpt= 0.002,kit = 1,kdt = 1 ,kft = 0.15,kot= 100,mint = 0,maxt = 1,*/ Const = 787.87, Variable = 5.365;
+public static double kpt= 0.002,kit = 1,kdt = 1 ,kft = 0.15,kot= 100,mint = 0,maxt = 1, Const = 787.87, Variable = 5.365;
     private Limelight3A limelight;
 
     private DcMotorEx leftBack, leftFront, rightBack, rightFront, Intake, Atirador_1, Atirador_2, Indexer;
@@ -39,7 +48,7 @@ public static double/* kpt= 0.002,kit = 1,kdt = 1 ,kft = 0.15,kot= 100,mint = 0,
     private RevBlinkinLedDriver Led_Strip;
 
     private VoltageSensor myControlHubVoltageSensor;
-    int posicao_desejada_indexer = 0, reservatorio = 0, reservatorio_1, reservatorio_2, reservatorio_3;
+    int posicao_desejada_indexer = 0, reservatorio = 1,lastreservatorio = 0, reservatorio_1, reservatorio_2, reservatorio_3;
 
     double controle_rotacao, Speed, angulo_desejado, angulo_robo, vectorX, vectorY, correcao_angular, velocidade_desejada = 0, kf_atirar,kp_atirar, alpha, kp_ap, ki_ap;
 
@@ -68,7 +77,7 @@ public static double/* kpt= 0.002,kit = 1,kdt = 1 ,kft = 0.15,kot= 100,mint = 0,
     double distLime;
 
     double CorrTx,TxOffset, ErroMovX, ErroMovY, limelight_posX, limelight_posY, limelight_yaw, last_pose_X, last_pose_Y, goal_X, goal_Y = 55.630, Ai_shoot = 0, hip;
-    ElapsedTime RotacaoRobo, Tempo_de_ciclo,
+    ElapsedTime timer_sequencia,RotacaoRobo, Tempo_de_ciclo,
             MASTER_TIMER, timer_shooter, deltaTime, osc_pos_time_ca, osc_neg_time_ca, osc_pos_time_ind, osc_neg_time_ind;
 
 
@@ -150,6 +159,7 @@ public static double/* kpt= 0.002,kit = 1,kdt = 1 ,kft = 0.15,kot= 100,mint = 0,
             osc_neg_time_ca = new ElapsedTime();
             osc_pos_time_ind = new ElapsedTime();
             osc_neg_time_ind = new ElapsedTime();
+            timer_sequencia = new ElapsedTime();
 
             timer_shooter   .reset();
             RotacaoRobo     .reset();
@@ -159,6 +169,7 @@ public static double/* kpt= 0.002,kit = 1,kdt = 1 ,kft = 0.15,kot= 100,mint = 0,
             osc_neg_time_ca.reset();
             osc_pos_time_ind.reset();
             osc_neg_time_ind.reset();
+            timer_sequencia.reset();
 
         }
 
@@ -307,9 +318,7 @@ public static double/* kpt= 0.002,kit = 1,kdt = 1 ,kft = 0.15,kot= 100,mint = 0,
                         if (gamepad2.triangle) {
                             gamepad_1 = false;
                             if (!Manual)   velocidade_desejada = 725 + 6.5 * hip;
-                            else velocidade_desejada = 1100;
-                        } else if (gamepad2.circle) {
-                            velocidade_desejada = 1300;
+                            else velocidade_desejada = 1280;
                         } else if (gamepad2.square) {
                             velocidade_desejada = 1650;
                         } else {
@@ -350,11 +359,13 @@ public static double/* kpt= 0.002,kit = 1,kdt = 1 ,kft = 0.15,kot= 100,mint = 0,
 
                         }
 
-                        if (gamepad2.right_bumper) {
-                            Reservoir_1.setPosition(0);
-                            Reservoir_2.setPosition(1);
-                            Reservoir_3.setPosition(0);
+                        if (gamepad2.dpad_down) {
+                            timer_sequencia.reset();
+                            Shoot(5);
+                            Shoot_mul = true;
+
                         }
+
                     }
                     //INDICAÇÃO DOS LEDS-------------------------------------------------------------------------------
 
@@ -376,6 +387,7 @@ public static double/* kpt= 0.002,kit = 1,kdt = 1 ,kft = 0.15,kot= 100,mint = 0,
 
 //------------------------------------------------------------------------------------------------------------------
                     if (Shoot) Shoot_single();
+                    if(Shoot_mul)Shoot_multiple();
 
 
                     Telemetria();
@@ -486,17 +498,6 @@ public static double/* kpt= 0.002,kit = 1,kdt = 1 ,kft = 0.15,kot= 100,mint = 0,
 
         if ( output > max) output = max;
         else if (output < min) output = min;
-
-        /*amortecimento[0] = output;
-
-        for (int j =2; j > 0; j--) amortecimento[j] = (amortecimento[j - 1]);
-
-        double soma = 0;
-
-        for(int x=0 ; x<3 ; x++) soma = soma + amortecimento[x];
-*
-        output = soma/3;
-*/
 
         return output;
 
@@ -641,25 +642,32 @@ public static double/* kpt= 0.002,kit = 1,kdt = 1 ,kft = 0.15,kot= 100,mint = 0,
     }
 
     private void Shooting_Vel() {
+
         double power_correction;
-        double erro = velocidade_desejada + Atirador_1.getVelocity();
+        double erro = velocidade_desejada + Atirador_1.getVelocity(); // Desired Vel - Velocity
+
 
         power_correction =  PiDF_Vel(erro,0.005,0.0000001,0,0.15,0,1);
 
         //if (power_correction < 0) power_correction = 0;
         if (velocidade_desejada == 0 ) Atirador_1.setPower(0);
         else Atirador_1.setPower( power_correction );
+
+
+        Atirador_1.setPower(power_correction);
         Atirador_2.setPower(-Atirador_1.getPower());
     }
 
     private void Shoot_single() {
-
-        if (0 < timer_shooter.seconds() && 0.9 >= timer_shooter.seconds()){
+        Reservoir_1.setPosition(0);
+        Reservoir_2.setPosition(1);
+        Reservoir_3.setPosition(0);
+        if (0 < timer_shooter.seconds() && 0.6 >= timer_shooter.seconds()){
             if(reservatorio == 1)  posicao_desejada_indexer= -100;
             if(reservatorio == 2)  posicao_desejada_indexer= 218;
             if(reservatorio == 3)  posicao_desejada_indexer= 440;
 
-        }else if (0.9 < timer_shooter.seconds() && 1.7 >= timer_shooter.seconds()){
+        }else if (0.6 < timer_shooter.seconds() && 1.4 >= timer_shooter.seconds()){
             if(reservatorio == 1){
                 Indexer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 Indexer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -668,30 +676,58 @@ public static double/* kpt= 0.002,kit = 1,kdt = 1 ,kft = 0.15,kot= 100,mint = 0,
             if(reservatorio == 2) Reservoir_2.setPosition(0);
             if(reservatorio == 3)Reservoir_3.setPosition(1);
 
-        }else if (1.7 < timer_shooter.seconds() && 1.8 >= timer_shooter.seconds()){
+        }else if (1.4 < timer_shooter.seconds() && 1.5 >= timer_shooter.seconds()){
             if(reservatorio == 1)Reservoir_1.setPosition(0);
             if(reservatorio == 2) Reservoir_2.setPosition(1);
             if(reservatorio == 3)Reservoir_3.setPosition(0);
-        }else if (1.8 < timer_shooter.seconds() && 1.9 >= timer_shooter.seconds()){
+        }else if (1.5 < timer_shooter.seconds() && 1.6 >= timer_shooter.seconds()){
             Shoot = false;
+
         }
 
     }
 
+    private void Shoot_multiple(){
+        if (0 < timer_sequencia.seconds() && 0.15 >= timer_sequencia.seconds()) {
+
+            if (lastreservatorio == 1) Shoot(1);
+            else if (lastreservatorio == 2) Shoot(2);
+            else if (lastreservatorio == 3) Shoot(3);
+
+        }else  if (1.4 < timer_sequencia.seconds() && 1.55 >= timer_sequencia.seconds()){
+
+
+            if (lastreservatorio == 1) Shoot(2);
+            else if (lastreservatorio == 2) Shoot(3);
+            else if (lastreservatorio == 3) Shoot(2);
+
+        }else  if (2.7 < timer_sequencia.seconds() && 2.9 >= timer_sequencia.seconds()){
+
+
+            if (lastreservatorio == 1) Shoot(3);
+            else if (lastreservatorio == 2) Shoot(1);
+            else if (lastreservatorio == 3) Shoot(1);
+        }
+    }
+
     private void Shoot(int padrao){
+
         //posições individuais--------------------------------
         // Esquerda
         if (padrao == 1){
+            timer_shooter.reset();
             reservatorio = 1;
             Shoot = true;
         }
         //Meio
         if (padrao == 2) {
+            timer_shooter.reset();
             reservatorio = 2;
             Shoot = true;
         }
         //Direita
         if (padrao == 3){
+            timer_shooter.reset();
             reservatorio = 3;
             Shoot = true;
         }
@@ -701,11 +737,13 @@ public static double/* kpt= 0.002,kit = 1,kdt = 1 ,kft = 0.15,kot= 100,mint = 0,
 
         //roxa mais próxima --------------------------------
         if (padrao == 4);
+
+
         //todas o mais rapido
         if (padrao == 5){
-
-
-        };
+            Shoot_mul = true;
+            lastreservatorio = reservatorio;
+        }
     }
 
     private void SensorCor(){

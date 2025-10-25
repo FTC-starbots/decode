@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Autos;
 
 import androidx.annotation.NonNull;
 
@@ -22,6 +22,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,9 +32,9 @@ import java.util.List;
 @Autonomous
 
 
-public class Autonomo_AzulGRANDE extends LinearOpMode {
+public class Autonomo_VermelhoPEQUENO extends LinearOpMode {
 
-    private static final Logger log = LoggerFactory.getLogger(Autonomo_AzulGRANDE.class);
+    private static final Logger log = LoggerFactory.getLogger(Autonomo_AzulPEQUENO.class);
 
     public class PIDs implements Action {
         public PIDs() {
@@ -275,12 +276,12 @@ public class Autonomo_AzulGRANDE extends LinearOpMode {
         MecanumDrive.PARAMS.maxWheelVel = 50;
 
 
-        drive = new MecanumDrive(hardwareMap, new Pose2d(40, -55,
+        drive = new MecanumDrive(hardwareMap, new Pose2d(-10, 55,
                 Math.toRadians(90)));
 
-        rota1 = drive.actionBuilder(new Pose2d(40, -55, Math.toRadians(90)))
+        rota1 = drive.actionBuilder(new Pose2d(-10, 55, Math.toRadians(90)))
 
-                .strafeToLinearHeading(new Vector2d(10, -35),Math.toRadians(82))
+                .strafeToLinearHeading(new Vector2d(-10, -20),Math.toRadians(85))
 
                 .waitSeconds(0.5)
 
@@ -289,9 +290,9 @@ public class Autonomo_AzulGRANDE extends LinearOpMode {
                 })
                 .build();
 
-        rota2 = drive.actionBuilder(new Pose2d(10, -35, Math.toRadians(82)))
+        rota2 = drive.actionBuilder(new Pose2d(-10, -20, Math.toRadians(95)))
 
-                .turnTo( Math.toRadians(163))
+                .turnTo( Math.toRadians(40))
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
@@ -299,7 +300,7 @@ public class Autonomo_AzulGRANDE extends LinearOpMode {
 
                 .build();
 
-        rota3 = drive.actionBuilder(new Pose2d(10, -35, Math.toRadians(163)))
+        rota3 = drive.actionBuilder(new Pose2d(-10, -20, Math.toRadians(40)))
                 .afterTime(0, ()->{
                     velocidade_desejada = 1280;
 
@@ -389,7 +390,7 @@ public class Autonomo_AzulGRANDE extends LinearOpMode {
 
                 .waitSeconds(2)
 
-                .turnTo(Math.toRadians(0))
+                .turnTo(Math.toRadians(180))
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
