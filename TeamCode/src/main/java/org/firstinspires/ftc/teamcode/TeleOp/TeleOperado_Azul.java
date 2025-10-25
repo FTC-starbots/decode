@@ -499,17 +499,6 @@ public static double kpt= 0.002,kit = 1,kdt = 1 ,kft = 0.15,kot= 100,mint = 0,ma
         if ( output > max) output = max;
         else if (output < min) output = min;
 
-        /*amortecimento[0] = output;
-
-        for (int j =2; j > 0; j--) amortecimento[j] = (amortecimento[j - 1]);
-
-        double soma = 0;
-
-        for(int x=0 ; x<3 ; x++) soma = soma + amortecimento[x];
-*
-        output = soma/3;
-*/
-
         return output;
 
     }
@@ -654,13 +643,8 @@ public static double kpt= 0.002,kit = 1,kdt = 1 ,kft = 0.15,kot= 100,mint = 0,ma
 
     private void Shooting_Vel() {
 
-
-
         double power_correction;
-        double erro = velocidade_desejada + Atirador_1.getVelocity();
-
-
-
+        double erro = velocidade_desejada + Atirador_1.getVelocity(); // Desired Vel - Velocity
 
 
         power_correction =  PiDF_Vel(erro,0.005,0.0000001,0,0.15,0,1);
