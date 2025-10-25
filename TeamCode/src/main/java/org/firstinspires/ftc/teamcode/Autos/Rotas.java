@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.limelightvision.LLResult;
@@ -59,7 +60,7 @@ public class Rotas extends LinearOpMode {
 
     ElapsedTime timer_shooter, deltaTime;
 
-    public double velocidade_desejada = 1347, Ai_shoot;
+    public double velocidade_desejada = 1165, Ai_shoot;
 
     public Action rota1;
     public Action rota2;
@@ -71,6 +72,11 @@ public class Rotas extends LinearOpMode {
     public Action rota6;
 
     public Action rota7;
+    public Action rota8;
+    public Action rota9;
+    public Action rota10;
+
+    public Action rota11;
 
 
 
@@ -86,7 +92,7 @@ public class Rotas extends LinearOpMode {
         MecanumDrive.PARAMS.axialGain = 7.5;
         MecanumDrive.PARAMS.lateralGain = 40;
         MecanumDrive.PARAMS.headingGain = 36;
-        MecanumDrive.PARAMS.maxWheelVel = 40;
+        MecanumDrive.PARAMS.maxWheelVel = 60;
 
 
         drive = new MecanumDrive(hardwareMap, new Pose2d(10, 55,
@@ -94,16 +100,16 @@ public class Rotas extends LinearOpMode {
 
         rota1 = drive.actionBuilder(new Pose2d(10, 55, Math.toRadians(90)))
 
-                .strafeToLinearHeading(new Vector2d(10, -20),Math.toRadians(85))
+                .strafeToLinearHeading(new Vector2d(10, -25),Math.toRadians(85),new TranslationalVelConstraint(80))
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
                 .build();
 
-        rota2 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(85)))
+        rota2 = drive.actionBuilder(new Pose2d(10, -25, Math.toRadians(85)))
 
-                .turnTo( Math.toRadians(138.5))
+                .turnTo( Math.toRadians(148))
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
@@ -111,9 +117,9 @@ public class Rotas extends LinearOpMode {
 
                 .build();
 
-        rota3 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(138.5)))
+        rota3 = drive.actionBuilder(new Pose2d(10, -25, Math.toRadians(148)))
                 .afterTime(0, ()->{
-                    velocidade_desejada = 1235;
+                    velocidade_desejada = 1165;
 
                 })
 
@@ -182,7 +188,7 @@ public class Rotas extends LinearOpMode {
                     PIDs_state = true;
                 })
 
-                .waitSeconds(0.8)
+                .waitSeconds(1)
 
                 .afterTime(0, ()->{
                     Reservoir_1.setPosition(0);
@@ -197,38 +203,42 @@ public class Rotas extends LinearOpMode {
 
                 .build();
 //
-        rota4 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(138.5)))
+        rota4 = drive.actionBuilder(new Pose2d(10, -25, Math.toRadians(147)))
 
-                .strafeToLinearHeading(new Vector2d(46.4, -45),Math.toRadians(114))
+                .turnTo(Math.toRadians(165))
+
+                .lineToX(44.5)
+
+                .turnTo(Math.toRadians(90))
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
                 .build();
 
-        rota5 = drive.actionBuilder(new Pose2d(46.4, -45, Math.toRadians(114)))
+        rota5 = drive.actionBuilder(new Pose2d(44.5, -25, Math.toRadians(90)))
 
-                .strafeToLinearHeading(new Vector2d(46.4, -9),Math.toRadians(90))
-                .waitSeconds(0.65)
+                .strafeToLinearHeading(new Vector2d(44.5, -11.5),Math.toRadians(90),new TranslationalVelConstraint(30))
+
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
                 .build();
 
-        rota6 = drive.actionBuilder(new Pose2d(46.4, -9, Math.toRadians(90)))
+        rota6 = drive.actionBuilder(new Pose2d(44.5, -11.5, Math.toRadians(90)))
 
-                .strafeToLinearHeading(new Vector2d(10, -20),Math.toRadians(132))
+                .strafeToLinearHeading(new Vector2d(10, -25),Math.toRadians(145))
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
                 .build();
 
-        rota7 = drive.actionBuilder(new Pose2d(10, -20, Math.toRadians(132)))
+        rota7 = drive.actionBuilder(new Pose2d(10, -25, Math.toRadians(145)))
                 .afterTime(0, ()->{
-                    velocidade_desejada = 1215;
+                    velocidade_desejada = 1165;
 
                 })
-                .turnTo(Math.toRadians(133.2))
+                .turnTo(Math.toRadians(143))
                 .afterTime(0, ()->{
                     if (id_ap == 21) posicao_desejada_indexer = 0;
                     if (id_ap == 22) posicao_desejada_indexer = 218;
@@ -294,7 +304,7 @@ public class Rotas extends LinearOpMode {
                     PIDs_state = true;
                 })
 
-                .waitSeconds(0.8)
+                .waitSeconds(1)
 
                 .afterTime(0, ()->{
                     Reservoir_1.setPosition(0);
@@ -308,6 +318,120 @@ public class Rotas extends LinearOpMode {
                 })
 
                 .build();
+
+        rota8 = drive.actionBuilder(new Pose2d(10, -25, Math.toRadians(145)))
+
+                .strafeToLinearHeading(new Vector2d(44.5, -15),Math.toRadians(132))
+
+                .turnTo(Math.toRadians(90))
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota9 = drive.actionBuilder(new Pose2d(44.5, -15, Math.toRadians(90)))
+
+                .strafeToLinearHeading(new Vector2d(44.5, 10),Math.toRadians(90),new TranslationalVelConstraint(30))
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota10 = drive.actionBuilder(new Pose2d(44.5, 10, Math.toRadians(90)))
+
+                .strafeToLinearHeading(new Vector2d(10, -25),Math.toRadians(145))
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota11 = drive.actionBuilder(new Pose2d(25, -45, Math.toRadians(145)))
+                .afterTime(0, ()->{
+                    velocidade_desejada = 1180;
+
+                })
+                .turnTo(Math.toRadians(150))
+                .afterTime(0, ()->{
+                    if (id_ap == 21) posicao_desejada_indexer = 0;
+                    if (id_ap == 22) posicao_desejada_indexer = 218;
+                    if (id_ap == 23) posicao_desejada_indexer = 218;
+
+                })
+
+                .waitSeconds(1.2)
+
+                .afterTime(0, ()->{
+                    if (id_ap == 21) Reservoir_1.setPosition(1);
+                    if (id_ap == 22) Reservoir_2.setPosition(0);
+                    if (id_ap == 23) Reservoir_2.setPosition(0);
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.8)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 218;
+                    if (id_ap == 22) posicao_desejada_indexer = 0;
+                    if (id_ap == 23) posicao_desejada_indexer = 440;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    if (id_ap == 21) Reservoir_2.setPosition(0);
+                    if (id_ap == 22) Reservoir_1.setPosition(1);
+                    if (id_ap == 23) Reservoir_3.setPosition(1);
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.8)
+
+
+                .afterTime(0, ()->{
+
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 440;
+                    if (id_ap == 22) posicao_desejada_indexer = 440;
+                    if (id_ap == 23) posicao_desejada_indexer = 0;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    if (id_ap == 21) Reservoir_3.setPosition(1);
+                    if (id_ap == 22) Reservoir_3.setPosition(1);
+                    if (id_ap == 23) Reservoir_1.setPosition(1);
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(1)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+                    posicao_desejada_indexer = 0;
+                })
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+
+                .build();
+
 
     }
 
