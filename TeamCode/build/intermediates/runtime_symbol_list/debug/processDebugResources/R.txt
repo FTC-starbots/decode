@@ -1272,6 +1272,8 @@ int layout zxing_capture 0x7f0b005c
 int menu ftc_robot_controller 0x7f0c0000
 int menu inspection_menu_rc_remote 0x7f0c0001
 int menu inspection_menu_rcds_local 0x7f0c0002
+int mipmap ic_launcher 0x7f120000
+int mipmap ic_launcher_foreground 0x7f120001
 int raw chimeconnect 0x7f0d0000
 int raw chimedisconnect 0x7f0d0001
 int raw color_fragment_shader 0x7f0d0002

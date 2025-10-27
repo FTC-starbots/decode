@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Autos;
 
 import androidx.annotation.NonNull;
 
+import com.acmerobotics.dashboard.canvas.Canvas;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
@@ -33,7 +34,7 @@ import java.util.List;
 
 
 public class Autonomo_AzulPEQUENO extends Rotas {
-
+    private static final Canvas DEFAULT_FIELD = new Canvas();
     public  class PIDs implements Action {
         public PIDs() {
 
@@ -193,9 +194,6 @@ public class Autonomo_AzulPEQUENO extends Rotas {
         limelight.start();
         limelight.pipelineSwitch(5);
         //--------Calcula Rotas e parametriza drivetrain---------------------
-
-
-
 
         Rotas_APequeno();
         //------------------------------------------
