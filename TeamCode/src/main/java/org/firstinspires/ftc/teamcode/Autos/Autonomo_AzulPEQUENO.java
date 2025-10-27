@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Autos;
 
 import androidx.annotation.NonNull;
 
+import com.acmerobotics.dashboard.canvas.Canvas;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
@@ -33,7 +34,7 @@ import java.util.List;
 
 
 public class Autonomo_AzulPEQUENO extends Rotas {
-
+    private static final Canvas DEFAULT_FIELD = new Canvas();
     public  class PIDs implements Action {
         public PIDs() {
 
@@ -43,29 +44,47 @@ public class Autonomo_AzulPEQUENO extends Rotas {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             //executa o movimento do braço em loop
-double erro = velocidade_desejada + Atirador_1.getVelocity();
+            double erro = velocidade_desejada + Atirador_1.getVelocity();
+
+            double kp = 0.003;
+            double ki = 0.0000001;
+            double kd = 0.003;
+            double kf = 0.05;
+
+            if (Math.abs(erro)<10){
+                kp = kp/500;
+                ki = ki/500;
+                kd = kd/500;
+                kf = kf/500;
+
+            }
+
             double BatVoltage = myControlHubVoltageSensor.getVoltage();
-            double feedfoward = 1 + (0.15 * (12.5-BatVoltage));
-            double integrativo = 0.0000001 * (erro * cicle_time);
-            double derivativo = 0 * ((erro - lasterror_PiDF_Shooter) / cicle_time);
-            double proporcional = 0.005 * erro;
+            double feedfoward = 1 + (kf * (12.5-BatVoltage));
+            double integrativo = ki * (erro * cicle_time);
+            double derivativo = kd * ((erro - lasterror_PiDF_Shooter) / cicle_time);
+            double proporcional = kp * erro;
 
             integral_PiDF_Shooter += integrativo;
             lasterror_PiDF_Shooter = erro;
 
-            if (Math.abs(erro)<0.05) integral_PiDF_Shooter = 0;
             if (integral_PiDF_Shooter>0.5) integral_PiDF_Shooter=0.5;
             else if (integral_PiDF_Shooter<-0.5) integral_PiDF_Shooter=-0.5;
+
+
+
 
             double power_correction = (proporcional + integral_PiDF_Shooter + derivativo ) * feedfoward;
 
             if ( power_correction > 1) power_correction = 1;
             else if (power_correction < 0) power_correction = 0;
 
+
             if (velocidade_desejada == 0 ) Atirador_1.setPower(0);
             else Atirador_1.setPower( power_correction );
 
             Atirador_2.setPower(-Atirador_1.getPower());
+
 
 
 
@@ -176,9 +195,6 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
         limelight.pipelineSwitch(5);
         //--------Calcula Rotas e parametriza drivetrain---------------------
 
-
-
-
         Rotas_APequeno();
         //------------------------------------------
         //Leitura de AP
@@ -234,7 +250,7 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
 
         Actions.runBlocking(rota2);
 
-        velocidade_desejada = 1235;
+        velocidade_desejada = 1165;
 
         PIDs_state = true;
         Actions.runBlocking(new ParallelAction(rota3, new PIDs()));
@@ -254,10 +270,30 @@ double erro = velocidade_desejada + Atirador_1.getVelocity();
         Intake.setPower(0);
 
 
-        velocidade_desejada = 1215;
+        velocidade_desejada = 1165;
 
         PIDs_state = true;
         Actions.runBlocking(new ParallelAction(rota7, new PIDs()));
+
+        Intake.setPower(1);
+
+        Atirador_1.setPower(0);
+        Atirador_2.setPower(0);
+
+        PIDs_state = false;
+        Actions.runBlocking(rota8);
+
+        Actions.runBlocking(rota9);
+
+        Actions.runBlocking(rota10);
+
+        Intake.setPower(0);
+
+
+        velocidade_desejada = 1180;
+
+        PIDs_state = true;
+        Actions.runBlocking(new ParallelAction(rota11, new PIDs()));
 
     }
 

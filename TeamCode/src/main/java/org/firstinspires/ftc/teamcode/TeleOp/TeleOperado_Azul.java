@@ -38,7 +38,7 @@ public class TeleOperado_Azul extends Autonomo_VermelhoGRANDE {
     boolean Manual = false, Movimento_robo = false, Base_Motriz_State = false, Shoot_mul = false, Shoot = false, gamepad_1 = true, atualizar_limelight = false;
     boolean Iniciar_atirador = false, Corrigir_velocidade = false, detecting_ap = false, goal_ap = false;
 
-public static double kpt= 0.002,kit = 1,kdt = 1 ,kft = 0.15,kot= 100,mint = 0,maxt = 1, Const = 787.87, Variable = 5.365;
+public static double kpt= 10,kit = 25,kdt = 0 ,kft = 0.15,kot= 100,mint = 0,maxt = 1, Const = 787.87, Variable = 5.365;
     private Limelight3A limelight;
 
     private DcMotorEx leftBack, leftFront, rightBack, rightFront, Intake, Atirador_1, Atirador_2, Indexer;
@@ -74,7 +74,7 @@ public static double kpt= 0.002,kit = 1,kdt = 1 ,kft = 0.15,kot= 100,mint = 0,ma
 
 
     Pose2d pose_atual;
-    double distLime;
+    double distLime, Velin0 = 0;
 
     double CorrTx,TxOffset, ErroMovX, ErroMovY, limelight_posX, limelight_posY, limelight_yaw, last_pose_X, last_pose_Y, goal_X, goal_Y = 55.630, Ai_shoot = 0, hip;
     ElapsedTime timer_sequencia,RotacaoRobo, Tempo_de_ciclo,
@@ -205,7 +205,7 @@ public static double kpt= 0.002,kit = 1,kdt = 1 ,kft = 0.15,kot= 100,mint = 0,ma
             angulo_desejado = 180;
             while (opModeIsActive()) {
                 if (gamepad2.leftBumperWasPressed()) Manual = !Manual;
-
+               Shooting_Vel();
                 {
                     //Atualização de dados
 
@@ -274,7 +274,7 @@ public static double kpt= 0.002,kit = 1,kdt = 1 ,kft = 0.15,kot= 100,mint = 0,ma
                             ErroMovY = 0;
                         }
                     }
-
+                    Shooting_Vel();
                     //Funções principais ------------------------------------------------------
                     Base_Motriz();
                     Indexer();
@@ -328,6 +328,7 @@ public static double kpt= 0.002,kit = 1,kdt = 1 ,kft = 0.15,kot= 100,mint = 0,ma
                             velocidade_desejada = 0;
                         }
                     }
+
 
 //----------------Intake-------------------------------------------------------------------------------------------
 
@@ -395,7 +396,7 @@ public static double kpt= 0.002,kit = 1,kdt = 1 ,kft = 0.15,kot= 100,mint = 0,ma
                 }
 
 
-
+                Shooting_Vel();
             }
         }
     }
@@ -480,6 +481,17 @@ public static double kpt= 0.002,kit = 1,kdt = 1 ,kft = 0.15,kot= 100,mint = 0,ma
 
     public double PiDF_Vel(double erro, double kp, double ki, double kd, double kf, double min, double max){
 
+
+
+
+        if (Math.abs(erro)<10){
+            kp = kp/500;
+            ki = ki/500;
+            kd = kd/500;
+            kf = kf/500;
+
+        }
+
         double BatVoltage = myControlHubVoltageSensor.getVoltage();
         double feedfoward = 1 + (kf * (12.5-BatVoltage));
         double integrativo = ki * (erro * cicle_time);
@@ -489,9 +501,10 @@ public static double kpt= 0.002,kit = 1,kdt = 1 ,kft = 0.15,kot= 100,mint = 0,ma
         integral_PiDF_Shooter += integrativo;
         lasterror_PiDF_Shooter = erro;
 
-        //if (Math.abs(erro)<0.05) integral_PiDF_Shooter = 0;
         if (integral_PiDF_Shooter>0.5) integral_PiDF_Shooter=0.5;
         else if (integral_PiDF_Shooter<-0.5) integral_PiDF_Shooter=-0.5;
+
+
 
 
         double output = (proporcional + integral_PiDF_Shooter + derivativo ) * feedfoward;
@@ -647,7 +660,7 @@ public static double kpt= 0.002,kit = 1,kdt = 1 ,kft = 0.15,kot= 100,mint = 0,ma
         double erro = velocidade_desejada + Atirador_1.getVelocity(); // Desired Vel - Velocity
 
 
-        power_correction =  PiDF_Vel(erro,0.005,0.0000001,0,0.15,0,1);
+        power_correction =  PiDF_Vel(erro,0.003,0.0000001,0.003,0.05,0,1);
 
         //if (power_correction < 0) power_correction = 0;
         if (velocidade_desejada == 0 ) Atirador_1.setPower(0);
@@ -776,6 +789,9 @@ public static double kpt= 0.002,kit = 1,kdt = 1 ,kft = 0.15,kot= 100,mint = 0,ma
             telemetry.addData("Att Limelight", atualizar_limelight);
 
             telemetry.addData("DisLime", distLime);
+
+            telemetry.addData("Velocity in 0", Velin0);
+
 
 
 
