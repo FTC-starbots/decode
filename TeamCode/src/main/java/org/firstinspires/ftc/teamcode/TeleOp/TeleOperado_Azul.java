@@ -29,16 +29,11 @@ import java.util.List;
 public class TeleOperado_Azul extends Autonomo_VermelhoGRANDE {
 
 
-    public static double NEW_P = 0;
-    public static double NEW_I = 0.1;
-    public static double NEW_D = 0;
-    public static double NEW_F = 0.5;
-
 
     boolean Manual = false, Movimento_robo = false, Base_Motriz_State = false, Shoot_mul = false, Shoot = false, gamepad_1 = true, atualizar_limelight = false;
     boolean Iniciar_atirador = false, Corrigir_velocidade = false, detecting_ap = false, goal_ap = false;
 
-public static double kpt= 10,kit = 25,kdt = 0 ,kft = 0.15,kot= 100,mint = 0,maxt = 1, Const = 787.87, Variable = 5.365;
+public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0,maxt = 1;
     private Limelight3A limelight;
 
     private DcMotorEx leftBack, leftFront, rightBack, rightFront, Intake, Atirador_1, Atirador_2, Indexer;
@@ -205,7 +200,7 @@ public static double kpt= 10,kit = 25,kdt = 0 ,kft = 0.15,kot= 100,mint = 0,maxt
             angulo_desejado = 180;
             while (opModeIsActive()) {
                 if (gamepad2.leftBumperWasPressed()) Manual = !Manual;
-               Shooting_Vel();
+
                 {
                     //Atualização de dados
 
@@ -214,6 +209,7 @@ public static double kpt= 10,kit = 25,kdt = 0 ,kft = 0.15,kot= 100,mint = 0,maxt
 
 
                     //Atualização de dados da Limelight----------------------
+
                     if (!Manual) {
                         {
                             if (limelight.getLatestResult().isValid()) {
@@ -240,7 +236,6 @@ public static double kpt= 10,kit = 25,kdt = 0 ,kft = 0.15,kot= 100,mint = 0,maxt
                         }
                     }
                     //Sistema de posição-----------------------------------------------------------------------------
-
                     drive.updatePoseEstimate();
                     pose_atual = drive.localizer.getPose();
 
@@ -274,9 +269,8 @@ public static double kpt= 10,kit = 25,kdt = 0 ,kft = 0.15,kot= 100,mint = 0,maxt
                             ErroMovY = 0;
                         }
                     }
-                    Shooting_Vel();
                     //Funções principais ------------------------------------------------------
-                    Base_Motriz();
+                    if (!Shoot) Base_Motriz();
                     Indexer();
                     Shooting_Vel();
                     //Reset robô----------------------------------------------------------------------------------------
@@ -316,12 +310,15 @@ public static double kpt= 10,kit = 25,kdt = 0 ,kft = 0.15,kot= 100,mint = 0,maxt
                     if (true) {
                         areapermitida = true;
                         if (gamepad2.triangle) {
+                            Iniciar_atirador = true;
                             gamepad_1 = false;
                             if (!Manual)   velocidade_desejada = 725 + 6.5 * hip;
                             else velocidade_desejada = 1280;
                         } else if (gamepad2.square) {
+                            Iniciar_atirador = true;
                             velocidade_desejada = 1650;
                         } else {
+                            Iniciar_atirador = false;
                             kf_atirar = 0;
                             kp_atirar = 0;
                             CorrTx = 0;
@@ -395,8 +392,6 @@ public static double kpt= 10,kit = 25,kdt = 0 ,kft = 0.15,kot= 100,mint = 0,maxt
                     Tempo_de_ciclo.reset();
                 }
 
-
-                Shooting_Vel();
             }
         }
     }
@@ -404,6 +399,7 @@ public static double kpt= 10,kit = 25,kdt = 0 ,kft = 0.15,kot= 100,mint = 0,maxt
     //-------FUNÇÕES DE MOVIMENTO-----------------------------------------------------------------------------------------
 
     private double PiDFO_Correcao_Angular(double erro, double kp, double ki, double kd, double kf,double ko, double min, double max){
+
 
         double BatVoltage = myControlHubVoltageSensor.getVoltage();
         double feedfoward = 1 + (kf * (12.5-BatVoltage));
@@ -413,6 +409,7 @@ public static double kpt= 10,kit = 25,kdt = 0 ,kft = 0.15,kot= 100,mint = 0,maxt
 
         integral_PiDF_Correcao_Angular += integrativo;
         lasterror_PiDF_Correcao_Angular = erro;
+
 
         if (erro<0 && integral_PiDF_Correcao_Angular >  0)integral_PiDF_Correcao_Angular = 0;
         if (erro>0 && integral_PiDF_Correcao_Angular <  0)integral_PiDF_Correcao_Angular = 0;
@@ -428,6 +425,7 @@ public static double kpt= 10,kit = 25,kdt = 0 ,kft = 0.15,kot= 100,mint = 0,maxt
 
         if (output > 0)osc_neg_time_ca.reset();
 
+
         osc_time_ca = osc_pos_time_ca.milliseconds() + osc_neg_time_ca.milliseconds();
         double ko_corr = osc_time_ca/ko;
 
@@ -437,11 +435,13 @@ public static double kpt= 10,kit = 25,kdt = 0 ,kft = 0.15,kot= 100,mint = 0,maxt
 
         if (Math.abs(output) < 0.065)output = 0;
 
+
         return output;
 
     }
 
     private double PiDFO_Indexer(double erro, double kp, double ki, double kd, double kf,double ko, double min, double max){
+
 
         double BatVoltage = myControlHubVoltageSensor.getVoltage();
         double feedfoward = 1 + (kf * (12.5-BatVoltage));
@@ -452,12 +452,14 @@ public static double kpt= 10,kit = 25,kdt = 0 ,kft = 0.15,kot= 100,mint = 0,maxt
         integral_Indexer += integrativo;
         lasterror_PiDF_Indexer = erro;
 
+
         if (erro<0 && integral_Indexer >  0)integral_Indexer = 0;
         if (erro>0 && integral_Indexer <  0)integral_Indexer = 0;
         if (integral_Indexer>0.15) integral_Indexer=0.05;
         else if (integral_Indexer<-0.15) integral_Indexer=-0.05;
 
         double output = (proporcional + integral_Indexer + derivativo ) * feedfoward;
+
 
         if ( output > max) output = max;
         else if (output < min) output = min;
@@ -474,6 +476,7 @@ public static double kpt= 10,kit = 25,kdt = 0 ,kft = 0.15,kot= 100,mint = 0,maxt
         output = output * ko_corr;
 
         if (Math.abs(output) < 0.065)output = 0;
+
 
         return output;
 
@@ -517,6 +520,7 @@ public static double kpt= 10,kit = 25,kdt = 0 ,kft = 0.15,kot= 100,mint = 0,maxt
     }
     private void Base_Motriz() {
 
+
         {
             angulo_robo = Math.toDegrees(Math.atan2(pose_atual.heading.imag, pose_atual.heading.real));
 
@@ -551,6 +555,7 @@ public static double kpt= 10,kit = 25,kdt = 0 ,kft = 0.15,kot= 100,mint = 0,maxt
 
         }
 
+
         int rotate;
 
         if (angulo_robo >= 0) {
@@ -561,11 +566,13 @@ public static double kpt= 10,kit = 25,kdt = 0 ,kft = 0.15,kot= 100,mint = 0,maxt
 
         // if (gamepad2.triangle && !goal_ap) angulo_desejado = alpha;
 
+
         double corr_1 = angulo_robo - angulo_desejado;
         double corr_2 = angulo_desejado + rotate - angulo_robo;
         double correcaoP;
         if (Math.abs(corr_1) > Math.abs(corr_2)) correcaoP = -corr_2;
         else correcaoP = corr_1;
+
 
         if (RotacaoRobo.seconds() < 1) {
             correcao_angular = 0;
@@ -584,12 +591,14 @@ public static double kpt= 10,kit = 25,kdt = 0 ,kft = 0.15,kot= 100,mint = 0,maxt
         }
 
 
+
         // Ajuste de velocidade baseado nos triggers do gamepad
         {
         if(gamepad_1) {
             if (Math.abs(gamepad1.left_trigger) > 0.1 || Math.abs(gamepad1.right_trigger) > 0.1) {
                 angulo_desejado = angulo_robo;
                 RotacaoRobo.reset();
+
 
                 Speed = 1 - 0.5 * Math.abs(gamepad1.left_trigger - gamepad1.right_trigger);
             } else if (gamepad1.start) {
@@ -603,16 +612,18 @@ public static double kpt= 10,kit = 25,kdt = 0 ,kft = 0.15,kot= 100,mint = 0,maxt
                 leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+
                 angulo_desejado = 180;
             } else {
                 // Ajustando a velocidade com base na correção angular
                 Speed = 1.2 - Math.abs(correcao_angular) - (ControlHub_VoltageSensor.getVoltage() - 11) / 10;
-//
+
             }
         }else {
             if (Math.abs(gamepad2.left_trigger) > 0.1 || Math.abs(gamepad2.right_trigger) > 0.1) {
                 angulo_desejado = angulo_robo;
                 RotacaoRobo.reset();
+
 
                 Speed = 1 - 0.5 * Math.abs(gamepad2.left_trigger - gamepad2.right_trigger);
             } else if (gamepad2.start) {
@@ -630,12 +641,13 @@ public static double kpt= 10,kit = 25,kdt = 0 ,kft = 0.15,kot= 100,mint = 0,maxt
             } else {
                 // Ajustando a velocidade com base na correção angular
                 Speed = 1.2 - Math.abs(correcao_angular) - (ControlHub_VoltageSensor.getVoltage() - 11) / 10;
-//
+
             }
         }
         }
 
         // Reduzindo a velocidade caso o motor `slide_vertical_e` ultrapasse uma posição
+
 
     }
 
@@ -651,18 +663,21 @@ public static double kpt= 10,kit = 25,kdt = 0 ,kft = 0.15,kot= 100,mint = 0,maxt
 
         potencia_indexer = PiDFO_Indexer(erro, 0.058,0.5,10,0.1,300,-0.4,0.4);
 
+
         Indexer.setPower(potencia_indexer);
     }
 
     private void Shooting_Vel() {
 
-        double power_correction;
-        double erro = velocidade_desejada + Atirador_1.getVelocity(); // Desired Vel - Velocity
+    double power_correction;
+        if(Iniciar_atirador) {
+            double erro = velocidade_desejada + Atirador_1.getVelocity(); // Desired Vel - Velocity
 
 
-        power_correction =  PiDF_Vel(erro,0.003,0.0000001,0.003,0.05,0,1);
+    power_correction = PiDF_Vel(erro, kpt, kit, kdt, kft, mint, maxt);
+}else power_correction = 0;
 
-        //if (power_correction < 0) power_correction = 0;
+        if (power_correction < 0) power_correction = 0;
         if (velocidade_desejada == 0 ) Atirador_1.setPower(0);
         else Atirador_1.setPower( power_correction );
 
