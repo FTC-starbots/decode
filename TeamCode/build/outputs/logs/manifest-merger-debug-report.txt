@@ -8,7 +8,7 @@ MERGED from [:FtcRobotController] C:\Users\Dell\StudioProjects\decode\FtcRobotCo
 MERGED from [org.firstinspires.ftc:OnBotJava:11.0.0] C:\Users\Dell\.gradle\caches\8.9\transforms\5cc357a9d653ab3ad98b0b44f1d3c565\transformed\OnBotJava-11.0.0\AndroidManifest.xml:34:1-41:12
 MERGED from [org.firstinspires.ftc:Blocks:11.0.0] C:\Users\Dell\.gradle\caches\8.9\transforms\23b061013a83c2c3b7fe7159ed76ff21\transformed\Blocks-11.0.0\AndroidManifest.xml:2:1-24:12
 MERGED from [com.acmerobotics.roadrunner:ftc:0.1.15] C:\Users\Dell\.gradle\caches\8.9\transforms\30766eee2356e3b1c22689b49e6df67c\transformed\ftc-0.1.15\AndroidManifest.xml:3:1-12:12
-MERGED from [com.acmerobotics.dashboard:dashboard:0.4.16] C:\Users\Dell\.gradle\caches\8.9\transforms\2a8b801ac56271921d29d61cfac426fb\transformed\dashboard-0.4.16\AndroidManifest.xml:2:1-9:12
+MERGED from [com.acmerobotics.dashboard:dashboard:0.5.0] C:\Users\Dell\.gradle\caches\8.9\transforms\e81e6642eb1af0f13a3da78c5c6ebcd7\transformed\dashboard-0.5.0\AndroidManifest.xml:2:1-7:12
 MERGED from [org.firstinspires.ftc:FtcCommon:11.0.0] C:\Users\Dell\.gradle\caches\8.9\transforms\68e31a5130beeb660189d3e721d9a732\transformed\FtcCommon-11.0.0\AndroidManifest.xml:3:1-178:12
 MERGED from [org.firstinspires.ftc:Inspection:11.0.0] C:\Users\Dell\.gradle\caches\8.9\transforms\ac4a2077762fec8a0e28d5b68788a301\transformed\Inspection-11.0.0\AndroidManifest.xml:2:1-30:12
 MERGED from [org.firstinspires.ftc:RobotServer:11.0.0] C:\Users\Dell\.gradle\caches\8.9\transforms\fded38b631c1167c6b858fde50f198a5\transformed\RobotServer-11.0.0\AndroidManifest.xml:2:1-9:12
@@ -101,8 +101,8 @@ MERGED from [org.firstinspires.ftc:Blocks:11.0.0] C:\Users\Dell\.gradle\caches\8
 MERGED from [org.firstinspires.ftc:Blocks:11.0.0] C:\Users\Dell\.gradle\caches\8.9\transforms\23b061013a83c2c3b7fe7159ed76ff21\transformed\Blocks-11.0.0\AndroidManifest.xml:7:5-44
 MERGED from [com.acmerobotics.roadrunner:ftc:0.1.15] C:\Users\Dell\.gradle\caches\8.9\transforms\30766eee2356e3b1c22689b49e6df67c\transformed\ftc-0.1.15\AndroidManifest.xml:6:5-8:41
 MERGED from [com.acmerobotics.roadrunner:ftc:0.1.15] C:\Users\Dell\.gradle\caches\8.9\transforms\30766eee2356e3b1c22689b49e6df67c\transformed\ftc-0.1.15\AndroidManifest.xml:6:5-8:41
-MERGED from [com.acmerobotics.dashboard:dashboard:0.4.16] C:\Users\Dell\.gradle\caches\8.9\transforms\2a8b801ac56271921d29d61cfac426fb\transformed\dashboard-0.4.16\AndroidManifest.xml:5:5-7:41
-MERGED from [com.acmerobotics.dashboard:dashboard:0.4.16] C:\Users\Dell\.gradle\caches\8.9\transforms\2a8b801ac56271921d29d61cfac426fb\transformed\dashboard-0.4.16\AndroidManifest.xml:5:5-7:41
+MERGED from [com.acmerobotics.dashboard:dashboard:0.5.0] C:\Users\Dell\.gradle\caches\8.9\transforms\e81e6642eb1af0f13a3da78c5c6ebcd7\transformed\dashboard-0.5.0\AndroidManifest.xml:5:5-44
+MERGED from [com.acmerobotics.dashboard:dashboard:0.5.0] C:\Users\Dell\.gradle\caches\8.9\transforms\e81e6642eb1af0f13a3da78c5c6ebcd7\transformed\dashboard-0.5.0\AndroidManifest.xml:5:5-44
 MERGED from [org.firstinspires.ftc:FtcCommon:11.0.0] C:\Users\Dell\.gradle\caches\8.9\transforms\68e31a5130beeb660189d3e721d9a732\transformed\FtcCommon-11.0.0\AndroidManifest.xml:8:5-44
 MERGED from [org.firstinspires.ftc:FtcCommon:11.0.0] C:\Users\Dell\.gradle\caches\8.9\transforms\68e31a5130beeb660189d3e721d9a732\transformed\FtcCommon-11.0.0\AndroidManifest.xml:8:5-44
 MERGED from [org.firstinspires.ftc:Inspection:11.0.0] C:\Users\Dell\.gradle\caches\8.9\transforms\ac4a2077762fec8a0e28d5b68788a301\transformed\Inspection-11.0.0\AndroidManifest.xml:7:5-44

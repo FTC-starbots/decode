@@ -78,23 +78,6 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Dell\\.gradle\\caches\\8.9\\transforms\\2a8b801ac56271921d29d61cfac426fb\\transformed\\dashboard-0.4.16\\res\\values\\values.xml",
-                    "from": {
-                        "startLines": "2",
-                        "startColumns": "4",
-                        "startOffsets": "55",
-                        "endColumns": "48",
-                        "endOffsets": "99"
-                    },
-                    "to": {
-                        "startLines": "176",
-                        "startColumns": "4",
-                        "startOffsets": "8363",
-                        "endColumns": "48",
-                        "endOffsets": "8407"
-                    }
-                },
-                {
                     "source": "C:\\Users\\Dell\\.gradle\\caches\\8.9\\transforms\\0365bcf05823a254432a3c284a0c42db\\transformed\\appcompat-resources-1.2.0\\res\\values\\values.xml",
                     "from": {
                         "startLines": "2,29,36,47,74",
@@ -185,6 +168,23 @@
                         "endLines": "3630",
                         "endColumns": "24",
                         "endOffsets": "233107"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\Dell\\.gradle\\caches\\8.9\\transforms\\e81e6642eb1af0f13a3da78c5c6ebcd7\\transformed\\dashboard-0.5.0\\res\\values\\values.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "48",
+                        "endOffsets": "99"
+                    },
+                    "to": {
+                        "startLines": "176",
+                        "startColumns": "4",
+                        "startOffsets": "8363",
+                        "endColumns": "48",
+                        "endOffsets": "8407"
                     }
                 },
                 {
