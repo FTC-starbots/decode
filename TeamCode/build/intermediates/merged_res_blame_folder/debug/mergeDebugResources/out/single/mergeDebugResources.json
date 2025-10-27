@@ -1,54 +1,10 @@
 [
     {
-        "merged": "org.firstinspires.ftc.teamcode.TeamCode-debug-19:/mipmap-xxhdpi_ic_launcher_foreground.webp.flat",
-        "source": "org.firstinspires.ftc.teamcode.TeamCode-main-21:/mipmap-xxhdpi/ic_launcher_foreground.webp"
+        "merged": "org.firstinspires.ftc.teamcode.TeamCode-debug-19:/xml_teamwebcamcalibrations.xml.flat",
+        "source": "org.firstinspires.ftc.teamcode.TeamCode-main-21:/xml/teamwebcamcalibrations.xml"
     },
     {
-        "merged": "C:\\Users\\Dell\\.gradle\\daemon\\8.9\\org.firstinspires.ftc.teamcode.TeamCode-debug-19:\\raw_readme.md.flat",
-        "source": "C:\\Users\\Dell\\.gradle\\daemon\\8.9\\org.firstinspires.ftc.teamcode.TeamCode-main-21:\\raw\\readme.md"
-    },
-    {
-        "merged": "org.firstinspires.ftc.teamcode.TeamCode-debug-19:/mipmap-xhdpi_ic_launcher.webp.flat",
-        "source": "org.firstinspires.ftc.teamcode.TeamCode-main-21:/mipmap-xhdpi/ic_launcher.webp"
-    },
-    {
-        "merged": "org.firstinspires.ftc.teamcode.TeamCode-debug-19:/mipmap-xxxhdpi_ic_launcher.webp.flat",
-        "source": "org.firstinspires.ftc.teamcode.TeamCode-main-21:/mipmap-xxxhdpi/ic_launcher.webp"
-    },
-    {
-        "merged": "org.firstinspires.ftc.teamcode.TeamCode-debug-19:/mipmap-anydpi-v26_ic_launcher.xml.flat",
-        "source": "org.firstinspires.ftc.teamcode.TeamCode-main-21:/mipmap-anydpi-v26/ic_launcher.xml"
-    },
-    {
-        "merged": "org.firstinspires.ftc.teamcode.TeamCode-debug-19:/mipmap-xxxhdpi_ic_launcher_foreground.webp.flat",
-        "source": "org.firstinspires.ftc.teamcode.TeamCode-main-21:/mipmap-xxxhdpi/ic_launcher_foreground.webp"
-    },
-    {
-        "merged": "org.firstinspires.ftc.teamcode.TeamCode-debug-19:/mipmap-mdpi_ic_launcher_foreground.webp.flat",
-        "source": "org.firstinspires.ftc.teamcode.TeamCode-main-21:/mipmap-mdpi/ic_launcher_foreground.webp"
-    },
-    {
-        "merged": "org.firstinspires.ftc.teamcode.TeamCode-debug-19:/mipmap-mdpi_ic_launcher.webp.flat",
-        "source": "org.firstinspires.ftc.teamcode.TeamCode-main-21:/mipmap-mdpi/ic_launcher.webp"
-    },
-    {
-        "merged": "org.firstinspires.ftc.teamcode.TeamCode-debug-19:/mipmap-hdpi_ic_launcher_foreground.webp.flat",
-        "source": "org.firstinspires.ftc.teamcode.TeamCode-main-21:/mipmap-hdpi/ic_launcher_foreground.webp"
-    },
-    {
-        "merged": "org.firstinspires.ftc.teamcode.TeamCode-debug-19:/mipmap-xxhdpi_ic_launcher.webp.flat",
-        "source": "org.firstinspires.ftc.teamcode.TeamCode-main-21:/mipmap-xxhdpi/ic_launcher.webp"
-    },
-    {
-        "merged": "C:\\Users\\Dell\\.gradle\\daemon\\8.9\\org.firstinspires.ftc.teamcode.TeamCode-debug-19:\\xml_teamwebcamcalibrations.xml.flat",
-        "source": "C:\\Users\\Dell\\.gradle\\daemon\\8.9\\org.firstinspires.ftc.teamcode.TeamCode-main-21:\\xml\\teamwebcamcalibrations.xml"
-    },
-    {
-        "merged": "org.firstinspires.ftc.teamcode.TeamCode-debug-19:/mipmap-hdpi_ic_launcher.webp.flat",
-        "source": "org.firstinspires.ftc.teamcode.TeamCode-main-21:/mipmap-hdpi/ic_launcher.webp"
-    },
-    {
-        "merged": "org.firstinspires.ftc.teamcode.TeamCode-debug-19:/mipmap-xhdpi_ic_launcher_foreground.webp.flat",
-        "source": "org.firstinspires.ftc.teamcode.TeamCode-main-21:/mipmap-xhdpi/ic_launcher_foreground.webp"
+        "merged": "org.firstinspires.ftc.teamcode.TeamCode-debug-19:/raw_readme.md.flat",
+        "source": "org.firstinspires.ftc.teamcode.TeamCode-main-21:/raw/readme.md"
     }
 ]
