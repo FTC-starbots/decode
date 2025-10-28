@@ -60,7 +60,7 @@ public class Rotas extends LinearOpMode {
 
     ElapsedTime timer_shooter, deltaTime;
 
-    public double velocidade_desejada = 1165, Ai_shoot;
+    public double velocidade_desejada = 1165, Ai_shoot, Compen_at = 0, Compen_tx = 0, Compen_vl = 0;
 
     public Action rota1;
     public Action rota2;
@@ -100,14 +100,14 @@ public class Rotas extends LinearOpMode {
 
         rota1 = drive.actionBuilder(new Pose2d(18, 55, Math.toRadians(90)))
 
-                .strafeToLinearHeading(new Vector2d(18, -30),Math.toRadians(85),new TranslationalVelConstraint(70))
+                .strafeToLinearHeading(new Vector2d(24, -30),Math.toRadians(85),new TranslationalVelConstraint(70))
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
                 .build();
 
-        rota2 = drive.actionBuilder(new Pose2d(18, -30, Math.toRadians(85)))
+        rota2 = drive.actionBuilder(new Pose2d(24, -30, Math.toRadians(85)))
 
                 .turnTo( Math.toRadians(145))
 
@@ -117,9 +117,8 @@ public class Rotas extends LinearOpMode {
 
                 .build();
 
-        rota3 = drive.actionBuilder(new Pose2d(18, -30, Math.toRadians(145)))
+        rota3 = drive.actionBuilder(new Pose2d(24, -30, Math.toRadians(145)))
                 .afterTime(0, ()->{
-                    velocidade_desejada = 1165;
 
                 })
 
@@ -130,7 +129,7 @@ public class Rotas extends LinearOpMode {
 
                 })
 
-                .waitSeconds(1.2)
+                .waitSeconds(0.6)
 
                 .afterTime(0, ()->{
                     Aciona_servo();
@@ -138,7 +137,7 @@ public class Rotas extends LinearOpMode {
                     PIDs_state = true;
                 })
 
-                .waitSeconds(0.8)
+                .waitSeconds(0.7)
 
                 .afterTime(0, ()->{
                     Reservoir_1.setPosition(0);
@@ -155,11 +154,10 @@ public class Rotas extends LinearOpMode {
 
                 .afterTime(0, ()->{
                     Aciona_servo();
-                    velocidade_desejada = 1130;
                     PIDs_state = true;
                 })
 
-                .waitSeconds(0.8)
+                .waitSeconds(0.7)
 
 
                 .afterTime(0, ()->{
@@ -182,7 +180,7 @@ public class Rotas extends LinearOpMode {
                     PIDs_state = true;
                 })
 
-                .waitSeconds(1)
+                .waitSeconds(0.7)
 
                 .afterTime(0, ()->{
                     Reservoir_1.setPosition(0);
@@ -198,45 +196,39 @@ public class Rotas extends LinearOpMode {
 
                 .build();
 //
-        rota4 = drive.actionBuilder(new Pose2d(18, -30, Math.toRadians(145)))
+        rota4 = drive.actionBuilder(new Pose2d(24, -30, Math.toRadians(145)))
 
-                .turnTo(Math.toRadians(180))
 
-                .splineTo(new Vector2d(53.5, -34),Math.toRadians(90))
+                .setReversed(true)
+                .splineTo(new Vector2d(51, -35),Math.toRadians(270))
 
-               // .turnTo(Math.toRadians(175))
-
-                //.lineToX(52)
-
-                //.turnTo(Math.toRadians(90))
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
                 .build();
 
-        rota5 = drive.actionBuilder(new Pose2d(53.5, -34, Math.toRadians(90)))
+        rota5 = drive.actionBuilder(new Pose2d(51, -20, Math.toRadians(90)))
+                .setReversed(false)
+                .turnTo(Math.toRadians(97))
 
-                .strafeToLinearHeading(new Vector2d(53.5, -11.5),Math.toRadians(90),new TranslationalVelConstraint(30))
+                .strafeToLinearHeading(new Vector2d(51, -11.5),Math.toRadians(97),new TranslationalVelConstraint(30))
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
                 .build();
 
-        rota6 = drive.actionBuilder(new Pose2d(53.5, -11.5, Math.toRadians(90)))
-
-                .splineTo(new Vector2d(18, -30),Math.toRadians(143))
+        rota6 = drive.actionBuilder(new Pose2d(51, -11.5, Math.toRadians(90)))
+                .setReversed(true)
+                .splineTo(new Vector2d(24, -30),Math.toRadians(280))
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
                 .build();
 
-        rota7 = drive.actionBuilder(new Pose2d(18, -30, Math.toRadians(143)))
-                .afterTime(0, ()->{
-                    velocidade_desejada = 1165;
+        rota7 = drive.actionBuilder(new Pose2d(24, -30, Math.toRadians(100)))
 
-                })
                 .turnTo(Math.toRadians(143.1))
                 .afterTime(0, ()->{
                     if (id_ap == 21) posicao_desejada_indexer = 0;
@@ -245,7 +237,7 @@ public class Rotas extends LinearOpMode {
 
                 })
 
-                .waitSeconds(1.2)
+                .waitSeconds(0.6)
 
                 .afterTime(0, ()->{
                     Aciona_servo();
@@ -253,7 +245,7 @@ public class Rotas extends LinearOpMode {
                     PIDs_state = true;
                 })
 
-                .waitSeconds(0.8)
+                .waitSeconds(0.7)
 
                 .afterTime(0, ()->{
                     Reservoir_1.setPosition(0);
@@ -270,11 +262,10 @@ public class Rotas extends LinearOpMode {
 
                 .afterTime(0, ()->{
                     Aciona_servo();
-                    velocidade_desejada = 1130;
                     PIDs_state = true;
                 })
 
-                .waitSeconds(0.8)
+                .waitSeconds(0.7)
 
 
                 .afterTime(0, ()->{
@@ -296,7 +287,7 @@ public class Rotas extends LinearOpMode {
                     PIDs_state = true;
                 })
 
-                .waitSeconds(1)
+                .waitSeconds(0.7)
 
                 .afterTime(0, ()->{
                     Reservoir_1.setPosition(0);
@@ -312,9 +303,9 @@ public class Rotas extends LinearOpMode {
 
                 .build();
 
-        rota8 = drive.actionBuilder(new Pose2d(18, -30, Math.toRadians(143)))
-
-                .splineTo(new Vector2d(53, -15),Math.toRadians(90))
+        rota8 = drive.actionBuilder(new Pose2d(24, -30, Math.toRadians(143)))
+                .setReversed(true)
+                .splineTo(new Vector2d(50, -15),Math.toRadians(270))
 
 
                 .afterTime(0, ()->{
@@ -322,18 +313,19 @@ public class Rotas extends LinearOpMode {
                 })
                 .build();
 
-        rota9 = drive.actionBuilder(new Pose2d(53, -15, Math.toRadians(90)))
-
-                .strafeToLinearHeading(new Vector2d(53, 10),Math.toRadians(90),new TranslationalVelConstraint(30))
+        rota9 = drive.actionBuilder(new Pose2d(50, -5, Math.toRadians(90)))
+                .setReversed(false)
+                .turnTo(Math.toRadians(97))
+                .strafeToLinearHeading(new Vector2d(50, 10),Math.toRadians(97),new TranslationalVelConstraint(30))
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
                 .build();
 
-        rota10 = drive.actionBuilder(new Pose2d(53, 10, Math.toRadians(90)))
+        rota10 = drive.actionBuilder(new Pose2d(50, 10, Math.toRadians(90)))
 
                 .setReversed(true)
-                .splineTo(new Vector2d(18, -27),Math.toRadians(233))
+                .splineTo(new Vector2d(24, -30),Math.toRadians(280))
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
@@ -341,12 +333,9 @@ public class Rotas extends LinearOpMode {
 
                 .build();
 
-        rota11 = drive.actionBuilder(new Pose2d(18, -27, Math.toRadians(53)))
+        rota11 = drive.actionBuilder(new Pose2d(24, -30, Math.toRadians(100)))
 
-                .afterTime(0, ()->{
-                    velocidade_desejada = 1180;
 
-                })
                 .turnTo(Math.toRadians(143))
                 .afterTime(0, ()->{
                     if (id_ap == 21) posicao_desejada_indexer = 218;
@@ -355,7 +344,7 @@ public class Rotas extends LinearOpMode {
 
                 })
 
-                .waitSeconds(1.2)
+                .waitSeconds(0.6)
 
                 .afterTime(0, ()->{
                     Aciona_servo();
@@ -364,7 +353,7 @@ public class Rotas extends LinearOpMode {
                 })
 //
                  //
-                .waitSeconds(0.8)
+                .waitSeconds(0.7)
 
                 .afterTime(0, ()->{
                     Reservoir_1.setPosition(0);
@@ -381,11 +370,10 @@ public class Rotas extends LinearOpMode {
 
                 .afterTime(0, ()->{
                     Aciona_servo();
-                    velocidade_desejada = 1130;
                     PIDs_state = true;
                 })
 
-                .waitSeconds(0.8)
+                .waitSeconds(0.7)
 
 
                 .afterTime(0, ()->{
@@ -408,7 +396,7 @@ public class Rotas extends LinearOpMode {
                     PIDs_state = true;
                 })
 
-                .waitSeconds(1)
+                .waitSeconds(0.7)
 
                 .afterTime(0, ()->{
                     Reservoir_1.setPosition(0);
@@ -420,6 +408,7 @@ public class Rotas extends LinearOpMode {
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
+                .strafeTo(new Vector2d(20, -40))
 
                 .build();
 
@@ -434,22 +423,19 @@ public class Rotas extends LinearOpMode {
         MecanumDrive.PARAMS.maxWheelVel = 60;
 
 
-        drive = new MecanumDrive(hardwareMap, new Pose2d(10, 55,
+        drive = new MecanumDrive(hardwareMap, new Pose2d(18, 55,
                 Math.toRadians(90)));
 
-        rota1 = drive.actionBuilder(new Pose2d(10, 55, Math.toRadians(90)))
+        rota1 = drive.actionBuilder(new Pose2d(18, 55, Math.toRadians(90)))
 
-                .turnTo(Math.toRadians(100))
+                .strafeToLinearHeading(new Vector2d(18, 47),Math.toRadians(85))
+
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
                 .build();
 
-        rota2 = drive.actionBuilder(new Pose2d(10, 55, Math.toRadians(100)))
-                .afterTime(0, ()->{
-                    velocidade_desejada = 1600;
-
-                })
+        rota2 = drive.actionBuilder(new Pose2d(18, 47, Math.toRadians(85)))
 
                 .afterTime(0, ()->{
                     if (id_ap == 21) posicao_desejada_indexer = 0;
@@ -457,18 +443,16 @@ public class Rotas extends LinearOpMode {
                     if (id_ap == 23) posicao_desejada_indexer = 218;
 
                 })
-
-                .waitSeconds(1.2)
+                .turnTo(Math.toRadians(110))
+                .waitSeconds(0.6)
 
                 .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_1.setPosition(1);
-                    if (id_ap == 22) Reservoir_2.setPosition(0);
-                    if (id_ap == 23) Reservoir_2.setPosition(0);
+                    Aciona_servo();
 
                     PIDs_state = true;
                 })
 
-                .waitSeconds(0.8)
+                .waitSeconds(0.7)
 
                 .afterTime(0, ()->{
                     Reservoir_1.setPosition(0);
@@ -484,14 +468,11 @@ public class Rotas extends LinearOpMode {
                 .waitSeconds(0.6)
 
                 .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_2.setPosition(0);
-                    if (id_ap == 22) Reservoir_1.setPosition(1);
-                    if (id_ap == 23) Reservoir_3.setPosition(1);
-
+                    Aciona_servo();
                     PIDs_state = true;
                 })
 
-                .waitSeconds(0.8)
+                .waitSeconds(0.7)
 
 
                 .afterTime(0, ()->{
@@ -509,22 +490,19 @@ public class Rotas extends LinearOpMode {
                 .waitSeconds(0.6)
 
                 .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_3.setPosition(1);
-                    if (id_ap == 22) Reservoir_3.setPosition(1);
-                    if (id_ap == 23) Reservoir_1.setPosition(1);
+                    Aciona_servo();
 
                     PIDs_state = true;
                 })
 
-                .waitSeconds(1)
+                .waitSeconds(0.7)
 
                 .afterTime(0, ()->{
                     Reservoir_1.setPosition(0);
                     Reservoir_2.setPosition(1);
                     Reservoir_3.setPosition(0);
-                    if (id_ap == 21) posicao_desejada_indexer = 0;
-                    if (id_ap == 22) posicao_desejada_indexer = 218;
-                    if (id_ap == 23) posicao_desejada_indexer = 218;
+                    posicao_desejada_indexer = 0;
+
                 })
 
                 .afterTime(0, ()->{
@@ -533,59 +511,49 @@ public class Rotas extends LinearOpMode {
 
                 .build();
 //
-        rota3 = drive.actionBuilder(new Pose2d(10, 55, Math.toRadians(100)))
+        rota3 = drive.actionBuilder(new Pose2d(18, 47, Math.toRadians(110)))
 
-                .strafeTo(new Vector2d(30, 20))
-
-                .strafeTo(new Vector2d(44.5, 20), new TranslationalVelConstraint(20))
+                .strafeToLinearHeading(new Vector2d(48, 47),Math.toRadians(270))
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
                 .build();
 
-        rota4 = drive.actionBuilder(new Pose2d(44.5, 20, Math.toRadians(90)))
+        rota4 = drive.actionBuilder(new Pose2d(48, 47, Math.toRadians(270)))
 
-                .strafeToLinearHeading(new Vector2d(44.5, 27),Math.toRadians(90),new TranslationalVelConstraint(30))
+                .strafeToLinearHeading(new Vector2d(48, 27),Math.toRadians(270),new TranslationalVelConstraint(30))
 
-                .waitSeconds(0.2)
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
                 .build();
 
-        rota5 = drive.actionBuilder(new Pose2d(44.5, 27, Math.toRadians(90)))
+        rota5 = drive.actionBuilder(new Pose2d(48, 27, Math.toRadians(270)))
 
-                .splineTo(new Vector2d(10, 55),Math.toRadians(100))
+                .strafeToLinearHeading(new Vector2d(18, 47),Math.toRadians(102))
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
                 .build();
 
-        rota6 = drive.actionBuilder(new Pose2d(10, 55, Math.toRadians(100)))
-                .afterTime(0, ()->{
-                    velocidade_desejada = 1600;
-
-                })
+        rota6 = drive.actionBuilder(new Pose2d(18, 47, Math.toRadians(102)))
                 .afterTime(0, ()->{
                     if (id_ap == 21) posicao_desejada_indexer = 440;
                     if (id_ap == 22) posicao_desejada_indexer = 0;
                     if (id_ap == 23) posicao_desejada_indexer = 0;
 
                 })
-
-                .waitSeconds(1.2)
+                .waitSeconds(0.6)
 
                 .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_3.setPosition(1);
-                    if (id_ap == 22) Reservoir_1.setPosition(1);
-                    if (id_ap == 23) Reservoir_1.setPosition(1);
+                    Aciona_servo();
 
                     PIDs_state = true;
                 })
 
-                .waitSeconds(0.8)
+                .waitSeconds(0.7)
 
                 .afterTime(0, ()->{
                     Reservoir_1.setPosition(0);
@@ -601,14 +569,11 @@ public class Rotas extends LinearOpMode {
                 .waitSeconds(0.6)
 
                 .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_2.setPosition(0);
-                    if (id_ap == 22) Reservoir_3.setPosition(1);
-                    if (id_ap == 23) Reservoir_2.setPosition(0);
-
+                    Aciona_servo();
                     PIDs_state = true;
                 })
 
-                .waitSeconds(0.8)
+                .waitSeconds(0.7)
 
 
                 .afterTime(0, ()->{
@@ -626,20 +591,19 @@ public class Rotas extends LinearOpMode {
                 .waitSeconds(0.6)
 
                 .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_1.setPosition(1);
-                    if (id_ap == 22) Reservoir_2.setPosition(0);
-                    if (id_ap == 23) Reservoir_3.setPosition(1);
+                    Aciona_servo();
 
                     PIDs_state = true;
                 })
 
-                .waitSeconds(1)
+                .waitSeconds(0.7)
 
                 .afterTime(0, ()->{
                     Reservoir_1.setPosition(0);
                     Reservoir_2.setPosition(1);
                     Reservoir_3.setPosition(0);
                     posicao_desejada_indexer = 0;
+
                 })
 
                 .afterTime(0, ()->{
@@ -648,9 +612,17 @@ public class Rotas extends LinearOpMode {
 
                 .build();
 
-        rota7 = drive.actionBuilder(new Pose2d(10, 55, Math.toRadians(100)))
+        rota7 = drive.actionBuilder(new Pose2d(18, 47, Math.toRadians(102)))
 
-                .strafeToLinearHeading(new Vector2d(44.5, 20),Math.toRadians(180))
+                .strafeToLinearHeading(new Vector2d(48, 27),Math.toRadians(270))
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota8 = drive.actionBuilder(new Pose2d(48, 27, Math.toRadians(270)))
+                .strafeToLinearHeading(new Vector2d(48, 5),Math.toRadians(270),new TranslationalVelConstraint(30))
 
 
                 .afterTime(0, ()->{
@@ -658,32 +630,16 @@ public class Rotas extends LinearOpMode {
                 })
                 .build();
 
-        rota8 = drive.actionBuilder(new Pose2d(44.5, 20, Math.toRadians(180)))
+        rota9 = drive.actionBuilder(new Pose2d(48, 5, Math.toRadians(270)))
 
-                .strafeToLinearHeading(new Vector2d(44.5, 6),Math.toRadians(180),new TranslationalVelConstraint(30))
-
-                .waitSeconds(0.2)
+                .strafeToLinearHeading(new Vector2d(18, 47),Math.toRadians(102))
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
                 .build();
 
-        rota9 = drive.actionBuilder(new Pose2d(44.5, 6, Math.toRadians(180)))
-
-                .splineTo(new Vector2d(10, 55),Math.toRadians(180))
-
-                .afterTime(0, ()->{
-                    PIDs_state = false;
-                })
-                .build();
-
-        rota10 = drive.actionBuilder(new Pose2d(10, 55, Math.toRadians(180)))
-                .afterTime(0, ()->{
-                    velocidade_desejada = 1600;
-
-                })
-                .turnTo(Math.toRadians(150))
+        rota10 = drive.actionBuilder(new Pose2d(10, 55, Math.toRadians(102)))
                 .afterTime(0, ()->{
                     if (id_ap == 21) posicao_desejada_indexer = 218;
                     if (id_ap == 22) posicao_desejada_indexer = 0;
@@ -691,18 +647,16 @@ public class Rotas extends LinearOpMode {
 
                 })
 
-                .waitSeconds(1.2)
+                .waitSeconds(0.6)
 
                 .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_2.setPosition(0);
-                    if (id_ap == 22) Reservoir_1.setPosition(1);
-                    if (id_ap == 23) Reservoir_1.setPosition(1);
+                    Aciona_servo();
 
                     PIDs_state = true;
                 })
 //
                 //
-                .waitSeconds(0.8)
+                .waitSeconds(0.7)
 
                 .afterTime(0, ()->{
                     Reservoir_1.setPosition(0);
@@ -718,14 +672,11 @@ public class Rotas extends LinearOpMode {
                 .waitSeconds(0.6)
 
                 .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_1.setPosition(1);
-                    if (id_ap == 22) Reservoir_2.setPosition(0);
-                    if (id_ap == 23) Reservoir_3.setPosition(1);
-
+                    Aciona_servo();
                     PIDs_state = true;
                 })
 
-                .waitSeconds(0.8)
+                .waitSeconds(0.7)
 
 
                 .afterTime(0, ()->{
@@ -743,14 +694,12 @@ public class Rotas extends LinearOpMode {
                 .waitSeconds(0.6)
 
                 .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_3.setPosition(1);
-                    if (id_ap == 22) Reservoir_3.setPosition(1);
-                    if (id_ap == 23) Reservoir_2.setPosition(0);
+                    Aciona_servo();
 
                     PIDs_state = true;
                 })
 
-                .waitSeconds(1)
+                .waitSeconds(0.7)
 
                 .afterTime(0, ()->{
                     Reservoir_1.setPosition(0);
@@ -762,6 +711,7 @@ public class Rotas extends LinearOpMode {
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
+                .strafeTo(new Vector2d(20, 35))
 
                 .build();
 

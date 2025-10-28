@@ -34,7 +34,7 @@ import java.util.List;
 
 public class Autonomo_VermelhoGRANDE extends LinearOpMode {
 
-    private static final Logger log = LoggerFactory.getLogger(Autonomo_AzulPEQUENO.class);
+    private static final Logger log = LoggerFactory.getLogger(Autonomo.class);
 
     public class PIDs implements Action {
         public PIDs() {

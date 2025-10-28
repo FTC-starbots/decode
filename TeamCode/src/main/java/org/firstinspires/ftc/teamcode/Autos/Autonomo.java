@@ -7,15 +7,12 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
-import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -23,17 +20,13 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.MecanumDrive;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.List;
 
 @Config
 @Autonomous
 
 
-public class Autonomo_AzulPEQUENO extends Rotas {
+public class Autonomo extends Rotas {
     private static final Canvas DEFAULT_FIELD = new Canvas();
     public  class PIDs implements Action {
         public PIDs() {
@@ -131,22 +124,25 @@ if(erro < 0) power_correction = 0;
             List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
 
             for (LLResultTypes.FiducialResult fr : fiducialResults) {
-                tx_offset = fr.getTargetXPixels();
+
 
 
                 if ((limelight.getLatestResult().isValid()) && (fr.getFiducialId() == 24 || fr.getFiducialId() == 20)) {
 
-                    if (tx_offset < 1190) {
-                        leftBack.setPower(-0.165);
-                        leftFront.setPower(-0.165);
-                        rightBack.setPower(0.165);
-                        rightFront.setPower(0.165);
+                    velocidade_desejada = 738 - Compen_at + 6.5 * (result.getBotposeAvgDist() / 0.0254);
 
-                    } else if (tx_offset > 1390) {
-                        leftBack.setPower(0.165);
-                        leftFront.setPower(0.165);
-                        rightBack.setPower(-0.165);
-                        rightFront.setPower(-0.165);
+                    tx_offset = fr.getTargetXPixels();
+                    if (tx_offset < 1190 + Compen_tx) {
+                        leftBack.setPower(-0.158 + Compen_vl);
+                        leftFront.setPower(-0.158 + Compen_vl);
+                        rightBack.setPower(0.158 - Compen_vl);
+                        rightFront.setPower(0.158 - Compen_vl);
+
+                    } else if (tx_offset > 1390+ Compen_tx) {
+                        leftBack.setPower(0.158 - Compen_vl);
+                        leftFront.setPower(0.158 - Compen_vl);
+                        rightBack.setPower(-0.158 + Compen_vl);
+                        rightFront.setPower(-0.158 + Compen_vl);
                     } else {
                         leftBack.setPower(0);
                         leftFront.setPower(0);
@@ -227,6 +223,9 @@ if(erro < 0) power_correction = 0;
         //--------Calcula Rotas e parametriza drivetrain---------------------
 
         Rotas_APequeno_Perto();
+
+        //Rotas_APequeno_Longe();
+
         //------------------------------------------
         //Leitura de AP
         {
@@ -250,11 +249,15 @@ if(erro < 0) power_correction = 0;
         }
         waitForStart();
 
-        Auto_APequeno_Perto();
+       Auto_APequeno_Perto();
+
+       //Auto_APequeno_Longe();
     }
 
     public void Auto_APequeno_Perto() {
-
+        Compen_at = 0;
+        Compen_tx = 0;
+        Compen_vl = 0;
         PIDs_state = false;
 
 
@@ -262,8 +265,8 @@ if(erro < 0) power_correction = 0;
         //Leitura de AP
 
         {
-            LLResult result = limelight.getLatestResult();
-            List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
+            LLResult result2 = limelight.getLatestResult();
+            List<LLResultTypes.FiducialResult> fiducialResults = result2.getFiducialResults();
 
             for (LLResultTypes.FiducialResult fr : fiducialResults) {
                 id_ap = fr.getFiducialId();
@@ -275,7 +278,10 @@ if(erro < 0) power_correction = 0;
 
             } else if (id_ap == 23) {
                 Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
-            } else Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+            } else{
+                id_ap = 21;
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+            }
 
         }
         limelight.stop();
@@ -307,6 +313,7 @@ if(erro < 0) power_correction = 0;
         limelight.start();
         limelight.pipelineSwitch(5);
 
+
         PIDs_state = true;
         Actions.runBlocking(new ParallelAction(rota7, new PIDs()));
         limelight.stop();
@@ -336,7 +343,9 @@ if(erro < 0) power_correction = 0;
     }
 
     public void Auto_APequeno_Longe() {
-
+        Compen_at = 150;
+        Compen_tx = 125;
+        Compen_vl = 0.011;
         PIDs_state = false;
         //Leitura de AP
         {
@@ -353,18 +362,22 @@ if(erro < 0) power_correction = 0;
 
             } else if (id_ap == 23) {
                 Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
-            } else Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+            } else{
+                id_ap = 21;
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+            }
 
         }
-
+        limelight.stop();
         Actions.runBlocking(rota1);
 
 
-        velocidade_desejada = 1165;
-
+        velocidade_desejada = 1400;
+        limelight.start();
+        limelight.pipelineSwitch(5);
         PIDs_state = true;
         Actions.runBlocking(new ParallelAction(rota2, new PIDs()));
-
+        limelight.stop();
         Atirador_1.setPower(0);
         Atirador_2.setPower(0);
 
@@ -375,15 +388,16 @@ if(erro < 0) power_correction = 0;
 
         Actions.runBlocking(rota4);
 
+        Actions.runBlocking(rota5);
         Intake.setPower(0);
 
-        Actions.runBlocking(rota5);
+        velocidade_desejada = 1400;
 
-
-        velocidade_desejada = 1165;
-
+        limelight.start();
+        limelight.pipelineSwitch(5);
         PIDs_state = true;
         Actions.runBlocking(new ParallelAction(rota6, new PIDs()));
+        limelight.stop();
 
         Atirador_1.setPower(0);
         Atirador_2.setPower(0);
@@ -395,12 +409,13 @@ if(erro < 0) power_correction = 0;
 
         Actions.runBlocking(rota8);
 
-        Intake.setPower(0);
+
 
         Actions.runBlocking(rota9);
-
-
-        velocidade_desejada = 1165;
+        Intake.setPower(0);
+        limelight.start();
+        limelight.pipelineSwitch(5);
+        velocidade_desejada = 1400;
 
         PIDs_state = true;
         Actions.runBlocking(new ParallelAction(rota10, new PIDs()));
