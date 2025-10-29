@@ -19,8 +19,7 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 
 import java.util.List;
 
-@Config
-@TeleOp
+
 public class TeleOperado_Vermelho extends Autonomo_VermelhoPEQUENO {
 
     boolean Movimento_robo = false, Base_Motriz_State = false, Shoot = false, gamepad_1 = true, PosDesejada = false, zone_system = true;

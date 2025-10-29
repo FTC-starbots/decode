@@ -8,12 +8,15 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -28,7 +31,9 @@ import java.util.List;
 
 public class TeleOperado extends Autonomo_VermelhoGRANDE {
 
-
+    public DigitalChannel  Alliance_B, Alliance_R, Auto1,Auto2, Auto3, Auto4, LED_S_R,LED_S_G,LED_S_B;
+    public LED Led_1_R, Led_1_V, Led_2_R, Led_2_V, Led_3_R, Led_3_V;
+    public AnalogInput S1, S2,S3,S4;
 
     boolean AlinharTx = false, Manual = false, Movimento_robo = false, Base_Motriz_State = false, Shoot_mul = false, Shoot = false, gamepad_1 = true, atualizar_limelight = false;
     boolean Iniciar_atirador = false, Corrigir_velocidade = false, detecting_ap = false, goal_ap = false;
@@ -89,6 +94,8 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
             myControlHubVoltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
             ControlHub_VoltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
 
+
+
             leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
             leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
             rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
@@ -103,10 +110,45 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
             Reservoir_3 = hardwareMap.get(Servo.class, "Reservoir_3");
             Led_Strip = hardwareMap.get(RevBlinkinLedDriver.class, "Led_Strip");
 
+            Alliance_B = hardwareMap.get(DigitalChannel.class, "Alliance_B");
+            Alliance_R = hardwareMap.get(DigitalChannel.class, "Alliance_R");
+            Auto1 = hardwareMap.get(DigitalChannel.class, "Auto1");
+            Auto2 = hardwareMap.get(DigitalChannel.class, "Auto2");
+            Auto3 = hardwareMap.get(DigitalChannel.class, "Auto3");
+            Auto4 = hardwareMap.get(DigitalChannel.class, "Auto4");
+
+            LED_S_R = hardwareMap.get(DigitalChannel.class, "LED_S_R");
+            LED_S_G = hardwareMap.get(DigitalChannel.class, "LED_S_G");
+            LED_S_B = hardwareMap.get(DigitalChannel.class, "LED_S_B");
+
+            Led_1_R = hardwareMap.get(LED.class, "Led_1_R");
+            Led_1_V = hardwareMap.get(LED.class, "Led_1_V");
+            Led_2_R = hardwareMap.get(LED.class, "Led_2_R");
+            Led_2_V = hardwareMap.get(LED.class, "Led_2_V");
+            Led_3_R = hardwareMap.get(LED.class, "Led_3_R");
+            Led_3_V = hardwareMap.get(LED.class, "Led_3_V");
+
+            S1 = hardwareMap.get(AnalogInput.class, "S1");
+            S2 = hardwareMap.get(AnalogInput.class, "S2");
+            S3 = hardwareMap.get(AnalogInput.class, "S3");
+            S4 = hardwareMap.get(AnalogInput.class, "S4");
+
 
         }
         // Configuração dos motores da base
         {
+
+            Alliance_B.setMode(DigitalChannel.Mode.INPUT);
+            Alliance_R.setMode(DigitalChannel.Mode.INPUT);
+            Auto1.setMode(DigitalChannel.Mode.INPUT);
+            Auto2.setMode(DigitalChannel.Mode.INPUT);
+            Auto3.setMode(DigitalChannel.Mode.INPUT);
+            Auto4.setMode(DigitalChannel.Mode.INPUT);
+
+            LED_S_R.setMode(DigitalChannel.Mode.OUTPUT);
+            LED_S_G.setMode(DigitalChannel.Mode.OUTPUT);
+            LED_S_B.setMode(DigitalChannel.Mode.OUTPUT);
+
             leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -174,7 +216,7 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
 
 
 
-        boolean blue_alliance = true; //false = red
+        boolean blue_alliance = Alliance_B.getState(); //false = red
 
         if (blue_alliance) {
             goal_X = -58.346;
@@ -222,13 +264,14 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
                                         limelight_posY = -result.getBotpose().getPosition().x * 35.3;
                                         limelight_posX = result.getBotpose().getPosition().y * 35.3;
                                         limelight_yaw = (result.getBotpose().getOrientation().getYaw() - 90);
-                                        if(result.getBotposeAvgDist() != 0) distLime = result.getBotposeAvgDist() / 0.0254;
+                                        if (result.getBotposeAvgDist() != 0)
+                                            distLime = result.getBotposeAvgDist() / 0.0254;
 
 
                                         atualizar_limelight = true;
-                                        //drive = new MecanumDrive(hardwareMap, new Pose2d(limelight_posX, limelight_posY, Math.toRadians(limelight_yaw)));
+                                        drive = new MecanumDrive(hardwareMap, new Pose2d(limelight_posX, limelight_posY, Math.toRadians(limelight_yaw)));
 
-                                    } else{
+                                    } else {
                                         distLime = 0;
                                         goal_ap = false;
                                     }
@@ -274,7 +317,7 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
                         }
                     }
                     //Funções principais ------------------------------------------------------
-                    if (!Shoot)Base_Motriz();
+                    if (!Shoot) Base_Motriz();
                     Indexer();
                     Shooting_Vel();
                     //Reset robô----------------------------------------------------------------------------------------
@@ -285,7 +328,8 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
 
                                 last_pose_X = pose_atual.position.x;
                                 last_pose_Y = pose_atual.position.y;
-                                if (!Manual)  drive = new MecanumDrive(hardwareMap, new Pose2d(pose_atual.position.x, pose_atual.position.y, Math.toRadians(180)));
+                                if (!Manual)
+                                    drive = new MecanumDrive(hardwareMap, new Pose2d(pose_atual.position.x, pose_atual.position.y, Math.toRadians(180)));
 
                             }
                         } else {
@@ -293,7 +337,8 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
 
                                 last_pose_X = pose_atual.position.x;
                                 last_pose_Y = pose_atual.position.y;
-                                if (!Manual)   drive = new MecanumDrive(hardwareMap, new Pose2d(pose_atual.position.x, pose_atual.position.y, Math.toRadians(180)));
+                                if (!Manual)
+                                    drive = new MecanumDrive(hardwareMap, new Pose2d(pose_atual.position.x, pose_atual.position.y, Math.toRadians(180)));
                             }
 
                         }
@@ -311,12 +356,32 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
 
                     //Velocidade do Atirador---------------------------------------------------------------------------
 
-                    if (true) {
-                        areapermitida = true;
+                    if (Manual) {
+                        if (true) {
+                            areapermitida = false;
+                            if (gamepad2.triangle) {
+                                Iniciar_atirador = true;
+                                gamepad_1 = false;
+                                if (!Manual) velocidade_desejada = 695 + 6.1 * hip;
+                                else velocidade_desejada = 1280;
+                            } else if (gamepad2.square) {
+                                Iniciar_atirador = true;
+                                velocidade_desejada = 1650;
+                            } else {
+                                Iniciar_atirador = false;
+                                kf_atirar = 0;
+                                kp_atirar = 0;
+                                CorrTx = 0;
+                                velocidade_desejada = 0;
+                            }
+                        }
+                    }else {
+                        if (pose_atual.position.y >= Math.abs(pose_atual.position.x) || (pose_atual.position.y <= -Math.abs(pose_atual.position.x) - 40)){
+                            areapermitida = true;
                         if (gamepad2.triangle) {
                             Iniciar_atirador = true;
                             gamepad_1 = false;
-                            if (!Manual)   velocidade_desejada = 738 + 6.1 * distLime;
+                            if (!Manual) velocidade_desejada = 695 + 6.1 * hip;
                             else velocidade_desejada = 1280;
                         } else if (gamepad2.square) {
                             Iniciar_atirador = true;
@@ -329,6 +394,7 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
                             velocidade_desejada = 0;
                         }
                     }
+                }
 
 
 //----------------Intake-------------------------------------------------------------------------------------------
@@ -342,6 +408,12 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
                     else if (gamepad1.square) gamepad_1 = true;
 
 //--------------------Reservatorios--------------------------------------------------------------------------------
+
+                    if (gamepad2.circle) {
+                        LED_S_R.setState(true);
+                        LED_S_G.setState(true);
+                        LED_S_B.setState(true);
+                    }
 
                     {
                         if (gamepad2.dpad_left) {
@@ -372,23 +444,28 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
                     //INDICAÇÃO DOS LEDS-------------------------------------------------------------------------------
 
                     {
-                        if (areapermitida && velocidade_desejada != 0 && (velocidade_desejada > Math.abs(Atirador_1.getVelocity()) - 60 && velocidade_desejada < Math.abs(Atirador_1.getVelocity()) + 60)) {
-                            if (detecting_ap)
-                                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_BLUE);
+                        if(!Manual) {
+                            if (areapermitida && velocidade_desejada != 0 && (velocidade_desejada > Math.abs(Atirador_1.getVelocity()) - 60 && velocidade_desejada < Math.abs(Atirador_1.getVelocity()) + 60)) {
+                                if (goal_ap)
+                                    Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_BLUE);
+                                else Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+                            } else if (areapermitida) {
+                                if (goal_ap)
+                                    Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_WHITE);
+                                else Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+                            } else {
+                                if (goal_ap)
+                                    Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_RED);
+                                else Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+                            }
+                        }else{
+                            if (goal_ap) Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_BLUE);
                             else Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
-                        } else if (areapermitida) {
-                            if (detecting_ap)
-                                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_WHITE);
-                            else Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
-                        } else {
-                            if (detecting_ap)
-                                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_RED);
-                            else Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
                         }
                     }
 
 //------------------------------------------------------------------------------------------------------------------
-                    if (Shoot) Shoot_single();
+                    if(Shoot)Shoot_single();
                     if(Shoot_mul)Shoot_multiple();
 
 
@@ -530,7 +607,6 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
 
             double divisorX = 5 + 10 * Math.max(0, 1.0 - (Math.abs(ErroMovX) / 4.0));
             double divisorY = 5 + 10 * Math.max(0, 1.0 - (Math.abs(ErroMovY) / 4.0));
-            if (Math.abs(gamepad1.left_stick_x) > 0.1 || Math.abs(gamepad1.left_stick_y) > 0.1 || Math.abs(gamepad2.left_stick_x) > 0.1 || Math.abs(gamepad2.left_stick_y) > 0.1) {
 
                 if (gamepad_1) {
 
@@ -540,17 +616,15 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
                     vectorY = ((-Math.sin((angulo_robo + 180) / 180 * Math.PI) * (gamepad1.left_stick_x/*+ (ErroMovY/divisorY)*/))
                             + Math.cos((angulo_robo + 180) / 180 * Math.PI) * (-gamepad1.left_stick_y /*+(-ErroMovX/divisorX)*/));
                 } else {
-                    vectorX = (Math.cos((angulo_robo + 180) / 180 * Math.PI) * (gamepad2.left_stick_x/*+ (ErroMovY/divisorY)*/))
-                            + Math.sin((angulo_robo + 180) / 180 * Math.PI) * (-gamepad2.left_stick_y/*+(-ErroMovX/divisorX)*/);
 
-                    vectorY = ((-Math.sin((angulo_robo + 180) / 180 * Math.PI) * (gamepad2.left_stick_x/*+ (ErroMovY/divisorY)*/))
-                            + Math.cos((angulo_robo + 180) / 180 * Math.PI) * (-gamepad2.left_stick_y /*+(-ErroMovX/divisorX)*/));
+                    vectorX = (Math.cos((angulo_robo + 180) / 180 * Math.PI) * ( gamepad2.left_stick_x /*+ (ErroMovY/divisorY)*/))
+                            + Math.sin((angulo_robo + 180) / 180 * Math.PI) * (-gamepad2.left_stick_y/*+ (ErroMovY/divisorX)*/);
+
+                    vectorY = ((-Math.sin((angulo_robo + 180) / 180 * Math.PI) * (gamepad2.left_stick_x /*+ (ErroMovY/divisorY)*/))
+                            + Math.cos((angulo_robo + 180) / 180 * Math.PI) *   (-gamepad2.left_stick_y/*+ (ErroMovY/divisorX)*/));
 
                 }
-            } else {
-                vectorX = 0;
-                vectorY = 0;
-            }
+
             if (gamepad_1) {
                 leftBack.setPower((vectorY * 1 + vectorX * -1) * Speed + ((gamepad1.right_trigger - gamepad1.left_trigger) + correcao_angular));
                 leftFront.setPower((vectorY * 1 + vectorX * 1) * Speed + ((gamepad1.right_trigger - gamepad1.left_trigger) + correcao_angular));
@@ -815,6 +889,12 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
     private void SensorCor(){
 
     }
+
+    private void Desligar_leds(){
+        LED_S_R.setState(true);
+        LED_S_G.setState(true);
+        LED_S_B.setState(true);
+    }
     private void Telemetria(){
 
         //Telemetria para gráficos----------------
@@ -836,7 +916,26 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
         //Telemetria padrão-----------------------
 
         {
+
+
             telemetry.addData("Modo Manual", Manual);
+            telemetry.addData("", "");
+
+            telemetry.addData("S1", S1.getVoltage());
+            telemetry.addData("S2", S2.getVoltage());
+            telemetry.addData("S3", S3.getVoltage());
+            telemetry.addData("S4", S4.getVoltage());
+
+
+            telemetry.addData("AZUL", Alliance_B.getState());
+            telemetry.addData("vermelho", Alliance_R.getState());
+
+            if(!Auto1.getState())telemetry.addLine("AUTO 1 ");
+            else if(!Auto2.getState())telemetry.addLine("AUTO 2");
+            else if(!Auto3.getState())telemetry.addLine("AUTO 3");
+            else if(!Auto4.getState())telemetry.addLine("AUTO 4");
+
+
 
             telemetry.addData("Área de lançamento", areapermitida);
             telemetry.addData("Att Limelight", atualizar_limelight);

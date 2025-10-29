@@ -28,8 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-@Config
-@Autonomous
+
 
 
 public class Autonomo_VermelhoGRANDE extends LinearOpMode {

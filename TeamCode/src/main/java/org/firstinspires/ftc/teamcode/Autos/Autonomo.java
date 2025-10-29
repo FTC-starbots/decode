@@ -13,12 +13,16 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
 
 import java.util.List;
 
@@ -29,6 +33,7 @@ import java.util.List;
 public class Autonomo extends Rotas {
     private static final Canvas DEFAULT_FIELD = new Canvas();
     public  class PIDs implements Action {
+
         public PIDs() {
 
             cicle_time = deltaTime.milliseconds();
@@ -178,6 +183,43 @@ if(erro < 0) power_correction = 0;
         Reservoir_3 = hardwareMap.get(Servo.class, "Reservoir_3");
         Led_Strip = hardwareMap.get(RevBlinkinLedDriver.class, "Led_Strip");
 
+        Alliance_B = hardwareMap.get(DigitalChannel.class, "Alliance_B");
+        Alliance_R = hardwareMap.get(DigitalChannel.class, "Alliance_R");
+        Auto1 = hardwareMap.get(DigitalChannel.class, "Auto1");
+        Auto2 = hardwareMap.get(DigitalChannel.class, "Auto2");
+        Auto3 = hardwareMap.get(DigitalChannel.class, "Auto3");
+        Auto4 = hardwareMap.get(DigitalChannel.class, "Auto4");
+
+        LED_S_R = hardwareMap.get(DigitalChannel.class, "LED_S_R");
+        LED_S_G = hardwareMap.get(DigitalChannel.class, "LED_S_G");
+        LED_S_B = hardwareMap.get(DigitalChannel.class, "LED_S_B");
+
+        Led_1_R = hardwareMap.get(LED.class, "Led_1_R");
+        Led_1_V = hardwareMap.get(LED.class, "Led_1_V");
+        Led_2_R = hardwareMap.get(LED.class, "Led_2_R");
+        Led_2_V = hardwareMap.get(LED.class, "Led_2_V");
+        Led_3_R = hardwareMap.get(LED.class, "Led_3_R");
+        Led_3_V = hardwareMap.get(LED.class, "Led_3_V");
+
+        S1 = hardwareMap.get(AnalogInput.class, "S1");
+        S2 = hardwareMap.get(AnalogInput.class, "S2");
+        S3 = hardwareMap.get(AnalogInput.class, "S3");
+        S4 = hardwareMap.get(AnalogInput.class, "S4");
+
+
+        Alliance_B.setMode(DigitalChannel.Mode.INPUT);
+        Alliance_R.setMode(DigitalChannel.Mode.INPUT);
+        Auto1.setMode(DigitalChannel.Mode.INPUT);
+        Auto2.setMode(DigitalChannel.Mode.INPUT);
+        Auto3.setMode(DigitalChannel.Mode.INPUT);
+        Auto4.setMode(DigitalChannel.Mode.INPUT);
+
+        LED_S_R.setMode(DigitalChannel.Mode.OUTPUT);
+        LED_S_G.setMode(DigitalChannel.Mode.OUTPUT);
+        LED_S_B.setMode(DigitalChannel.Mode.OUTPUT);
+
+
+
         leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -222,9 +264,11 @@ if(erro < 0) power_correction = 0;
         limelight.pipelineSwitch(5);
         //--------Calcula Rotas e parametriza drivetrain---------------------
 
-        Rotas_APequeno_Perto();
+        if(!Auto1.getState()) Rotas_APequeno_Perto();
 
-        //Rotas_APequeno_Longe();
+        if(!Auto2.getState())Rotas_APequeno_Longe();
+
+        if(!Auto3.getState())Rotas_AGrande();
 
         //------------------------------------------
         //Leitura de AP
@@ -249,9 +293,9 @@ if(erro < 0) power_correction = 0;
         }
         waitForStart();
 
-       Auto_APequeno_Perto();
-
-       //Auto_APequeno_Longe();
+        if(!Auto1.getState())Auto_APequeno_Perto();
+        if(!Auto2.getState())Auto_APequeno_Longe();
+        if(!Auto3.getState())Auto_AGrande();
     }
 
     public void Auto_APequeno_Perto() {
@@ -425,7 +469,9 @@ if(erro < 0) power_correction = 0;
     }
 
     public void Auto_AGrande() {
-
+        Compen_at = -30;
+        Compen_tx = -230;
+        Compen_vl = 0.008;
         PIDs_state = false;
 
 
@@ -449,51 +495,60 @@ if(erro < 0) power_correction = 0;
             } else Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
 
         }
+        Actions.runBlocking(rota2);
 
-
-        velocidade_desejada = 1165;
+        velocidade_desejada = 1150;
+        limelight.start();
+        limelight.pipelineSwitch(5);
 
         PIDs_state = true;
-        Actions.runBlocking(new ParallelAction(rota2, new PIDs()));
+        Actions.runBlocking(new ParallelAction(rota3, new PIDs()));
 
-
+        limelight.stop();
 
         Atirador_1.setPower(0);
         Atirador_2.setPower(0);
 
         PIDs_state = false;
-        Actions.runBlocking(rota3);
+        Actions.runBlocking(rota4);
 
         Intake.setPower(1);
-        Actions.runBlocking(rota4);
-        Intake.setPower(0);
         Actions.runBlocking(rota5);
 
+        Actions.runBlocking(rota6);
+        Intake.setPower(0);
 
-        velocidade_desejada = 1165;
+        velocidade_desejada = 1150;
+        limelight.start();
+        limelight.pipelineSwitch(5);
 
         PIDs_state = true;
-        Actions.runBlocking(new ParallelAction(rota6, new PIDs()));
+        Actions.runBlocking(new ParallelAction(rota7, new PIDs()));
 
+        limelight.stop();
 
 
         Atirador_1.setPower(0);
         Atirador_2.setPower(0);
 
         PIDs_state = false;
-        Actions.runBlocking(rota7);
-        Intake.setPower(1);
         Actions.runBlocking(rota8);
-        Intake.setPower(0);
+        Intake.setPower(1);
         Actions.runBlocking(rota9);
 
+        Actions.runBlocking(rota10);
 
+        Intake.setPower(0);
 
-
-        velocidade_desejada = 1180;
+        velocidade_desejada = 1150;
+        limelight.start();
+        limelight.pipelineSwitch(5);
 
         PIDs_state = true;
-        Actions.runBlocking(new ParallelAction(rota10, new PIDs()));
+        Actions.runBlocking(new ParallelAction(rota11, new PIDs()));
+
+        limelight.stop();
+
 
     }
 
