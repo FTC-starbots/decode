@@ -30,7 +30,7 @@ import java.util.List;
 @Autonomous
 
 
-public class Autonomo extends Rotas {
+public class Autonomo__AZUL extends Rotas {
     private static final Canvas DEFAULT_FIELD = new Canvas();
     public  class PIDs implements Action {
 
@@ -219,7 +219,6 @@ if(erro < 0) power_correction = 0;
         LED_S_B.setMode(DigitalChannel.Mode.OUTPUT);
 
 
-
         leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -254,7 +253,7 @@ if(erro < 0) power_correction = 0;
         Indexer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
-        timer_shooter   = new ElapsedTime();
+        timer_shooter = new ElapsedTime();
         deltaTime = new ElapsedTime();
 
         timer_shooter.reset();
@@ -264,11 +263,10 @@ if(erro < 0) power_correction = 0;
         limelight.pipelineSwitch(5);
         //--------Calcula Rotas e parametriza drivetrain---------------------
 
-        if(!Auto1.getState()) Rotas_APequeno_Perto();
-
-        if(!Auto2.getState())Rotas_APequeno_Longe();
-
-        if(!Auto3.getState())Rotas_AGrande();
+        if (!Auto1.getState())      Rotas_APequeno_Perto();
+        else if (!Auto2.getState()) Rotas_APequeno_Longe();
+        else if (!Auto3.getState()) Rotas_AGrande_Fora();
+        else if (!Auto4.getState()) Rotas_AGrande_Dentro();
 
         //------------------------------------------
         //Leitura de AP
@@ -291,11 +289,31 @@ if(erro < 0) power_correction = 0;
                 Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
             }
         }
+
+        telemetry.addData("AZUL", Alliance_B.getState());
+        telemetry.addData("vermelho", Alliance_R.getState());
+
+        if (!Auto1.getState()) telemetry.addLine("AUTO 1 ");
+        else if (!Auto2.getState()) telemetry.addLine("AUTO 2");
+        else if (!Auto3.getState()) telemetry.addLine("AUTO 3");
+        else if (!Auto4.getState()) telemetry.addLine("AUTO 4");
+
+        telemetry.update();
+
         waitForStart();
 
-        if(!Auto1.getState())Auto_APequeno_Perto();
-        if(!Auto2.getState())Auto_APequeno_Longe();
-        if(!Auto3.getState())Auto_AGrande();
+        Led_1_R.off();
+        Led_1_V.on();
+        Led_2_R.on();
+        Led_2_V.off();
+        Led_3_R.on();
+        Led_3_V.off();
+
+
+        if (!Auto1.getState()) Auto_APequeno_Perto();
+        else if (!Auto2.getState()) Auto_APequeno_Longe();
+        else if (!Auto3.getState()) Auto_AGrande_Fora();
+        else if (!Auto4.getState()) Auto_AGrande_Dentro();
     }
 
     public void Auto_APequeno_Perto() {
@@ -339,7 +357,12 @@ if(erro < 0) power_correction = 0;
         Actions.runBlocking(new ParallelAction(rota3, new PIDs()));
         limelight.stop();
         Intake.setPower(1);
-
+        Led_1_R.off();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.off();
+        Led_3_R.off();
+        Led_3_V.off();
         Atirador_1.setPower(0);
         Atirador_2.setPower(0);
 
@@ -347,7 +370,12 @@ if(erro < 0) power_correction = 0;
         Actions.runBlocking(rota4);
 
         Actions.runBlocking(rota5);
-
+        Led_1_R.off();
+        Led_1_V.on();
+        Led_2_R.on();
+        Led_2_V.off();
+        Led_3_R.on();
+        Led_3_V.off();
         Actions.runBlocking(rota6);
 
         Intake.setPower(0);
@@ -362,7 +390,12 @@ if(erro < 0) power_correction = 0;
         Actions.runBlocking(new ParallelAction(rota7, new PIDs()));
         limelight.stop();
         Intake.setPower(1);
-
+        Led_1_R.off();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.off();
+        Led_3_R.off();
+        Led_3_V.off();
         Atirador_1.setPower(0);
         Atirador_2.setPower(0);
 
@@ -370,7 +403,12 @@ if(erro < 0) power_correction = 0;
         Actions.runBlocking(rota8);
 
         Actions.runBlocking(rota9);
-
+        Led_1_R.on();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.on();
+        Led_3_R.on();
+        Led_3_V.off();
         Actions.runBlocking(rota10);
 
         Intake.setPower(0);
@@ -383,7 +421,12 @@ if(erro < 0) power_correction = 0;
 
         PIDs_state = true;
         Actions.runBlocking(new ParallelAction(rota11, new PIDs()));
-
+        Led_1_R.off();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.off();
+        Led_3_R.off();
+        Led_3_V.off();
     }
 
     public void Auto_APequeno_Longe() {
@@ -424,14 +467,24 @@ if(erro < 0) power_correction = 0;
         limelight.stop();
         Atirador_1.setPower(0);
         Atirador_2.setPower(0);
-
+        Led_1_R.off();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.off();
+        Led_3_R.off();
+        Led_3_V.off();
         PIDs_state = false;
         Actions.runBlocking(rota3);
 
         Intake.setPower(1);
 
         Actions.runBlocking(rota4);
-
+        Led_1_R.on();
+        Led_1_V.off();
+        Led_2_R.on();
+        Led_2_V.off();
+        Led_3_R.off();
+        Led_3_V.on();
         Actions.runBlocking(rota5);
         Intake.setPower(0);
 
@@ -445,7 +498,12 @@ if(erro < 0) power_correction = 0;
 
         Atirador_1.setPower(0);
         Atirador_2.setPower(0);
-
+        Led_1_R.off();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.off();
+        Led_3_R.off();
+        Led_3_V.off();
         PIDs_state = false;
         Actions.runBlocking(rota7);
 
@@ -453,7 +511,12 @@ if(erro < 0) power_correction = 0;
 
         Actions.runBlocking(rota8);
 
-
+        Led_1_R.on();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.on();
+        Led_3_R.on();
+        Led_3_V.off();
 
         Actions.runBlocking(rota9);
         Intake.setPower(0);
@@ -463,15 +526,20 @@ if(erro < 0) power_correction = 0;
 
         PIDs_state = true;
         Actions.runBlocking(new ParallelAction(rota10, new PIDs()));
-
+        Led_1_R.off();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.off();
+        Led_3_R.off();
+        Led_3_V.off();
 
 
     }
 
-    public void Auto_AGrande() {
+    public void Auto_AGrande_Fora() {
         Compen_at = -30;
         Compen_tx = -230;
-        Compen_vl = 0.008;
+        Compen_vl = 0;
         PIDs_state = false;
 
 
@@ -508,13 +576,23 @@ if(erro < 0) power_correction = 0;
 
         Atirador_1.setPower(0);
         Atirador_2.setPower(0);
-
+        Led_1_R.off();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.off();
+        Led_3_R.off();
+        Led_3_V.off();
         PIDs_state = false;
         Actions.runBlocking(rota4);
 
         Intake.setPower(1);
         Actions.runBlocking(rota5);
-
+        Led_1_R.off();
+        Led_1_V.on();
+        Led_2_R.on();
+        Led_2_V.off();
+        Led_3_R.on();
+        Led_3_V.off();
         Actions.runBlocking(rota6);
         Intake.setPower(0);
 
@@ -530,12 +608,22 @@ if(erro < 0) power_correction = 0;
 
         Atirador_1.setPower(0);
         Atirador_2.setPower(0);
-
+        Led_1_R.off();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.off();
+        Led_3_R.off();
+        Led_3_V.off();
         PIDs_state = false;
         Actions.runBlocking(rota8);
         Intake.setPower(1);
         Actions.runBlocking(rota9);
-
+        Led_1_R.on();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.on();
+        Led_3_R.on();
+        Led_3_V.off();
         Actions.runBlocking(rota10);
 
         Intake.setPower(0);
@@ -548,8 +636,571 @@ if(erro < 0) power_correction = 0;
         Actions.runBlocking(new ParallelAction(rota11, new PIDs()));
 
         limelight.stop();
+        Led_1_R.off();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.off();
+        Led_3_R.off();
+        Led_3_V.off();
+
+    }
+
+    public void Auto_AGrande_Dentro() {
+        Compen_at = 0;
+        Compen_tx = 0;
+        Compen_vl = 0;
+        PIDs_state = false;
 
 
+        Actions.runBlocking(rota1);
+        //Leitura de AP
+
+        {
+            LLResult result2 = limelight.getLatestResult();
+            List<LLResultTypes.FiducialResult> fiducialResults = result2.getFiducialResults();
+
+            for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                id_ap = fr.getFiducialId();
+            }
+            if (id_ap == 21) {
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+            } else if (id_ap == 22) {
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
+
+            } else if (id_ap == 23) {
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+            } else{
+                id_ap = 21;
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+            }
+
+        }
+        limelight.stop();
+        Actions.runBlocking(rota2);
+
+        velocidade_desejada = 1170;
+        limelight.start();
+        limelight.pipelineSwitch(5);
+
+        PIDs_state = true;
+        Actions.runBlocking(new ParallelAction(rota3, new PIDs()));
+        limelight.stop();
+        Intake.setPower(1);
+        Led_1_R.off();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.off();
+        Led_3_R.off();
+        Led_3_V.off();
+        Atirador_1.setPower(0);
+        Atirador_2.setPower(0);
+
+        PIDs_state = false;
+        Actions.runBlocking(rota4);
+
+        Actions.runBlocking(rota5);
+        Led_1_R.off();
+        Led_1_V.on();
+        Led_2_R.on();
+        Led_2_V.off();
+        Led_3_R.on();
+        Led_3_V.off();
+        Actions.runBlocking(rota6);
+
+        Intake.setPower(0);
+
+
+        velocidade_desejada = 1170;
+        limelight.start();
+        limelight.pipelineSwitch(5);
+
+
+        PIDs_state = true;
+        Actions.runBlocking(new ParallelAction(rota7, new PIDs()));
+        limelight.stop();
+        Intake.setPower(1);
+        Led_1_R.off();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.off();
+        Led_3_R.off();
+        Led_3_V.off();
+        Atirador_1.setPower(0);
+        Atirador_2.setPower(0);
+
+        PIDs_state = false;
+        Actions.runBlocking(rota8);
+
+        Actions.runBlocking(rota9);
+        Led_1_R.on();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.on();
+        Led_3_R.on();
+        Led_3_V.off();
+        Actions.runBlocking(rota10);
+
+        Intake.setPower(0);
+
+
+        velocidade_desejada = 1180;
+        limelight.start();
+        limelight.pipelineSwitch(5);
+
+
+        PIDs_state = true;
+        Actions.runBlocking(new ParallelAction(rota11, new PIDs()));
+        Led_1_R.off();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.off();
+        Led_3_R.off();
+        Led_3_V.off();
+    }
+
+
+    public void Auto_VPequeno_Perto() {
+        Compen_at = 0;
+        Compen_tx = 0;
+        Compen_vl = 0;
+        PIDs_state = false;
+
+
+
+        Actions.runBlocking(rota1);
+        //Leitura de AP
+
+        {
+            LLResult result2 = limelight.getLatestResult();
+            List<LLResultTypes.FiducialResult> fiducialResults = result2.getFiducialResults();
+
+            for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                id_ap = fr.getFiducialId();
+            }
+            if (id_ap == 21) {
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+            } else if (id_ap == 22) {
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
+
+            } else if (id_ap == 23) {
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+            } else{
+                id_ap = 21;
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+            }
+
+        }
+        limelight.stop();
+        Actions.runBlocking(rota2);
+
+        velocidade_desejada = 1170;
+        limelight.start();
+        limelight.pipelineSwitch(5);
+
+        PIDs_state = true;
+        Actions.runBlocking(new ParallelAction(rota3, new PIDs()));
+        limelight.stop();
+        Intake.setPower(1);
+        Led_1_R.off();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.off();
+        Led_3_R.off();
+        Led_3_V.off();
+        Atirador_1.setPower(0);
+        Atirador_2.setPower(0);
+
+        PIDs_state = false;
+        Actions.runBlocking(rota4);
+
+        Actions.runBlocking(rota5);
+        Led_1_R.off();
+        Led_1_V.on();
+        Led_2_R.on();
+        Led_2_V.off();
+        Led_3_R.on();
+        Led_3_V.off();
+        Actions.runBlocking(rota6);
+
+        Intake.setPower(0);
+
+
+        velocidade_desejada = 1170;
+        limelight.start();
+        limelight.pipelineSwitch(5);
+
+
+        PIDs_state = true;
+        Actions.runBlocking(new ParallelAction(rota7, new PIDs()));
+        limelight.stop();
+        Intake.setPower(1);
+        Led_1_R.off();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.off();
+        Led_3_R.off();
+        Led_3_V.off();
+        Atirador_1.setPower(0);
+        Atirador_2.setPower(0);
+
+        PIDs_state = false;
+        Actions.runBlocking(rota8);
+
+        Actions.runBlocking(rota9);
+        Led_1_R.on();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.on();
+        Led_3_R.on();
+        Led_3_V.off();
+        Actions.runBlocking(rota10);
+
+        Intake.setPower(0);
+
+
+        velocidade_desejada = 1180;
+        limelight.start();
+        limelight.pipelineSwitch(5);
+
+
+        PIDs_state = true;
+        Actions.runBlocking(new ParallelAction(rota11, new PIDs()));
+        Led_1_R.off();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.off();
+        Led_3_R.off();
+        Led_3_V.off();
+
+    }
+
+    public void Auto_VPequeno_Longe() {
+        Compen_at = 150;
+        Compen_tx = -125;
+        Compen_vl = 0.011;
+        PIDs_state = false;
+        //Leitura de AP
+        {
+            LLResult result = limelight.getLatestResult();
+            List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
+
+            for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                id_ap = fr.getFiducialId();
+            }
+            if (id_ap == 21) {
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+            } else if (id_ap == 22) {
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
+
+            } else if (id_ap == 23) {
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+            } else{
+                id_ap = 21;
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+            }
+
+        }
+        limelight.stop();
+        Actions.runBlocking(rota1);
+
+
+        velocidade_desejada = 1400;
+        limelight.start();
+        limelight.pipelineSwitch(5);
+        PIDs_state = true;
+        Actions.runBlocking(new ParallelAction(rota2, new PIDs()));
+        limelight.stop();
+        Atirador_1.setPower(0);
+        Atirador_2.setPower(0);
+        Led_1_R.off();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.off();
+        Led_3_R.off();
+        Led_3_V.off();
+        PIDs_state = false;
+        Actions.runBlocking(rota3);
+
+        Intake.setPower(1);
+
+        Actions.runBlocking(rota4);
+        Led_1_R.on();
+        Led_1_V.off();
+        Led_2_R.on();
+        Led_2_V.off();
+        Led_3_R.off();
+        Led_3_V.on();
+        Actions.runBlocking(rota5);
+        Intake.setPower(0);
+
+        velocidade_desejada = 1400;
+
+        limelight.start();
+        limelight.pipelineSwitch(5);
+        PIDs_state = true;
+        Actions.runBlocking(new ParallelAction(rota6, new PIDs()));
+        limelight.stop();
+
+        Atirador_1.setPower(0);
+        Atirador_2.setPower(0);
+        Led_1_R.off();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.off();
+        Led_3_R.off();
+        Led_3_V.off();
+        PIDs_state = false;
+        Actions.runBlocking(rota7);
+
+        Intake.setPower(1);
+
+        Actions.runBlocking(rota8);
+
+        Led_1_R.on();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.on();
+        Led_3_R.on();
+        Led_3_V.off();
+
+        Actions.runBlocking(rota9);
+        Intake.setPower(0);
+        limelight.start();
+        limelight.pipelineSwitch(5);
+        velocidade_desejada = 1400;
+
+        PIDs_state = true;
+        Actions.runBlocking(new ParallelAction(rota10, new PIDs()));
+        Led_1_R.off();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.off();
+        Led_3_R.off();
+        Led_3_V.off();
+
+    }
+
+    public void Auto_VGrande_Fora() {
+        Compen_at = -30;
+        Compen_tx = 230;
+        Compen_vl = 0;
+        PIDs_state = false;
+
+        Actions.runBlocking(rota1);
+        //Leitura de AP
+
+        {
+            LLResult result = limelight.getLatestResult();
+            List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
+
+            for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                id_ap = fr.getFiducialId();
+            }
+            if (id_ap == 21) {
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+            } else if (id_ap == 22) {
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
+
+            } else if (id_ap == 23) {
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+            } else Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+
+        }
+        Actions.runBlocking(rota2);
+
+        velocidade_desejada = 1150;
+        limelight.start();
+        limelight.pipelineSwitch(5);
+
+        PIDs_state = true;
+        Actions.runBlocking(new ParallelAction(rota3, new PIDs()));
+
+        limelight.stop();
+
+        Atirador_1.setPower(0);
+        Atirador_2.setPower(0);
+        Led_1_R.off();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.off();
+        Led_3_R.off();
+        Led_3_V.off();
+        PIDs_state = false;
+        Actions.runBlocking(rota4);
+
+        Intake.setPower(1);
+        Actions.runBlocking(rota5);
+        Led_1_R.off();
+        Led_1_V.on();
+        Led_2_R.on();
+        Led_2_V.off();
+        Led_3_R.on();
+        Led_3_V.off();
+        Actions.runBlocking(rota6);
+        Intake.setPower(0);
+
+        velocidade_desejada = 1150;
+        limelight.start();
+        limelight.pipelineSwitch(5);
+
+        PIDs_state = true;
+        Actions.runBlocking(new ParallelAction(rota7, new PIDs()));
+
+        limelight.stop();
+
+
+        Atirador_1.setPower(0);
+        Atirador_2.setPower(0);
+        Led_1_R.off();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.off();
+        Led_3_R.off();
+        Led_3_V.off();
+        PIDs_state = false;
+        Actions.runBlocking(rota8);
+        Intake.setPower(1);
+        Actions.runBlocking(rota9);
+        Led_1_R.on();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.on();
+        Led_3_R.on();
+        Led_3_V.off();
+        Actions.runBlocking(rota10);
+
+        Intake.setPower(0);
+
+        velocidade_desejada = 1150;
+        limelight.start();
+        limelight.pipelineSwitch(5);
+
+        PIDs_state = true;
+        Actions.runBlocking(new ParallelAction(rota11, new PIDs()));
+
+        limelight.stop();
+        Led_1_R.off();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.off();
+        Led_3_R.off();
+        Led_3_V.off();
+
+
+
+    }
+
+    public void Auto_VGrande_Dentro() {
+        Compen_at = 0;
+        Compen_tx = 0;
+        Compen_vl = 0;
+        PIDs_state = false;
+
+
+        Actions.runBlocking(rota1);
+        //Leitura de AP
+
+        {
+            LLResult result2 = limelight.getLatestResult();
+            List<LLResultTypes.FiducialResult> fiducialResults = result2.getFiducialResults();
+
+            for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                id_ap = fr.getFiducialId();
+            }
+            if (id_ap == 21) {
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+            } else if (id_ap == 22) {
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
+
+            } else if (id_ap == 23) {
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+            } else{
+                id_ap = 21;
+                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+            }
+
+        }
+        limelight.stop();
+        Actions.runBlocking(rota2);
+
+        velocidade_desejada = 1170;
+        limelight.start();
+        limelight.pipelineSwitch(5);
+
+        PIDs_state = true;
+        Actions.runBlocking(new ParallelAction(rota3, new PIDs()));
+        limelight.stop();
+        Intake.setPower(1);
+        Led_1_R.off();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.off();
+        Led_3_R.off();
+        Led_3_V.off();
+        Atirador_1.setPower(0);
+        Atirador_2.setPower(0);
+
+        PIDs_state = false;
+        Actions.runBlocking(rota4);
+
+        Actions.runBlocking(rota5);
+        Led_1_R.off();
+        Led_1_V.on();
+        Led_2_R.on();
+        Led_2_V.off();
+        Led_3_R.on();
+        Led_3_V.off();
+        Actions.runBlocking(rota6);
+
+        Intake.setPower(0);
+
+
+        velocidade_desejada = 1170;
+        limelight.start();
+        limelight.pipelineSwitch(5);
+
+
+        PIDs_state = true;
+        Actions.runBlocking(new ParallelAction(rota7, new PIDs()));
+        limelight.stop();
+        Intake.setPower(1);
+        Led_1_R.off();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.off();
+        Led_3_R.off();
+        Led_3_V.off();
+        Atirador_1.setPower(0);
+        Atirador_2.setPower(0);
+
+        PIDs_state = false;
+        Actions.runBlocking(rota8);
+
+        Actions.runBlocking(rota9);
+        Led_1_R.on();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.on();
+        Led_3_R.on();
+        Led_3_V.off();
+        Actions.runBlocking(rota10);
+
+        Intake.setPower(0);
+
+
+        velocidade_desejada = 1180;
+        limelight.start();
+        limelight.pipelineSwitch(5);
+
+
+        PIDs_state = true;
+        Actions.runBlocking(new ParallelAction(rota11, new PIDs()));
+        Led_1_R.off();
+        Led_1_V.off();
+        Led_2_R.off();
+        Led_2_V.off();
+        Led_3_R.off();
+        Led_3_V.off();
     }
 
 

@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.Autos;
 
 import androidx.annotation.NonNull;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
@@ -13,7 +12,6 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -33,7 +31,7 @@ import java.util.List;
 
 public class Autonomo_VermelhoPEQUENO extends LinearOpMode {
 
-    private static final Logger log = LoggerFactory.getLogger(Autonomo.class);
+    private static final Logger log = LoggerFactory.getLogger(Autonomo__AZUL.class);
 
     public class PIDs implements Action {
         public PIDs() {

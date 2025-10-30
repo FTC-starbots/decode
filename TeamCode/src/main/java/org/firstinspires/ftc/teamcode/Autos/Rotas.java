@@ -415,7 +415,7 @@ public class Rotas extends LinearOpMode {
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
-                .strafeTo(new Vector2d(20, -40))
+                .strafeToLinearHeading(new Vector2d(20, -40),Math.toRadians(0))
 
                 .build();
 
@@ -718,14 +718,15 @@ public class Rotas extends LinearOpMode {
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
-                .strafeTo(new Vector2d(20, 35))
+                .strafeToLinearHeading(new Vector2d(20, 35),Math.toRadians(0))
+
 
                 .build();
 
 
     }
 
-    public void Rotas_AGrande() {
+    public void Rotas_AGrande_Fora() {
 
         MecanumDrive.PARAMS.axialGain = 7.5;
         MecanumDrive.PARAMS.lateralGain = 40;
@@ -767,7 +768,7 @@ public class Rotas extends LinearOpMode {
                 })
                 .strafeToLinearHeading(new Vector2d(15, -40),Math.toRadians(160))
 
-                .waitSeconds(0.5)
+                .waitSeconds(0.6)
 
                 .afterTime(0, ()->{
                     Aciona_servo();
@@ -874,7 +875,7 @@ public class Rotas extends LinearOpMode {
                 })
                 .strafeToLinearHeading(new Vector2d(15, -40),Math.toRadians(160),new TranslationalVelConstraint(70))
 
-                .waitSeconds(0.5)
+                .waitSeconds(0.6)
 
                 .afterTime(0, ()->{
                     Aciona_servo();
@@ -955,15 +956,15 @@ public class Rotas extends LinearOpMode {
                 .build();
 
         rota9 = drive.actionBuilder(new Pose2d(15, -40, Math.toRadians(60)))
-                .splineTo(new Vector2d(48, -15),Math.toRadians(110),new TranslationalVelConstraint(60))
-                .splineTo(new Vector2d(48, 10),Math.toRadians(90),new TranslationalVelConstraint(40))
+                .splineTo(new Vector2d(47, -20),Math.toRadians(90),new TranslationalVelConstraint(50))
+                .splineTo(new Vector2d(48.5, 10),Math.toRadians(90),new TranslationalVelConstraint(20))
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
                 .build();
 
-        rota10 = drive.actionBuilder(new Pose2d(48, 10, Math.toRadians(90)))
+        rota10 = drive.actionBuilder(new Pose2d(48.5, 10, Math.toRadians(90)))
 
                 .setReversed(true)
                 .splineTo(new Vector2d(35, -35),Math.toRadians(350),new TranslationalVelConstraint(85))
@@ -984,7 +985,7 @@ public class Rotas extends LinearOpMode {
 
                 })
                 .strafeToLinearHeading(new Vector2d(15, -40),Math.toRadians(172),new TranslationalVelConstraint(70))
-                .waitSeconds(0.5)
+                .waitSeconds(0.6)
 
                 .afterTime(0, ()->{
                     Aciona_servo();
@@ -1048,7 +1049,1625 @@ public class Rotas extends LinearOpMode {
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
-                .strafeTo(new Vector2d(15, -40))
+                .strafeToLinearHeading(new Vector2d(15, -40),Math.toRadians(0))
+
+
+                .build();
+
+
+    }
+
+    public void Rotas_AGrande_Dentro() {
+
+        MecanumDrive.PARAMS.axialGain = 7.5;
+        MecanumDrive.PARAMS.lateralGain = 40;
+        MecanumDrive.PARAMS.headingGain = 36;
+        MecanumDrive.PARAMS.maxWheelVel = 60;
+
+
+        drive = new MecanumDrive(hardwareMap, new Pose2d(42, -55,
+                Math.toRadians(90)));
+
+        rota1 = drive.actionBuilder(new Pose2d(42, -55, Math.toRadians(90)))
+
+                .strafeToLinearHeading(new Vector2d(24, -30),Math.toRadians(85),new TranslationalVelConstraint(70))
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota2 = drive.actionBuilder(new Pose2d(24, -30, Math.toRadians(85)))
+
+                .turnTo( Math.toRadians(145))
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+
+                .build();
+
+        rota3 = drive.actionBuilder(new Pose2d(24, -30, Math.toRadians(145)))
+                .afterTime(0, ()->{
+
+                })
+
+                .afterTime(0, ()->{
+                    if (id_ap == 21) posicao_desejada_indexer = 0;
+                    if (id_ap == 22) posicao_desejada_indexer = 218;
+                    if (id_ap == 23) posicao_desejada_indexer = 218;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 218;
+                    if (id_ap == 22) posicao_desejada_indexer = 0;
+                    if (id_ap == 23) posicao_desejada_indexer = 440;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+
+                .afterTime(0, ()->{
+
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 440;
+                    if (id_ap == 22) posicao_desejada_indexer = 440;
+                    if (id_ap == 23) posicao_desejada_indexer = 0;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+                    posicao_desejada_indexer = 0;
+
+                })
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+
+                .build();
+//
+        rota4 = drive.actionBuilder(new Pose2d(24, -30, Math.toRadians(145)))
+
+
+                .setReversed(true)
+                .splineTo(new Vector2d(51, -35),Math.toRadians(270))
+
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota5 = drive.actionBuilder(new Pose2d(51, -20, Math.toRadians(90)))
+                .setReversed(false)
+                .turnTo(Math.toRadians(97))
+
+                .strafeToLinearHeading(new Vector2d(51, -11.5),Math.toRadians(97),new TranslationalVelConstraint(30))
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota6 = drive.actionBuilder(new Pose2d(51, -11.5, Math.toRadians(90)))
+                .setReversed(true)
+                .splineTo(new Vector2d(24, -30),Math.toRadians(280))
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota7 = drive.actionBuilder(new Pose2d(24, -30, Math.toRadians(100)))
+
+                .turnTo(Math.toRadians(143.1))
+                .afterTime(0, ()->{
+                    if (id_ap == 21) posicao_desejada_indexer = 0;
+                    if (id_ap == 22) posicao_desejada_indexer = 218;
+                    if (id_ap == 23) posicao_desejada_indexer = 218;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 218;
+                    if (id_ap == 22) posicao_desejada_indexer = 0;
+                    if (id_ap == 23) posicao_desejada_indexer = 440;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+
+                .afterTime(0, ()->{
+
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 440;
+                    if (id_ap == 22) posicao_desejada_indexer = 440;
+                    if (id_ap == 23) posicao_desejada_indexer = 0;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    posicao_desejada_indexer = 0;
+                })
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+
+                .build();
+
+        rota8 = drive.actionBuilder(new Pose2d(24, -30, Math.toRadians(143)))
+                .setReversed(true)
+                .splineTo(new Vector2d(50, -15),Math.toRadians(270))
+
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota9 = drive.actionBuilder(new Pose2d(50, -5, Math.toRadians(90)))
+                .setReversed(false)
+                .turnTo(Math.toRadians(97))
+                .strafeToLinearHeading(new Vector2d(50, 10),Math.toRadians(97),new TranslationalVelConstraint(30))
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota10 = drive.actionBuilder(new Pose2d(50, 10, Math.toRadians(90)))
+
+                .setReversed(true)
+                .splineTo(new Vector2d(24, -30),Math.toRadians(280))
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+
+
+                .build();
+
+        rota11 = drive.actionBuilder(new Pose2d(24, -30, Math.toRadians(100)))
+
+
+                .turnTo(Math.toRadians(143))
+                .afterTime(0, ()->{
+                    if (id_ap == 21) posicao_desejada_indexer = 218;
+                    if (id_ap == 22) posicao_desejada_indexer = 0;
+                    if (id_ap == 23) posicao_desejada_indexer = 0;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+//
+                //
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 0;
+                    if (id_ap == 22) posicao_desejada_indexer = 218;
+                    if (id_ap == 23) posicao_desejada_indexer = 440;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+
+                .afterTime(0, ()->{
+
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 440;
+                    if (id_ap == 22) posicao_desejada_indexer = 440;
+                    if (id_ap == 23) posicao_desejada_indexer = 218;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+                    posicao_desejada_indexer = 0;
+                })
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .strafeToLinearHeading(new Vector2d(20, -40),Math.toRadians(0))
+
+
+                .build();
+
+
+    }
+//------------------------------------------------------
+    public void Rotas_VPequeno_Perto() {
+
+        MecanumDrive.PARAMS.axialGain = 7.5;
+        MecanumDrive.PARAMS.lateralGain = 40;
+        MecanumDrive.PARAMS.headingGain = 36;
+        MecanumDrive.PARAMS.maxWheelVel = 60;
+
+
+        drive = new MecanumDrive(hardwareMap, new Pose2d(-18, 55,
+                Math.toRadians(90)));
+
+        rota1 = drive.actionBuilder(new Pose2d(-18, 55, Math.toRadians(90)))
+
+                .strafeToLinearHeading(new Vector2d(-24, -30),Math.toRadians(98),new TranslationalVelConstraint(70))
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota2 = drive.actionBuilder(new Pose2d(-24, -30, Math.toRadians(98)))
+
+                .turnTo( Math.toRadians(35))
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+
+                .build();
+
+        rota3 = drive.actionBuilder(new Pose2d(-24, -30, Math.toRadians(35)))
+                .afterTime(0, ()->{
+
+                })
+
+                .afterTime(0, ()->{
+                    if (id_ap == 21) posicao_desejada_indexer = 0;
+                    if (id_ap == 22) posicao_desejada_indexer = 218;
+                    if (id_ap == 23) posicao_desejada_indexer = 218;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 218;
+                    if (id_ap == 22) posicao_desejada_indexer = 0;
+                    if (id_ap == 23) posicao_desejada_indexer = 440;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+
+                .afterTime(0, ()->{
+
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 440;
+                    if (id_ap == 22) posicao_desejada_indexer = 440;
+                    if (id_ap == 23) posicao_desejada_indexer = 0;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+                    posicao_desejada_indexer = 0;
+
+                })
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+
+                .build();
+//
+        rota4 = drive.actionBuilder(new Pose2d(-24, -30, Math.toRadians(35)))
+
+
+                .setReversed(true)
+                .splineTo(new Vector2d(-51, -35),Math.toRadians(270))
+
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota5 = drive.actionBuilder(new Pose2d(-51, -20, Math.toRadians(90)))
+                .setReversed(false)
+                .turnTo(Math.toRadians(85))
+
+                .strafeToLinearHeading(new Vector2d(-51, -11.5),Math.toRadians(85),new TranslationalVelConstraint(30))
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota6 = drive.actionBuilder(new Pose2d(-51, -11.5, Math.toRadians(90)))
+                .setReversed(true)
+                .splineTo(new Vector2d(-24, -30),Math.toRadians(260))
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota7 = drive.actionBuilder(new Pose2d(-24, -30, Math.toRadians(80)))
+
+                .turnTo(Math.toRadians(36.9))
+                .afterTime(0, ()->{
+                    if (id_ap == 21) posicao_desejada_indexer = 440;
+                    if (id_ap == 22) posicao_desejada_indexer = 0;
+                    if (id_ap == 23) posicao_desejada_indexer = 0;
+
+                })
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 218;
+                    if (id_ap == 22) posicao_desejada_indexer = 440;
+                    if (id_ap == 23) posicao_desejada_indexer = 218;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+
+                .afterTime(0, ()->{
+
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 0;
+                    if (id_ap == 22) posicao_desejada_indexer = 218;
+                    if (id_ap == 23) posicao_desejada_indexer = 440;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+                    posicao_desejada_indexer = 0;
+
+                })
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+
+                .build();
+
+        rota8 = drive.actionBuilder(new Pose2d(-24, -30, Math.toRadians(36.9)))
+                .setReversed(true)
+                .splineTo(new Vector2d(-50, -15),Math.toRadians(270))
+
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota9 = drive.actionBuilder(new Pose2d(-50, -5, Math.toRadians(90)))
+                .setReversed(false)
+                .turnTo(Math.toRadians(85))
+                .strafeToLinearHeading(new Vector2d(-50, 10),Math.toRadians(85),new TranslationalVelConstraint(30))
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota10 = drive.actionBuilder(new Pose2d(-50, 10, Math.toRadians(90)))
+
+                .setReversed(true)
+                .splineTo(new Vector2d(-24, -30),Math.toRadians(260))
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+
+
+                .build();
+
+        rota11 = drive.actionBuilder(new Pose2d(-24, -30, Math.toRadians(80)))
+
+
+                .turnTo(Math.toRadians(37))
+                .afterTime(0, ()->{
+                    if (id_ap == 21) posicao_desejada_indexer = 218;
+                    if (id_ap == 22) posicao_desejada_indexer = 0;
+                    if (id_ap == 23) posicao_desejada_indexer = 0;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+//
+                //
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 0;
+                    if (id_ap == 22) posicao_desejada_indexer = 218;
+                    if (id_ap == 23) posicao_desejada_indexer = 440;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+
+                .afterTime(0, ()->{
+
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 440;
+                    if (id_ap == 22) posicao_desejada_indexer = 440;
+                    if (id_ap == 23) posicao_desejada_indexer = 218;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+                    posicao_desejada_indexer = 0;
+                })
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .strafeToLinearHeading(new Vector2d(-15, -40),Math.toRadians(180))
+
+                .build();
+
+
+    }
+
+    public void Rotas_VPequeno_Longe() {
+
+        MecanumDrive.PARAMS.axialGain = 7.5;
+        MecanumDrive.PARAMS.lateralGain = 40;
+        MecanumDrive.PARAMS.headingGain = 36;
+        MecanumDrive.PARAMS.maxWheelVel = 60;
+
+
+        drive = new MecanumDrive(hardwareMap, new Pose2d(-18, 55,
+                Math.toRadians(90)));
+
+        rota1 = drive.actionBuilder(new Pose2d(-18, 55, Math.toRadians(90)))
+
+                .strafeToLinearHeading(new Vector2d(-18, 47),Math.toRadians(95))
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota2 = drive.actionBuilder(new Pose2d(-18, 47, Math.toRadians(95)))
+
+                .afterTime(0, ()->{
+                    if (id_ap == 21) posicao_desejada_indexer = 0;
+                    if (id_ap == 22) posicao_desejada_indexer = 218;
+                    if (id_ap == 23) posicao_desejada_indexer = 218;
+
+                })
+                .turnTo(Math.toRadians(70))
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 218;
+                    if (id_ap == 22) posicao_desejada_indexer = 0;
+                    if (id_ap == 23) posicao_desejada_indexer = 440;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+
+                .afterTime(0, ()->{
+
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 440;
+                    if (id_ap == 22) posicao_desejada_indexer = 440;
+                    if (id_ap == 23) posicao_desejada_indexer = 0;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+                    posicao_desejada_indexer = 0;
+
+                })
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+
+                .build();
+//
+        rota3 = drive.actionBuilder(new Pose2d(-18, 47, Math.toRadians(70)))
+
+                .strafeToLinearHeading(new Vector2d(-48, 47),Math.toRadians(270))
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota4 = drive.actionBuilder(new Pose2d(-48, 47, Math.toRadians(270)))
+
+                .strafeToLinearHeading(new Vector2d(-48, 27),Math.toRadians(270),new TranslationalVelConstraint(30))
+
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota5 = drive.actionBuilder(new Pose2d(-48, 27, Math.toRadians(270)))
+
+                .strafeToLinearHeading(new Vector2d(-18, 47),Math.toRadians(78))
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota6 = drive.actionBuilder(new Pose2d(-18, 47, Math.toRadians(78)))
+                .afterTime(0, ()->{
+                    if (id_ap == 21) posicao_desejada_indexer = 0;
+                    if (id_ap == 22) posicao_desejada_indexer = 218;
+                    if (id_ap == 23) posicao_desejada_indexer = 218;
+
+                })
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 218;
+                    if (id_ap == 22) posicao_desejada_indexer = 0;
+                    if (id_ap == 23) posicao_desejada_indexer = 440;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+
+                .afterTime(0, ()->{
+
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 440;
+                    if (id_ap == 22) posicao_desejada_indexer = 440;
+                    if (id_ap == 23) posicao_desejada_indexer = 0;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+                    posicao_desejada_indexer = 0;
+
+                })
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+
+                .build();
+
+        rota7 = drive.actionBuilder(new Pose2d(-18, 47, Math.toRadians(78)))
+
+                .strafeToLinearHeading(new Vector2d(-48, 27),Math.toRadians(270))
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota8 = drive.actionBuilder(new Pose2d(-48, 27, Math.toRadians(270)))
+                .strafeToLinearHeading(new Vector2d(-48, 5),Math.toRadians(270),new TranslationalVelConstraint(30))
+
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota9 = drive.actionBuilder(new Pose2d(-48, 5, Math.toRadians(270)))
+
+                .strafeToLinearHeading(new Vector2d(-18, 47),Math.toRadians(78))
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota10 = drive.actionBuilder(new Pose2d(-18, 47, Math.toRadians(78)))
+                .afterTime(0, ()->{
+                    if (id_ap == 21) posicao_desejada_indexer = 218;
+                    if (id_ap == 22) posicao_desejada_indexer = 0;
+                    if (id_ap == 23) posicao_desejada_indexer = 0;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+//
+                //
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 0;
+                    if (id_ap == 22) posicao_desejada_indexer = 218;
+                    if (id_ap == 23) posicao_desejada_indexer = 440;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+
+                .afterTime(0, ()->{
+
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 440;
+                    if (id_ap == 22) posicao_desejada_indexer = 440;
+                    if (id_ap == 23) posicao_desejada_indexer = 218;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+                    posicao_desejada_indexer = 0;
+                })
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .strafeToLinearHeading(new Vector2d(-20, 35),Math.toRadians(180))
+
+                .build();
+
+
+    }
+
+    public void Rotas_VGrande_Fora() {
+
+        MecanumDrive.PARAMS.axialGain = 7.5;
+        MecanumDrive.PARAMS.lateralGain = 40;
+        MecanumDrive.PARAMS.headingGain = 36;
+        MecanumDrive.PARAMS.maxWheelVel = 60;
+
+
+        drive = new MecanumDrive(hardwareMap, new Pose2d(-42, -55,
+                Math.toRadians(90)));
+
+        rota1 = drive.actionBuilder(new Pose2d(-42, -55, Math.toRadians(90)))
+
+                .strafeToLinearHeading(new Vector2d(-15, -40),Math.toRadians(97),new TranslationalVelConstraint(70))
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota2 = drive.actionBuilder(new Pose2d(-15, -40, Math.toRadians(97)))
+
+                .turnTo( Math.toRadians(20))
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+
+                .build();
+
+        rota3 = drive.actionBuilder(new Pose2d(-12, -40, Math.toRadians(20)))
+
+
+
+                .afterTime(0, ()->{
+                    if (id_ap == 21) posicao_desejada_indexer = 0;
+                    if (id_ap == 22) posicao_desejada_indexer = 218;
+                    if (id_ap == 23) posicao_desejada_indexer = 218;
+
+                })
+                .strafeToLinearHeading(new Vector2d(-15, -40),Math.toRadians(20))
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 218;
+                    if (id_ap == 22) posicao_desejada_indexer = 0;
+                    if (id_ap == 23) posicao_desejada_indexer = 440;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+
+                .afterTime(0, ()->{
+
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 440;
+                    if (id_ap == 22) posicao_desejada_indexer = 440;
+                    if (id_ap == 23) posicao_desejada_indexer = 0;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+                    posicao_desejada_indexer = 0;
+
+                })
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+
+                .build();
+//
+        rota4 = drive.actionBuilder(new Pose2d(-15, -40, Math.toRadians(8)))
+
+
+                .setReversed(true)
+                .splineTo(new Vector2d(-47.5, -40),Math.toRadians(270))
+
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota5 = drive.actionBuilder(new Pose2d(-47.5, -40, Math.toRadians(90)))
+                .setReversed(false)
+                .turnTo(Math.toRadians(85))
+
+                .splineTo(new Vector2d(-47.5, -11.5),Math.toRadians(85),new TranslationalVelConstraint(45))
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota6 = drive.actionBuilder(new Pose2d(-47.5, -11.5, Math.toRadians(90)))
+                .setReversed(true)
+                .splineTo(new Vector2d(-32, -32),Math.toRadians(182),new TranslationalVelConstraint(85))
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota7 = drive.actionBuilder(new Pose2d(-35, -35, Math.toRadians(10)))
+                .afterTime(0, ()->{
+                    if (id_ap == 21) posicao_desejada_indexer = 440;
+                    if (id_ap == 22) posicao_desejada_indexer = 0;
+                    if (id_ap == 23) posicao_desejada_indexer = 0;
+
+                })
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 218;
+                    if (id_ap == 22) posicao_desejada_indexer = 440;
+                    if (id_ap == 23) posicao_desejada_indexer = 218;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+
+                .afterTime(0, ()->{
+
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 0;
+                    if (id_ap == 22) posicao_desejada_indexer = 218;
+                    if (id_ap == 23) posicao_desejada_indexer = 440;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+                    posicao_desejada_indexer = 0;
+
+                })
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+
+                .build();
+
+        rota8 = drive.actionBuilder(new Pose2d(-15, -40, Math.toRadians(20)))
+                .turnTo(Math.toRadians(120))
+
+
+                //.setReversed(true)
+
+                //.splineTo(new Vector2d(47, -40),Math.toRadians(315))
+
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota9 = drive.actionBuilder(new Pose2d(-15, -40, Math.toRadians(120)))
+                .splineTo(new Vector2d(-47, -20),Math.toRadians(90),new TranslationalVelConstraint(50))
+                .splineTo(new Vector2d(-48.5, 10),Math.toRadians(90),new TranslationalVelConstraint(20))
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota10 = drive.actionBuilder(new Pose2d(-48.5, 10, Math.toRadians(90)))
+
+                .setReversed(true)
+                .splineTo(new Vector2d(-35, -35),Math.toRadians(190),new TranslationalVelConstraint(85))
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+
+
+                .build();
+
+        rota11 = drive.actionBuilder(new Pose2d(-35, -35, Math.toRadians(10)))
+
+
+                .afterTime(0, ()->{
+                    if (id_ap == 21) posicao_desejada_indexer = 218;
+                    if (id_ap == 22) posicao_desejada_indexer = 0;
+                    if (id_ap == 23) posicao_desejada_indexer = 0;
+
+                })
+                .strafeToLinearHeading(new Vector2d(-15, -40),Math.toRadians(8),new TranslationalVelConstraint(70))
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+//
+                //
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 0;
+                    if (id_ap == 22) posicao_desejada_indexer = 218;
+                    if (id_ap == 23) posicao_desejada_indexer = 440;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+
+                .afterTime(0, ()->{
+
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 440;
+                    if (id_ap == 22) posicao_desejada_indexer = 440;
+                    if (id_ap == 23) posicao_desejada_indexer = 218;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+                    posicao_desejada_indexer = 0;
+                })
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .strafeToLinearHeading(new Vector2d(-15, -40),Math.toRadians(180))
+
+                .build();
+
+
+    }
+
+    public void Rotas_VGrande_Dentro() {
+
+        MecanumDrive.PARAMS.axialGain = 7.5;
+        MecanumDrive.PARAMS.lateralGain = 40;
+        MecanumDrive.PARAMS.headingGain = 36;
+        MecanumDrive.PARAMS.maxWheelVel = 60;
+
+
+        drive = new MecanumDrive(hardwareMap, new Pose2d(-42, -55,
+                Math.toRadians(90)));
+
+        rota1 = drive.actionBuilder(new Pose2d(-42, -55, Math.toRadians(90)))
+
+                .strafeToLinearHeading(new Vector2d(-24, -30),Math.toRadians(95),new TranslationalVelConstraint(70))
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota2 = drive.actionBuilder(new Pose2d(-24, -30, Math.toRadians(95)))
+
+                .turnTo( Math.toRadians(35))
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+
+                .build();
+
+        rota3 = drive.actionBuilder(new Pose2d(-24, -30, Math.toRadians(35)))
+                .afterTime(0, ()->{
+
+                })
+
+                .afterTime(0, ()->{
+                    if (id_ap == 21) posicao_desejada_indexer = 0;
+                    if (id_ap == 22) posicao_desejada_indexer = 218;
+                    if (id_ap == 23) posicao_desejada_indexer = 218;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 218;
+                    if (id_ap == 22) posicao_desejada_indexer = 0;
+                    if (id_ap == 23) posicao_desejada_indexer = 440;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+
+                .afterTime(0, ()->{
+
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 440;
+                    if (id_ap == 22) posicao_desejada_indexer = 440;
+                    if (id_ap == 23) posicao_desejada_indexer = 0;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+                    posicao_desejada_indexer = 0;
+
+                })
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+
+                .build();
+//
+        rota4 = drive.actionBuilder(new Pose2d(-24, -30, Math.toRadians(35)))
+
+
+                .setReversed(true)
+                .splineTo(new Vector2d(-51, -35),Math.toRadians(270))
+
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota5 = drive.actionBuilder(new Pose2d(-51, -20, Math.toRadians(90)))
+                .setReversed(false)
+                .turnTo(Math.toRadians(85))
+
+                .strafeToLinearHeading(new Vector2d(-51, -11.5),Math.toRadians(85),new TranslationalVelConstraint(30))
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota6 = drive.actionBuilder(new Pose2d(-51, -11.5, Math.toRadians(90)))
+                .setReversed(true)
+                .splineTo(new Vector2d(-24, -30),Math.toRadians(260))
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota7 = drive.actionBuilder(new Pose2d(-24, -30, Math.toRadians(80)))
+
+                .turnTo(Math.toRadians(143.1))
+                .afterTime(0, ()->{
+                    if (id_ap == 21) posicao_desejada_indexer = 0;
+                    if (id_ap == 22) posicao_desejada_indexer = 218;
+                    if (id_ap == 23) posicao_desejada_indexer = 218;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 218;
+                    if (id_ap == 22) posicao_desejada_indexer = 0;
+                    if (id_ap == 23) posicao_desejada_indexer = 440;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+
+                .afterTime(0, ()->{
+
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 440;
+                    if (id_ap == 22) posicao_desejada_indexer = 440;
+                    if (id_ap == 23) posicao_desejada_indexer = 0;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    posicao_desejada_indexer = 0;
+                })
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+
+                .build();
+
+        rota8 = drive.actionBuilder(new Pose2d(-24, -30, Math.toRadians(36.9)))
+                .setReversed(true)
+                .splineTo(new Vector2d(-50, -15),Math.toRadians(270))
+
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota9 = drive.actionBuilder(new Pose2d(-50, -5, Math.toRadians(90)))
+                .setReversed(false)
+                .turnTo(Math.toRadians(85))
+                .strafeToLinearHeading(new Vector2d(-50, 10),Math.toRadians(85),new TranslationalVelConstraint(30))
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .build();
+
+        rota10 = drive.actionBuilder(new Pose2d(-50, 10, Math.toRadians(90)))
+
+                .setReversed(true)
+                .splineTo(new Vector2d(-24, -30),Math.toRadians(260))
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+
+
+                .build();
+
+        rota11 = drive.actionBuilder(new Pose2d(-24, -30, Math.toRadians(80)))
+
+
+                .turnTo(Math.toRadians(37))
+                .afterTime(0, ()->{
+                    if (id_ap == 21) posicao_desejada_indexer = 218;
+                    if (id_ap == 22) posicao_desejada_indexer = 0;
+                    if (id_ap == 23) posicao_desejada_indexer = 0;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+//
+                //
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 0;
+                    if (id_ap == 22) posicao_desejada_indexer = 218;
+                    if (id_ap == 23) posicao_desejada_indexer = 440;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+
+                .afterTime(0, ()->{
+
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+
+                    if (id_ap == 21) posicao_desejada_indexer = 440;
+                    if (id_ap == 22) posicao_desejada_indexer = 440;
+                    if (id_ap == 23) posicao_desejada_indexer = 218;
+
+                })
+
+                .waitSeconds(0.6)
+
+                .afterTime(0, ()->{
+                    Aciona_servo();
+
+                    PIDs_state = true;
+                })
+
+                .waitSeconds(0.7)
+
+                .afterTime(0, ()->{
+                    Reservoir_1.setPosition(0);
+                    Reservoir_2.setPosition(1);
+                    Reservoir_3.setPosition(0);
+                    posicao_desejada_indexer = 0;
+                })
+
+                .afterTime(0, ()->{
+                    PIDs_state = false;
+                })
+                .strafeToLinearHeading(new Vector2d(-20, -40),Math.toRadians(180))
 
                 .build();
 

@@ -29,9 +29,11 @@ import java.util.List;
 @TeleOp
 
 
-public class TeleOperado extends Autonomo_VermelhoGRANDE {
+public class TeleOperado_Azul extends Autonomo_VermelhoGRANDE {
 
-    public DigitalChannel  Alliance_B, Alliance_R, Auto1,Auto2, Auto3, Auto4, LED_S_R,LED_S_G,LED_S_B;
+    public DigitalChannel  Alliance_B, Alliance_R, Auto1,Auto2, Auto3, Auto4, LED_S_R,LED_S_G,LED_S_B,LED_S_BB;
+
+    public static boolean RED=true, GRENN=true, BRUE=true;
     public LED Led_1_R, Led_1_V, Led_2_R, Led_2_V, Led_3_R, Led_3_V;
     public AnalogInput S1, S2,S3,S4;
 
@@ -84,7 +86,7 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
-
+    public double XInicial, YInicial;
 
 
     @Override
@@ -120,6 +122,7 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
             LED_S_R = hardwareMap.get(DigitalChannel.class, "LED_S_R");
             LED_S_G = hardwareMap.get(DigitalChannel.class, "LED_S_G");
             LED_S_B = hardwareMap.get(DigitalChannel.class, "LED_S_B");
+            LED_S_BB = hardwareMap.get(DigitalChannel.class, "LED_S_BB");
 
             Led_1_R = hardwareMap.get(LED.class, "Led_1_R");
             Led_1_V = hardwareMap.get(LED.class, "Led_1_V");
@@ -148,6 +151,7 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
             LED_S_R.setMode(DigitalChannel.Mode.OUTPUT);
             LED_S_G.setMode(DigitalChannel.Mode.OUTPUT);
             LED_S_B.setMode(DigitalChannel.Mode.OUTPUT);
+            LED_S_BB.setMode(DigitalChannel.Mode.OUTPUT);
 
             leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -224,7 +228,25 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
             goal_X = 58.346;
         }
 
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 61, Math.toRadians(180)));
+        if (!Auto1.getState()){
+            XInicial = 20;
+            YInicial  = 40;
+        }
+        else if (!Auto2.getState()){
+            XInicial = 20;
+            YInicial  = -35;
+        }
+        else if (!Auto3.getState()){
+            XInicial = 15;
+            YInicial  = 40;
+        }
+        else if (!Auto4.getState()){
+            XInicial = 20;
+            YInicial  = 40;
+        }
+
+        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(XInicial, YInicial, Math.toRadians(180)));
+
 
         limelight.start();
         limelight.pipelineSwitch(5);
@@ -241,6 +263,10 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
             deltaTime.reset();
             angulo_desejado = 180;
             while (opModeIsActive()) {
+
+                Sensor_de_cor();
+
+
                 if (gamepad2.leftBumperWasPressed()) Manual = !Manual;
 
                 {
@@ -409,11 +435,7 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
 
 //--------------------Reservatorios--------------------------------------------------------------------------------
 
-                    if (gamepad2.circle) {
-                        LED_S_R.setState(true);
-                        LED_S_G.setState(true);
-                        LED_S_B.setState(true);
-                    }
+
 
                     {
                         if (gamepad2.dpad_left) {
@@ -610,17 +632,17 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
 
                 if (gamepad_1) {
 
-                    vectorX = (Math.cos((angulo_robo + 180) / 180 * Math.PI) * (gamepad1.left_stick_x/*+ (ErroMovY/divisorY)*/))
-                            + Math.sin((angulo_robo + 180) / 180 * Math.PI) * (-gamepad1.left_stick_y/*+(-ErroMovX/divisorX)*/);
+                    vectorX = (Math.cos((angulo_robo + 180) / 180 * Math.PI) * (gamepad1.left_stick_x/*+ (-ErroMovY/divisorY)*/))
+                            + Math.sin((angulo_robo + 180) / 180 * Math.PI) * (-gamepad1.left_stick_y/*+(ErroMovX/divisorX)*/);
 
-                    vectorY = ((-Math.sin((angulo_robo + 180) / 180 * Math.PI) * (gamepad1.left_stick_x/*+ (ErroMovY/divisorY)*/))
-                            + Math.cos((angulo_robo + 180) / 180 * Math.PI) * (-gamepad1.left_stick_y /*+(-ErroMovX/divisorX)*/));
+                    vectorY = ((-Math.sin((angulo_robo + 180) / 180 * Math.PI) * (gamepad1.left_stick_x/*+ (-ErroMovY/divisorY)*/))
+                            + Math.cos((angulo_robo + 180) / 180 * Math.PI) * (-gamepad1.left_stick_y /*+(ErroMovX/divisorX)*/));
                 } else {
 
-                    vectorX = (Math.cos((angulo_robo + 180) / 180 * Math.PI) * ( gamepad2.left_stick_x /*+ (ErroMovY/divisorY)*/))
+                    vectorX = (Math.cos((angulo_robo + 180) / 180 * Math.PI) * ( gamepad2.left_stick_x /*+ (-ErroMovY/divisorY)*/))
                             + Math.sin((angulo_robo + 180) / 180 * Math.PI) * (-gamepad2.left_stick_y/*+ (ErroMovY/divisorX)*/);
 
-                    vectorY = ((-Math.sin((angulo_robo + 180) / 180 * Math.PI) * (gamepad2.left_stick_x /*+ (ErroMovY/divisorY)*/))
+                    vectorY = ((-Math.sin((angulo_robo + 180) / 180 * Math.PI) * (gamepad2.left_stick_x /*+ (-ErroMovY/divisorY)*/))
                             + Math.cos((angulo_robo + 180) / 180 * Math.PI) *   (-gamepad2.left_stick_y/*+ (ErroMovY/divisorX)*/));
 
                 }
@@ -745,7 +767,52 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
 
 
     }
+    private void Sensor_de_cor() {
 
+        if(S4.getVoltage()<0.4){
+            Led_3_R.off();
+            Led_3_V.off();
+        }
+        else if(S4.getVoltage()<0.67){
+            Led_3_R.off();
+            Led_3_V.on();
+        }
+        else{
+            Led_3_R.on();
+            Led_3_V.off();
+        }
+
+        if(S2.getVoltage()<0.25){
+            Led_2_R.off();
+            Led_2_V.off();
+        }
+        else if(S2.getVoltage()<0.4){
+            Led_2_R.off();
+            Led_2_V.on();
+        }
+        else{
+            Led_2_R.on();
+            Led_2_V.off();
+        }
+
+        if(S1.getVoltage()<0.1){
+            Led_1_R.off();
+            Led_1_V.off();
+        }
+        else if(S1.getVoltage()<0.2){
+            Led_1_R.off();
+            Led_1_V.on();
+        }
+        else{
+            Led_1_R.on();
+            Led_1_V.off();
+        }
+
+        LED_S_G.setState(true);
+        LED_S_R.setState(true);
+        LED_S_B.setState(true);
+        LED_S_BB.setState(true);
+    }
     private void Indexer() {
         double potencia_indexer;
         double erro = posicao_desejada_indexer - Indexer.getCurrentPosition();
@@ -890,11 +957,7 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
 
     }
 
-    private void Desligar_leds(){
-        LED_S_R.setState(true);
-        LED_S_G.setState(true);
-        LED_S_B.setState(true);
-    }
+
     private void Telemetria(){
 
         //Telemetria para gráficos----------------
