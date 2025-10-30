@@ -243,7 +243,7 @@ public class Teste_Motores extends LinearOpMode {
             else rightBack.setPower(0);
 //-----------------------SERVOS--------------------------------
             //Garras
-            if (!gamepad1.dpad_up) {
+            if (gamepad1.dpad_up) {
                 outtake_reset = true;
             }
 
