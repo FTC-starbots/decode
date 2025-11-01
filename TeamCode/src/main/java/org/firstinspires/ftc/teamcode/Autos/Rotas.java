@@ -739,15 +739,15 @@ public class Rotas extends LinearOpMode {
 
         rota1 = drive.actionBuilder(new Pose2d(42, -55, Math.toRadians(90)))
 
-                .strafeToLinearHeading(new Vector2d(6, -40),Math.toRadians(82),new TranslationalVelConstraint(70))
-                .waitSeconds(0.1)
+                .strafeToLinearHeading(new Vector2d(6, -50),Math.toRadians(82),new TranslationalVelConstraint(70))
+                .waitSeconds(0.3)
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
                 .build();
 
-        rota2 = drive.actionBuilder(new Pose2d(6, -40, Math.toRadians(82)))
+        rota2 = drive.actionBuilder(new Pose2d(6, -50, Math.toRadians(82)))
                 .turnTo( Math.toRadians(160))
 
                 .afterTime(0, ()->{
@@ -756,7 +756,7 @@ public class Rotas extends LinearOpMode {
 
                 .build();
 
-        rota3 = drive.actionBuilder(new Pose2d(6, -40, Math.toRadians(160)))
+        rota3 = drive.actionBuilder(new Pose2d(6, -35, Math.toRadians(160)))
 
 
 
@@ -1057,8 +1057,7 @@ public class Rotas extends LinearOpMode {
 
     }
 
-    public void Rotas_AGrande_6()
-    {
+    public void Rotas_AGrande_6() {
 
         MecanumDrive.PARAMS.axialGain = 7.5;
         MecanumDrive.PARAMS.lateralGain = 40;
@@ -1921,14 +1920,14 @@ public class Rotas extends LinearOpMode {
 
         rota1 = drive.actionBuilder(new Pose2d(-42, -55, Math.toRadians(90)))
 
-                .strafeToLinearHeading(new Vector2d(-11, -40),Math.toRadians(90.1),new TranslationalVelConstraint(60))
-                .waitSeconds(0.25)
+                .strafeToLinearHeading(new Vector2d(-6, -50),Math.toRadians(90.1),new TranslationalVelConstraint(60))
+                .waitSeconds(0.55)
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
                 .build();
 
-        rota2 = drive.actionBuilder(new Pose2d(-11, -40, Math.toRadians(90)))
+        rota2 = drive.actionBuilder(new Pose2d(-6, -50, Math.toRadians(90)))
 
                 .turnTo( Math.toRadians(20))
 
@@ -1938,7 +1937,7 @@ public class Rotas extends LinearOpMode {
 
                 .build();
 
-        rota3 = drive.actionBuilder(new Pose2d(-11, -40, Math.toRadians(20)))
+        rota3 = drive.actionBuilder(new Pose2d(-6, -50, Math.toRadians(20)))
 
 
 
@@ -2042,20 +2041,21 @@ public class Rotas extends LinearOpMode {
 
         rota6 = drive.actionBuilder(new Pose2d(-50, -11.5, Math.toRadians(90)))
                 .setReversed(true)
-                .splineTo(new Vector2d(-32, -32),Math.toRadians(182),new TranslationalVelConstraint(85))
+                .splineTo(new Vector2d(-35, -35),Math.toRadians(182),new TranslationalVelConstraint(85))
                 .afterTime(0, ()->{
                     PIDs_state = false;
                 })
                 .build();
 
-        rota7 = drive.actionBuilder(new Pose2d(-35, -35, Math.toRadians(20)))
+        rota7 = drive.actionBuilder(new Pose2d(-35, -35, Math.toRadians(10)))
                 .afterTime(0, ()->{
                     if (id_ap == 21) posicao_desejada_indexer = 440;
                     if (id_ap == 22) posicao_desejada_indexer = 0;
                     if (id_ap == 23) posicao_desejada_indexer = 0;
 
                 })
-                .waitSeconds(0.6)
+                .strafeToLinearHeading(new Vector2d(-15, -40),Math.toRadians(8),new TranslationalVelConstraint(70))
+                .waitSeconds(0.8)
 
                 .afterTime(0, ()->{
                     Aciona_servo();
@@ -2063,7 +2063,7 @@ public class Rotas extends LinearOpMode {
                     PIDs_state = true;
                 })
 
-                .waitSeconds(0.7)
+                .waitSeconds(0.6)
 
                 .afterTime(0, ()->{
                     Reservoir_1.setPosition(0);
@@ -2083,7 +2083,7 @@ public class Rotas extends LinearOpMode {
                     PIDs_state = true;
                 })
 
-                .waitSeconds(0.7)
+                .waitSeconds(0.6)
 
 
                 .afterTime(0, ()->{

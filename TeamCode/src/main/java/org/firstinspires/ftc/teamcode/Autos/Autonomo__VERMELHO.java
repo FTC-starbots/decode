@@ -137,24 +137,33 @@ public class Autonomo__VERMELHO extends Rotas {
                     velocidade_desejada = 738 - Compen_at + 6.5 * (result.getBotposeAvgDist() / 0.0254);
 
                     tx_offset = fr.getTargetXPixels();
+                    if (tx_offset != 0){
+
                     if (tx_offset < 1190 + Compen_tx) {
-                        leftBack.setPower(-0.158 + Compen_vl);
-                        leftFront.setPower(-0.158 + Compen_vl);
-                        rightBack.setPower(0.158 - Compen_vl);
-                        rightFront.setPower(0.158 - Compen_vl);
+                        leftBack.setPower(-0.154 + Compen_vl);
+                        leftFront.setPower(-0.154 + Compen_vl);
+                        rightBack.setPower(0.154 - Compen_vl);
+                        rightFront.setPower(0.154 - Compen_vl);
 
                     } else if (tx_offset > 1390+ Compen_tx) {
-                        leftBack.setPower(0.158 - Compen_vl);
-                        leftFront.setPower(0.158 - Compen_vl);
-                        rightBack.setPower(-0.158 + Compen_vl);
-                        rightFront.setPower(-0.158 + Compen_vl);
+                        leftBack.setPower(0.154 - Compen_vl);
+                        leftFront.setPower(0.154 - Compen_vl);
+                        rightBack.setPower(-0.154 + Compen_vl);
+                        rightFront.setPower(-0.154 + Compen_vl);
                     } else {
                         leftBack.setPower(0);
                         leftFront.setPower(0);
                         rightBack.setPower(0);
                         rightFront.setPower(0);
                     }
+                }else {
+                        leftBack.setPower(0);
+                        leftFront.setPower(0);
+                        rightBack.setPower(0);
+                        rightFront.setPower(0);
+                    }
                 }
+
             }
 
             return PIDs_state;
