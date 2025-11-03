@@ -740,7 +740,7 @@ public class Rotas extends LinearOpMode {
         rota1 = drive.actionBuilder(new Pose2d(42, -55, Math.toRadians(90)))
 
                 .strafeToLinearHeading(new Vector2d(6, -50),Math.toRadians(82),new TranslationalVelConstraint(70))
-                .waitSeconds(0.3)
+                .waitSeconds(0.2)
 
                 .afterTime(0, ()->{
                     PIDs_state = false;
@@ -756,7 +756,7 @@ public class Rotas extends LinearOpMode {
 
                 .build();
 
-        rota3 = drive.actionBuilder(new Pose2d(6, -35, Math.toRadians(160)))
+        rota3 = drive.actionBuilder(new Pose2d(6, -40, Math.toRadians(160)))
 
 
 

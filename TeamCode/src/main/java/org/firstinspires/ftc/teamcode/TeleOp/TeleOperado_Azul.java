@@ -37,7 +37,7 @@ public class TeleOperado_Azul extends Autonomo_VermelhoGRANDE {
     public LED Led_1_R, Led_1_V, Led_2_R, Led_2_V, Led_3_R, Led_3_V;
     public AnalogInput S1, S2,S3,S4;
 
-    boolean AlinharTx = false, Manual = false, Movimento_robo = false, Base_Motriz_State = false, Shoot_mul = false, Shoot = false, gamepad_1 = true, atualizar_limelight = false;
+    boolean AlinharTx = false, Manual = true, Movimento_robo = false, Base_Motriz_State = false, Shoot_mul = false, Shoot = false, gamepad_1 = true, atualizar_limelight = false;
     boolean Iniciar_atirador = false, Corrigir_velocidade = false, detecting_ap = false, goal_ap = false;
 
 public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0,maxt = 1;
@@ -158,7 +158,6 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
             rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             Intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            Indexer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             Atirador_1.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
             Atirador_2.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
 

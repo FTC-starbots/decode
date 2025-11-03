@@ -577,7 +577,7 @@ if(erro < 0) power_correction = 0;
         limelight.start();
         limelight.pipelineSwitch(5);
 
-        Compen_at = -42.5;
+        Compen_at = -49;
 
         PIDs_state = true;
         Actions.runBlocking(new ParallelAction(rota3, new PIDs()));
