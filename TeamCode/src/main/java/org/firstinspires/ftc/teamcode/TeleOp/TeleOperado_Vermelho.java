@@ -86,7 +86,7 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoGRANDE {
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
-public double XInicial, YInicial;
+    public double XInicial, YInicial;
 
 
     @Override
@@ -229,23 +229,23 @@ public double XInicial, YInicial;
         }
 
         if (!Auto1.getState()){
-            XInicial = 20;
+            XInicial = -20;
             YInicial  = 40;
         }
         else if (!Auto2.getState()){
-            XInicial = 20;
+            XInicial = -20;
             YInicial  = -35;
         }
         else if (!Auto3.getState()){
-            XInicial = 15;
+            XInicial = -15;
             YInicial  = 40;
         }
         else if (!Auto4.getState()){
-            XInicial = 20;
+            XInicial = -20;
             YInicial  = 40;
         }
 
-       MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(XInicial, YInicial, Math.toRadians(0)));
+        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(XInicial, YInicial, Math.toRadians(0)));
 
 
         limelight.start();
@@ -278,7 +278,7 @@ public double XInicial, YInicial;
 
                     //Atualização de dados da Limelight----------------------
 
-                    if (!Manual) {
+
                         {
                             if (limelight.getLatestResult().isValid()) {
                                 detecting_ap = true;
@@ -295,9 +295,10 @@ public double XInicial, YInicial;
 
 
                                         atualizar_limelight = true;
-                                        drive = new MecanumDrive(hardwareMap, new Pose2d(limelight_posX, limelight_posY, Math.toRadians(limelight_yaw)));
+                                        if (!Manual) drive = new MecanumDrive(hardwareMap, new Pose2d(limelight_posX, limelight_posY, Math.toRadians(angulo_robo)));
 
                                     } else {
+                                        TxOffset = 0;
                                         distLime = 0;
                                         goal_ap = false;
                                     }
@@ -307,7 +308,7 @@ public double XInicial, YInicial;
                                 detecting_ap = false;
                             }
                         }
-                    }
+
                     //Sistema de posição-----------------------------------------------------------------------------
                     drive.updatePoseEstimate();
                     pose_atual = drive.localizer.getPose();
@@ -354,8 +355,8 @@ public double XInicial, YInicial;
 
                                 last_pose_X = pose_atual.position.x;
                                 last_pose_Y = pose_atual.position.y;
-                                if (!Manual)
-                                    drive = new MecanumDrive(hardwareMap, new Pose2d(pose_atual.position.x, pose_atual.position.y, Math.toRadians(180)));
+                                //if (!Manual)
+                                //drive = new MecanumDrive(hardwareMap, new Pose2d(pose_atual.position.x, pose_atual.position.y, Math.toRadians(180)));
 
                             }
                         } else {
@@ -364,7 +365,7 @@ public double XInicial, YInicial;
                                 last_pose_X = pose_atual.position.x;
                                 last_pose_Y = pose_atual.position.y;
                                 if (!Manual)
-                                    drive = new MecanumDrive(hardwareMap, new Pose2d(pose_atual.position.x, pose_atual.position.y, Math.toRadians(180)));
+                                    drive = new MecanumDrive(hardwareMap, new Pose2d(pose_atual.position.x, pose_atual.position.y, Math.toRadians(0)));
                             }
 
                         }
@@ -383,36 +384,44 @@ public double XInicial, YInicial;
                     //Velocidade do Atirador---------------------------------------------------------------------------
 
                     if (Manual) {
-                        if (true) {
-                            areapermitida = false;
-                            if (gamepad2.triangle) {
-                                Iniciar_atirador = true;
-                                gamepad_1 = false;
-                                if (!Manual) velocidade_desejada = 695 + 6.1 * hip;
-                                else velocidade_desejada = 1280;
-                            } else if (gamepad2.square) {
-                                Iniciar_atirador = true;
-                                velocidade_desejada = 1650;
-                            } else {
-                                Iniciar_atirador = false;
-                                kf_atirar = 0;
-                                kp_atirar = 0;
-                                CorrTx = 0;
-                                velocidade_desejada = 0;
-                            }
+                        areapermitida = false;
+                        if (gamepad2.triangle) {
+                            limelight.start();
+                            limelight.pipelineSwitch(5);
+                            Iniciar_atirador = true;
+                            gamepad_1 = false;
+                            velocidade_desejada = 1120;
+                        } else if (gamepad2.square) {
+                            limelight.stop();
+
+                            Iniciar_atirador = true;
+                            velocidade_desejada = 1050;
+                        } else {
+                            limelight.stop();
+
+                            Iniciar_atirador = false;
+                            kf_atirar = 0;
+                            kp_atirar = 0;
+                            CorrTx = 0;
+                            velocidade_desejada = 0;
                         }
                     }else {
                         if (pose_atual.position.y >= Math.abs(pose_atual.position.x) || (pose_atual.position.y <= -Math.abs(pose_atual.position.x) - 40)){
                             areapermitida = true;
                             if (gamepad2.triangle) {
+                                limelight.start();
+                                limelight.pipelineSwitch(5);
                                 Iniciar_atirador = true;
                                 gamepad_1 = false;
                                 if (!Manual) velocidade_desejada = 695 + 6.1 * hip;
-                                else velocidade_desejada = 1280;
+                                else velocidade_desejada = 1120;
                             } else if (gamepad2.square) {
+                                limelight.stop();
+
                                 Iniciar_atirador = true;
-                                velocidade_desejada = 1650;
+                                velocidade_desejada = 1050;
                             } else {
+                                limelight.stop();
                                 Iniciar_atirador = false;
                                 kf_atirar = 0;
                                 kp_atirar = 0;
@@ -819,11 +828,11 @@ public double XInicial, YInicial;
         // Acumulando o erro para o integral
 
 
-        if (Math.abs(erro)<2) integral_Indexer = 0;
+        if (Math.abs(erro)<5) integral_Indexer = 0;
         if (integral_Indexer>0.1) integral_Indexer=0.1;
         else if (integral_Indexer<-0.1) integral_Indexer=-0.1;
 
-        potencia_indexer = PiDFO_Indexer(erro, 0.058,0.5,10,0.1,300,-0.4,0.4);
+        potencia_indexer = PiDFO_Indexer(erro, 0.002,0.0001,0,0.1,300,-0.4,0.4);
 
 
         Indexer.setPower(potencia_indexer);
@@ -834,16 +843,16 @@ public double XInicial, YInicial;
             AlinharTx = true;
             angulo_desejado = angulo_robo;
             if (TxOffset < 1190) {
-                leftBack.setPower(-0.145);
-                leftFront.setPower(-0.145);
-                rightBack.setPower(0.145);
-                rightFront.setPower(0.145);
+                leftBack.setPower(-0.151);
+                leftFront.setPower(-0.151);
+                rightBack.setPower(0.151);
+                rightFront.setPower(0.151);
 
             } else if (TxOffset > 1390) {
-                leftBack.setPower(0.145);
-                leftFront.setPower(0.145);
-                rightBack.setPower(-0.145);
-                rightFront.setPower(-0.145);
+                leftBack.setPower(0.151);
+                leftFront.setPower(0.151);
+                rightBack.setPower(-0.151);
+                rightFront.setPower(-0.151);
             } else {
                 leftBack.setPower(0);
                 leftFront.setPower(0);
