@@ -37,7 +37,7 @@ public class TeleOperado_Azul extends Autonomo_VermelhoGRANDE {
     public LED Led_1_R, Led_1_V, Led_2_R, Led_2_V, Led_3_R, Led_3_V;
     public AnalogInput S1, S2,S3,S4;
 
-    boolean AlinharTx = false, Manual = false, Movimento_robo = false, Base_Motriz_State = false, Shoot_mul = false, Shoot = false, gamepad_1 = true, atualizar_limelight = false;
+    boolean AlinharTx = false, Manual = true, Movimento_robo = false, Base_Motriz_State = false, Shoot_mul = false, Shoot = false, gamepad_1 = true, atualizar_limelight = false;
     boolean Iniciar_atirador = false, Corrigir_velocidade = false, detecting_ap = false, goal_ap = false;
 
 public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0,maxt = 1;
@@ -158,7 +158,6 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
             rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             Intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            Indexer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             Atirador_1.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
             Atirador_2.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
 
@@ -278,7 +277,7 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
 
                     //Atualização de dados da Limelight----------------------
 
-                    if (!Manual) {
+
                         {
                             if (limelight.getLatestResult().isValid()) {
                                 detecting_ap = true;
@@ -295,9 +294,10 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
 
 
                                         atualizar_limelight = true;
-                                        drive = new MecanumDrive(hardwareMap, new Pose2d(limelight_posX, limelight_posY, Math.toRadians(limelight_yaw)));
+                                        if (!Manual) drive = new MecanumDrive(hardwareMap, new Pose2d(limelight_posX, limelight_posY, Math.toRadians(angulo_robo)));
 
                                     } else {
+                                        TxOffset = 0;
                                         distLime = 0;
                                         goal_ap = false;
                                     }
@@ -307,7 +307,6 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
                                 detecting_ap = false;
                             }
                         }
-                    }
                     //Sistema de posição-----------------------------------------------------------------------------
                     drive.updatePoseEstimate();
                     pose_atual = drive.localizer.getPose();
@@ -343,7 +342,7 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
                         }
                     }
                     //Funções principais ------------------------------------------------------
-                    if (!Shoot) Base_Motriz();
+                    Base_Motriz();
                     Indexer();
                     Shooting_Vel();
                     //Reset robô----------------------------------------------------------------------------------------
@@ -354,8 +353,8 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
 
                                 last_pose_X = pose_atual.position.x;
                                 last_pose_Y = pose_atual.position.y;
-                                if (!Manual)
-                                    drive = new MecanumDrive(hardwareMap, new Pose2d(pose_atual.position.x, pose_atual.position.y, Math.toRadians(180)));
+                                //if (!Manual)
+                                    //drive = new MecanumDrive(hardwareMap, new Pose2d(pose_atual.position.x, pose_atual.position.y, Math.toRadians(180)));
 
                             }
                         } else {
@@ -383,36 +382,46 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
                     //Velocidade do Atirador---------------------------------------------------------------------------
 
                     if (Manual) {
-                        if (true) {
                             areapermitida = false;
                             if (gamepad2.triangle) {
+                                limelight.start();
+                                limelight.pipelineSwitch(5);
                                 Iniciar_atirador = true;
                                 gamepad_1 = false;
-                                if (!Manual) velocidade_desejada = 695 + 6.1 * hip;
-                                else velocidade_desejada = 1280;
+                                velocidade_desejada = 1120;
                             } else if (gamepad2.square) {
+                                limelight.start();
+                                limelight.pipelineSwitch(5);
+
                                 Iniciar_atirador = true;
-                                velocidade_desejada = 1650;
+                                velocidade_desejada = 1050;
                             } else {
+                                limelight.stop();
+
                                 Iniciar_atirador = false;
                                 kf_atirar = 0;
                                 kp_atirar = 0;
                                 CorrTx = 0;
                                 velocidade_desejada = 0;
                             }
-                        }
                     }else {
                         if (pose_atual.position.y >= Math.abs(pose_atual.position.x) || (pose_atual.position.y <= -Math.abs(pose_atual.position.x) - 40)){
                             areapermitida = true;
                         if (gamepad2.triangle) {
+                            limelight.start();
+                            limelight.pipelineSwitch(5);
                             Iniciar_atirador = true;
                             gamepad_1 = false;
                             if (!Manual) velocidade_desejada = 695 + 6.1 * hip;
-                            else velocidade_desejada = 1280;
+                            else velocidade_desejada = 1120;
                         } else if (gamepad2.square) {
+                            limelight.start();
+                            limelight.pipelineSwitch(5);
+
                             Iniciar_atirador = true;
-                            velocidade_desejada = 1650;
+                            velocidade_desejada = 1050;
                         } else {
+                            limelight.stop();
                             Iniciar_atirador = false;
                             kf_atirar = 0;
                             kp_atirar = 0;
@@ -819,11 +828,11 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
         // Acumulando o erro para o integral
 
 
-        if (Math.abs(erro)<2) integral_Indexer = 0;
+        if (Math.abs(erro)<5) integral_Indexer = 0;
         if (integral_Indexer>0.1) integral_Indexer=0.1;
         else if (integral_Indexer<-0.1) integral_Indexer=-0.1;
 
-        potencia_indexer = PiDFO_Indexer(erro, 0.058,0.5,10,0.1,300,-0.4,0.4);
+        potencia_indexer = PiDFO_Indexer(erro, 0.002,0.0001,0,0.1,300,-0.4,0.4);
 
 
         Indexer.setPower(potencia_indexer);
@@ -834,16 +843,16 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
             AlinharTx = true;
             angulo_desejado = angulo_robo;
             if (TxOffset < 1190) {
-                leftBack.setPower(-0.145);
-                leftFront.setPower(-0.145);
-                rightBack.setPower(0.145);
-                rightFront.setPower(0.145);
+                leftBack.setPower(-0.151);
+                leftFront.setPower(-0.151);
+                rightBack.setPower(0.151);
+                rightFront.setPower(0.151);
 
             } else if (TxOffset > 1390) {
-                leftBack.setPower(0.145);
-                leftFront.setPower(0.145);
-                rightBack.setPower(-0.145);
-                rightFront.setPower(-0.145);
+                leftBack.setPower(0.151);
+                leftFront.setPower(0.151);
+                rightBack.setPower(-0.151);
+                rightFront.setPower(-0.151);
             } else {
                 leftBack.setPower(0);
                 leftFront.setPower(0);

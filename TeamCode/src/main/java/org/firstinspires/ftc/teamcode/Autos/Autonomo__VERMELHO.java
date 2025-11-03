@@ -137,24 +137,33 @@ public class Autonomo__VERMELHO extends Rotas {
                     velocidade_desejada = 738 - Compen_at + 6.5 * (result.getBotposeAvgDist() / 0.0254);
 
                     tx_offset = fr.getTargetXPixels();
+                    if (tx_offset != 0){
+
                     if (tx_offset < 1190 + Compen_tx) {
-                        leftBack.setPower(-0.158 + Compen_vl);
-                        leftFront.setPower(-0.158 + Compen_vl);
-                        rightBack.setPower(0.158 - Compen_vl);
-                        rightFront.setPower(0.158 - Compen_vl);
+                        leftBack.setPower(-0.154 + Compen_vl);
+                        leftFront.setPower(-0.154 + Compen_vl);
+                        rightBack.setPower(0.154 - Compen_vl);
+                        rightFront.setPower(0.154 - Compen_vl);
 
                     } else if (tx_offset > 1390+ Compen_tx) {
-                        leftBack.setPower(0.158 - Compen_vl);
-                        leftFront.setPower(0.158 - Compen_vl);
-                        rightBack.setPower(-0.158 + Compen_vl);
-                        rightFront.setPower(-0.158 + Compen_vl);
+                        leftBack.setPower(0.154 - Compen_vl);
+                        leftFront.setPower(0.154 - Compen_vl);
+                        rightBack.setPower(-0.154 + Compen_vl);
+                        rightFront.setPower(-0.154 + Compen_vl);
                     } else {
                         leftBack.setPower(0);
                         leftFront.setPower(0);
                         rightBack.setPower(0);
                         rightFront.setPower(0);
                     }
+                }else {
+                        leftBack.setPower(0);
+                        leftFront.setPower(0);
+                        rightBack.setPower(0);
+                        rightFront.setPower(0);
+                    }
                 }
+
             }
 
             return PIDs_state;
@@ -267,7 +276,7 @@ public class Autonomo__VERMELHO extends Rotas {
             if (!Auto1.getState()) Rotas_VPequeno_Perto();
             else if (!Auto2.getState()) Rotas_VPequeno_Longe();
             else if (!Auto3.getState()) Rotas_VGrande_Fora();
-            else if (!Auto4.getState()) Rotas_VGrande_Dentro();
+            else if (!Auto4.getState()) Rotas_VGrande_6();
 
         //------------------------------------------
         //Leitura de AP
@@ -317,447 +326,6 @@ public class Autonomo__VERMELHO extends Rotas {
 
     }
 
-    public void Auto_APequeno_Perto() {
-        Compen_at = 0;
-        Compen_tx = 0;
-        Compen_vl = 0;
-        PIDs_state = false;
-
-
-        Actions.runBlocking(rota1);
-        //Leitura de AP
-
-        {
-            LLResult result2 = limelight.getLatestResult();
-            List<LLResultTypes.FiducialResult> fiducialResults = result2.getFiducialResults();
-
-            for (LLResultTypes.FiducialResult fr : fiducialResults) {
-                id_ap = fr.getFiducialId();
-            }
-            if (id_ap == 21) {
-                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-            } else if (id_ap == 22) {
-                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
-
-            } else if (id_ap == 23) {
-                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
-            } else{
-                id_ap = 21;
-                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
-            }
-
-        }
-        limelight.stop();
-        Actions.runBlocking(rota2);
-
-        velocidade_desejada = 1170;
-        limelight.start();
-        limelight.pipelineSwitch(5);
-
-        PIDs_state = true;
-        Actions.runBlocking(new ParallelAction(rota3, new PIDs()));
-        limelight.stop();
-        Intake.setPower(1);
-        Led_1_R.off();
-        Led_1_V.off();
-        Led_2_R.off();
-        Led_2_V.off();
-        Led_3_R.off();
-        Led_3_V.off();
-        Atirador_1.setPower(0);
-        Atirador_2.setPower(0);
-
-        PIDs_state = false;
-        Actions.runBlocking(rota4);
-
-        Actions.runBlocking(rota5);
-        Led_1_R.off();
-        Led_1_V.on();
-        Led_2_R.on();
-        Led_2_V.off();
-        Led_3_R.on();
-        Led_3_V.off();
-        Actions.runBlocking(rota6);
-
-        Intake.setPower(0);
-
-
-        velocidade_desejada = 1170;
-        limelight.start();
-        limelight.pipelineSwitch(5);
-
-
-        PIDs_state = true;
-        Actions.runBlocking(new ParallelAction(rota7, new PIDs()));
-        limelight.stop();
-        Intake.setPower(1);
-        Led_1_R.off();
-        Led_1_V.off();
-        Led_2_R.off();
-        Led_2_V.off();
-        Led_3_R.off();
-        Led_3_V.off();
-        Atirador_1.setPower(0);
-        Atirador_2.setPower(0);
-
-        PIDs_state = false;
-        Actions.runBlocking(rota8);
-
-        Actions.runBlocking(rota9);
-        Led_1_R.on();
-        Led_1_V.off();
-        Led_2_R.off();
-        Led_2_V.on();
-        Led_3_R.on();
-        Led_3_V.off();
-        Actions.runBlocking(rota10);
-
-        Intake.setPower(0);
-
-
-        velocidade_desejada = 1180;
-        limelight.start();
-        limelight.pipelineSwitch(5);
-
-
-        PIDs_state = true;
-        Actions.runBlocking(new ParallelAction(rota11, new PIDs()));
-        Led_1_R.off();
-        Led_1_V.off();
-        Led_2_R.off();
-        Led_2_V.off();
-        Led_3_R.off();
-        Led_3_V.off();
-    }
-
-    public void Auto_APequeno_Longe() {
-        Compen_at = 150;
-        Compen_tx = 125;
-        Compen_vl = 0.011;
-        PIDs_state = false;
-        //Leitura de AP
-        {
-            LLResult result = limelight.getLatestResult();
-            List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
-
-            for (LLResultTypes.FiducialResult fr : fiducialResults) {
-                id_ap = fr.getFiducialId();
-            }
-            if (id_ap == 21) {
-                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-            } else if (id_ap == 22) {
-                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
-
-            } else if (id_ap == 23) {
-                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
-            } else{
-                id_ap = 21;
-                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
-            }
-
-        }
-        limelight.stop();
-        Actions.runBlocking(rota1);
-
-
-        velocidade_desejada = 1400;
-        limelight.start();
-        limelight.pipelineSwitch(5);
-        PIDs_state = true;
-        Actions.runBlocking(new ParallelAction(rota2, new PIDs()));
-        limelight.stop();
-        Atirador_1.setPower(0);
-        Atirador_2.setPower(0);
-        Led_1_R.off();
-        Led_1_V.off();
-        Led_2_R.off();
-        Led_2_V.off();
-        Led_3_R.off();
-        Led_3_V.off();
-        PIDs_state = false;
-        Actions.runBlocking(rota3);
-
-        Intake.setPower(1);
-
-        Actions.runBlocking(rota4);
-        Led_1_R.on();
-        Led_1_V.off();
-        Led_2_R.on();
-        Led_2_V.off();
-        Led_3_R.off();
-        Led_3_V.on();
-        Actions.runBlocking(rota5);
-        Intake.setPower(0);
-
-        velocidade_desejada = 1400;
-
-        limelight.start();
-        limelight.pipelineSwitch(5);
-        PIDs_state = true;
-        Actions.runBlocking(new ParallelAction(rota6, new PIDs()));
-        limelight.stop();
-
-        Atirador_1.setPower(0);
-        Atirador_2.setPower(0);
-        Led_1_R.off();
-        Led_1_V.off();
-        Led_2_R.off();
-        Led_2_V.off();
-        Led_3_R.off();
-        Led_3_V.off();
-        PIDs_state = false;
-        Actions.runBlocking(rota7);
-
-        Intake.setPower(1);
-
-        Actions.runBlocking(rota8);
-
-        Led_1_R.on();
-        Led_1_V.off();
-        Led_2_R.off();
-        Led_2_V.on();
-        Led_3_R.on();
-        Led_3_V.off();
-
-        Actions.runBlocking(rota9);
-        Intake.setPower(0);
-        limelight.start();
-        limelight.pipelineSwitch(5);
-        velocidade_desejada = 1400;
-
-        PIDs_state = true;
-        Actions.runBlocking(new ParallelAction(rota10, new PIDs()));
-        Led_1_R.off();
-        Led_1_V.off();
-        Led_2_R.off();
-        Led_2_V.off();
-        Led_3_R.off();
-        Led_3_V.off();
-
-
-    }
-
-    public void Auto_AGrande_Fora() {
-        Compen_at = -30;
-        Compen_tx = -230;
-        Compen_vl = 0;
-        PIDs_state = false;
-
-
-        Actions.runBlocking(rota1);
-        //Leitura de AP
-
-        {
-            LLResult result = limelight.getLatestResult();
-            List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
-
-            for (LLResultTypes.FiducialResult fr : fiducialResults) {
-                id_ap = fr.getFiducialId();
-            }
-            if (id_ap == 21) {
-                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-            } else if (id_ap == 22) {
-                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
-
-            } else if (id_ap == 23) {
-                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
-            } else Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
-
-        }
-        Actions.runBlocking(rota2);
-
-        velocidade_desejada = 1150;
-        limelight.start();
-        limelight.pipelineSwitch(5);
-
-        PIDs_state = true;
-        Actions.runBlocking(new ParallelAction(rota3, new PIDs()));
-
-        limelight.stop();
-
-        Atirador_1.setPower(0);
-        Atirador_2.setPower(0);
-        Led_1_R.off();
-        Led_1_V.off();
-        Led_2_R.off();
-        Led_2_V.off();
-        Led_3_R.off();
-        Led_3_V.off();
-        PIDs_state = false;
-        Actions.runBlocking(rota4);
-
-        Intake.setPower(1);
-        Actions.runBlocking(rota5);
-        Led_1_R.off();
-        Led_1_V.on();
-        Led_2_R.on();
-        Led_2_V.off();
-        Led_3_R.on();
-        Led_3_V.off();
-        Actions.runBlocking(rota6);
-        Intake.setPower(0);
-
-        velocidade_desejada = 1150;
-        limelight.start();
-        limelight.pipelineSwitch(5);
-
-        PIDs_state = true;
-        Actions.runBlocking(new ParallelAction(rota7, new PIDs()));
-
-        limelight.stop();
-
-
-        Atirador_1.setPower(0);
-        Atirador_2.setPower(0);
-        Led_1_R.off();
-        Led_1_V.off();
-        Led_2_R.off();
-        Led_2_V.off();
-        Led_3_R.off();
-        Led_3_V.off();
-        PIDs_state = false;
-        Actions.runBlocking(rota8);
-        Intake.setPower(1);
-        Actions.runBlocking(rota9);
-        Led_1_R.on();
-        Led_1_V.off();
-        Led_2_R.off();
-        Led_2_V.on();
-        Led_3_R.on();
-        Led_3_V.off();
-        Actions.runBlocking(rota10);
-
-        Intake.setPower(0);
-
-        velocidade_desejada = 1150;
-        limelight.start();
-        limelight.pipelineSwitch(5);
-
-        PIDs_state = true;
-        Actions.runBlocking(new ParallelAction(rota11, new PIDs()));
-
-        limelight.stop();
-        Led_1_R.off();
-        Led_1_V.off();
-        Led_2_R.off();
-        Led_2_V.off();
-        Led_3_R.off();
-        Led_3_V.off();
-
-    }
-
-    public void Auto_AGrande_Dentro() {
-        Compen_at = 0;
-        Compen_tx = 0;
-        Compen_vl = 0;
-        PIDs_state = false;
-
-
-        Actions.runBlocking(rota1);
-        //Leitura de AP
-
-        {
-            LLResult result2 = limelight.getLatestResult();
-            List<LLResultTypes.FiducialResult> fiducialResults = result2.getFiducialResults();
-
-            for (LLResultTypes.FiducialResult fr : fiducialResults) {
-                id_ap = fr.getFiducialId();
-            }
-            if (id_ap == 21) {
-                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-            } else if (id_ap == 22) {
-                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
-
-            } else if (id_ap == 23) {
-                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
-            } else{
-                id_ap = 21;
-                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
-            }
-
-        }
-        limelight.stop();
-        Actions.runBlocking(rota2);
-
-        velocidade_desejada = 1170;
-        limelight.start();
-        limelight.pipelineSwitch(5);
-
-        PIDs_state = true;
-        Actions.runBlocking(new ParallelAction(rota3, new PIDs()));
-        limelight.stop();
-        Intake.setPower(1);
-        Led_1_R.off();
-        Led_1_V.off();
-        Led_2_R.off();
-        Led_2_V.off();
-        Led_3_R.off();
-        Led_3_V.off();
-        Atirador_1.setPower(0);
-        Atirador_2.setPower(0);
-
-        PIDs_state = false;
-        Actions.runBlocking(rota4);
-
-        Actions.runBlocking(rota5);
-        Led_1_R.off();
-        Led_1_V.on();
-        Led_2_R.on();
-        Led_2_V.off();
-        Led_3_R.on();
-        Led_3_V.off();
-        Actions.runBlocking(rota6);
-
-        Intake.setPower(0);
-
-
-        velocidade_desejada = 1170;
-        limelight.start();
-        limelight.pipelineSwitch(5);
-
-
-        PIDs_state = true;
-        Actions.runBlocking(new ParallelAction(rota7, new PIDs()));
-        limelight.stop();
-        Intake.setPower(1);
-        Led_1_R.off();
-        Led_1_V.off();
-        Led_2_R.off();
-        Led_2_V.off();
-        Led_3_R.off();
-        Led_3_V.off();
-        Atirador_1.setPower(0);
-        Atirador_2.setPower(0);
-
-        PIDs_state = false;
-        Actions.runBlocking(rota8);
-
-        Actions.runBlocking(rota9);
-        Led_1_R.on();
-        Led_1_V.off();
-        Led_2_R.off();
-        Led_2_V.on();
-        Led_3_R.on();
-        Led_3_V.off();
-        Actions.runBlocking(rota10);
-
-        Intake.setPower(0);
-
-
-        velocidade_desejada = 1180;
-        limelight.start();
-        limelight.pipelineSwitch(5);
-
-
-        PIDs_state = true;
-        Actions.runBlocking(new ParallelAction(rota11, new PIDs()));
-        Led_1_R.off();
-        Led_1_V.off();
-        Led_2_R.off();
-        Led_2_V.off();
-        Led_3_R.off();
-        Led_3_V.off();
-    }
 
 
     public void Auto_VPequeno_Perto() {
@@ -1092,18 +660,17 @@ public class Autonomo__VERMELHO extends Rotas {
     }
 
     public void Auto_VGrande_Dentro() {
-        Compen_at = 0;
-        Compen_tx = 0;
+        Compen_at = -30;
+        Compen_tx = 230;
         Compen_vl = 0;
         PIDs_state = false;
-
 
         Actions.runBlocking(rota1);
         //Leitura de AP
 
         {
-            LLResult result2 = limelight.getLatestResult();
-            List<LLResultTypes.FiducialResult> fiducialResults = result2.getFiducialResults();
+            LLResult result = limelight.getLatestResult();
+            List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
 
             for (LLResultTypes.FiducialResult fr : fiducialResults) {
                 id_ap = fr.getFiducialId();
@@ -1115,35 +682,32 @@ public class Autonomo__VERMELHO extends Rotas {
 
             } else if (id_ap == 23) {
                 Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
-            } else{
-                id_ap = 21;
-                Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
-            }
+            } else Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
 
         }
-        limelight.stop();
         Actions.runBlocking(rota2);
 
-        velocidade_desejada = 1170;
+        velocidade_desejada = 1150;
         limelight.start();
         limelight.pipelineSwitch(5);
 
         PIDs_state = true;
         Actions.runBlocking(new ParallelAction(rota3, new PIDs()));
+
         limelight.stop();
-        Intake.setPower(1);
+
+        Atirador_1.setPower(0);
+        Atirador_2.setPower(0);
         Led_1_R.off();
         Led_1_V.off();
         Led_2_R.off();
         Led_2_V.off();
         Led_3_R.off();
         Led_3_V.off();
-        Atirador_1.setPower(0);
-        Atirador_2.setPower(0);
-
         PIDs_state = false;
         Actions.runBlocking(rota4);
 
+        Intake.setPower(1);
         Actions.runBlocking(rota5);
         Led_1_R.off();
         Led_1_V.on();
@@ -1152,56 +716,31 @@ public class Autonomo__VERMELHO extends Rotas {
         Led_3_R.on();
         Led_3_V.off();
         Actions.runBlocking(rota6);
-
         Intake.setPower(0);
 
-
-        velocidade_desejada = 1170;
+        velocidade_desejada = 1150;
         limelight.start();
         limelight.pipelineSwitch(5);
-
 
         PIDs_state = true;
         Actions.runBlocking(new ParallelAction(rota7, new PIDs()));
+
         limelight.stop();
-        Intake.setPower(1);
-        Led_1_R.off();
-        Led_1_V.off();
-        Led_2_R.off();
-        Led_2_V.off();
-        Led_3_R.off();
-        Led_3_V.off();
+
+
         Atirador_1.setPower(0);
         Atirador_2.setPower(0);
-
-        PIDs_state = false;
-        Actions.runBlocking(rota8);
-
-        Actions.runBlocking(rota9);
-        Led_1_R.on();
-        Led_1_V.off();
-        Led_2_R.off();
-        Led_2_V.on();
-        Led_3_R.on();
-        Led_3_V.off();
-        Actions.runBlocking(rota10);
-
-        Intake.setPower(0);
-
-
-        velocidade_desejada = 1180;
-        limelight.start();
-        limelight.pipelineSwitch(5);
-
-
-        PIDs_state = true;
-        Actions.runBlocking(new ParallelAction(rota11, new PIDs()));
         Led_1_R.off();
         Led_1_V.off();
         Led_2_R.off();
         Led_2_V.off();
         Led_3_R.off();
         Led_3_V.off();
+        PIDs_state = false;
+
+
+
+
     }
 
 
