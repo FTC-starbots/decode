@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.TeleOp;
+package org.firstinspires.ftc.teamcode.OpModes.TeleOp;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -20,8 +20,7 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Autos.Autonomo_VermelhoGRANDE;
-import org.firstinspires.ftc.teamcode.MecanumDrive;
+import org.firstinspires.ftc.teamcode.OpModes.Autos.Autonomo_VermelhoGRANDE;
 
 import java.util.List;
 
@@ -29,7 +28,7 @@ import java.util.List;
 @TeleOp
 
 
-public class TeleOperado_Vermelho extends Autonomo_VermelhoGRANDE {
+public class TeleOperado_Azul extends Autonomo_VermelhoGRANDE {
 
     public DigitalChannel  Alliance_B, Alliance_R, Auto1,Auto2, Auto3, Auto4, LED_S_R,LED_S_G,LED_S_B,LED_S_BB;
 
@@ -37,10 +36,10 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoGRANDE {
     public LED Led_1_R, Led_1_V, Led_2_R, Led_2_V, Led_3_R, Led_3_V;
     public AnalogInput S1, S2,S3,S4;
 
-    boolean AlinharTx = false, Manual = false, Movimento_robo = false, Base_Motriz_State = false, Shoot_mul = false, Shoot = false, gamepad_1 = true, atualizar_limelight = false;
+    boolean AlinharTx = false, Manual = true, Movimento_robo = false, Base_Motriz_State = false, Shoot_mul = false, Shoot = false, gamepad_1 = true, atualizar_limelight = false;
     boolean Iniciar_atirador = false, Corrigir_velocidade = false, detecting_ap = false, goal_ap = false;
 
-    public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0,maxt = 1;
+public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0,maxt = 1;
     private Limelight3A limelight;
 
     private DcMotorEx leftBack, leftFront, rightBack, rightFront, Intake, Atirador_1, Atirador_2, Indexer;
@@ -158,7 +157,6 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoGRANDE {
             rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             Intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            Indexer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             Atirador_1.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
             Atirador_2.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
 
@@ -229,23 +227,23 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoGRANDE {
         }
 
         if (!Auto1.getState()){
-            XInicial = -20;
+            XInicial = 20;
             YInicial  = 40;
         }
         else if (!Auto2.getState()){
-            XInicial = -20;
+            XInicial = 20;
             YInicial  = -35;
         }
         else if (!Auto3.getState()){
-            XInicial = -15;
+            XInicial = 15;
             YInicial  = 40;
         }
         else if (!Auto4.getState()){
-            XInicial = -20;
+            XInicial = 20;
             YInicial  = 40;
         }
 
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(XInicial, YInicial, Math.toRadians(0)));
+        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(XInicial, YInicial, Math.toRadians(180)));
 
 
         limelight.start();
@@ -308,7 +306,6 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoGRANDE {
                                 detecting_ap = false;
                             }
                         }
-
                     //Sistema de posição-----------------------------------------------------------------------------
                     drive.updatePoseEstimate();
                     pose_atual = drive.localizer.getPose();
@@ -344,7 +341,7 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoGRANDE {
                         }
                     }
                     //Funções principais ------------------------------------------------------
-                    if (!Shoot) Base_Motriz();
+                    Base_Motriz();
                     Indexer();
                     Shooting_Vel();
                     //Reset robô----------------------------------------------------------------------------------------
@@ -356,7 +353,7 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoGRANDE {
                                 last_pose_X = pose_atual.position.x;
                                 last_pose_Y = pose_atual.position.y;
                                 //if (!Manual)
-                                //drive = new MecanumDrive(hardwareMap, new Pose2d(pose_atual.position.x, pose_atual.position.y, Math.toRadians(180)));
+                                    //drive = new MecanumDrive(hardwareMap, new Pose2d(pose_atual.position.x, pose_atual.position.y, Math.toRadians(180)));
 
                             }
                         } else {
@@ -365,7 +362,7 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoGRANDE {
                                 last_pose_X = pose_atual.position.x;
                                 last_pose_Y = pose_atual.position.y;
                                 if (!Manual)
-                                    drive = new MecanumDrive(hardwareMap, new Pose2d(pose_atual.position.x, pose_atual.position.y, Math.toRadians(0)));
+                                    drive = new MecanumDrive(hardwareMap, new Pose2d(pose_atual.position.x, pose_atual.position.y, Math.toRadians(180)));
                             }
 
                         }
@@ -384,52 +381,54 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoGRANDE {
                     //Velocidade do Atirador---------------------------------------------------------------------------
 
                     if (Manual) {
-                        areapermitida = false;
-                        if (gamepad2.triangle) {
-                            limelight.start();
-                            limelight.pipelineSwitch(5);
-                            Iniciar_atirador = true;
-                            gamepad_1 = false;
-                            velocidade_desejada = 1120;
-                        } else if (gamepad2.square) {
-                            limelight.stop();
-
-                            Iniciar_atirador = true;
-                            velocidade_desejada = 1050;
-                        } else {
-                            limelight.stop();
-
-                            Iniciar_atirador = false;
-                            kf_atirar = 0;
-                            kp_atirar = 0;
-                            CorrTx = 0;
-                            velocidade_desejada = 0;
-                        }
-                    }else {
-                        if (pose_atual.position.y >= Math.abs(pose_atual.position.x) || (pose_atual.position.y <= -Math.abs(pose_atual.position.x) - 40)){
-                            areapermitida = true;
+                            areapermitida = false;
                             if (gamepad2.triangle) {
                                 limelight.start();
                                 limelight.pipelineSwitch(5);
                                 Iniciar_atirador = true;
                                 gamepad_1 = false;
-                                if (!Manual) velocidade_desejada = 695 + 6.1 * hip;
-                                else velocidade_desejada = 1120;
+                                velocidade_desejada = 1120;
                             } else if (gamepad2.square) {
-                                limelight.stop();
+                                limelight.start();
+                                limelight.pipelineSwitch(5);
 
                                 Iniciar_atirador = true;
                                 velocidade_desejada = 1050;
                             } else {
                                 limelight.stop();
+
                                 Iniciar_atirador = false;
                                 kf_atirar = 0;
                                 kp_atirar = 0;
                                 CorrTx = 0;
                                 velocidade_desejada = 0;
                             }
+                    }else {
+                        if (pose_atual.position.y >= Math.abs(pose_atual.position.x) || (pose_atual.position.y <= -Math.abs(pose_atual.position.x) - 40)){
+                            areapermitida = true;
+                        if (gamepad2.triangle) {
+                            limelight.start();
+                            limelight.pipelineSwitch(5);
+                            Iniciar_atirador = true;
+                            gamepad_1 = false;
+                            if (!Manual) velocidade_desejada = 695 + 6.1 * hip;
+                            else velocidade_desejada = 1120;
+                        } else if (gamepad2.square) {
+                            limelight.start();
+                            limelight.pipelineSwitch(5);
+
+                            Iniciar_atirador = true;
+                            velocidade_desejada = 1050;
+                        } else {
+                            limelight.stop();
+                            Iniciar_atirador = false;
+                            kf_atirar = 0;
+                            kp_atirar = 0;
+                            CorrTx = 0;
+                            velocidade_desejada = 0;
                         }
                     }
+                }
 
 
 //----------------Intake-------------------------------------------------------------------------------------------
@@ -639,22 +638,22 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoGRANDE {
             double divisorX = 5 + 10 * Math.max(0, 1.0 - (Math.abs(ErroMovX) / 4.0));
             double divisorY = 5 + 10 * Math.max(0, 1.0 - (Math.abs(ErroMovY) / 4.0));
 
-            if (gamepad_1) {
+                if (gamepad_1) {
 
-                vectorX = (Math.cos((angulo_robo + 180) / 180 * Math.PI) * (gamepad1.left_stick_x/*+ (-ErroMovY/divisorY)*/))
-                        + Math.sin((angulo_robo + 180) / 180 * Math.PI) * (-gamepad1.left_stick_y/*+(ErroMovX/divisorX)*/);
+                    vectorX = (Math.cos((angulo_robo + 180) / 180 * Math.PI) * (gamepad1.left_stick_x/*+ (-ErroMovY/divisorY)*/))
+                            + Math.sin((angulo_robo + 180) / 180 * Math.PI) * (-gamepad1.left_stick_y/*+(ErroMovX/divisorX)*/);
 
-                vectorY = ((-Math.sin((angulo_robo + 180) / 180 * Math.PI) * (gamepad1.left_stick_x/*+ (-ErroMovY/divisorY)*/))
-                        + Math.cos((angulo_robo + 180) / 180 * Math.PI) * (-gamepad1.left_stick_y /*+(ErroMovX/divisorX)*/));
-            } else {
+                    vectorY = ((-Math.sin((angulo_robo + 180) / 180 * Math.PI) * (gamepad1.left_stick_x/*+ (-ErroMovY/divisorY)*/))
+                            + Math.cos((angulo_robo + 180) / 180 * Math.PI) * (-gamepad1.left_stick_y /*+(ErroMovX/divisorX)*/));
+                } else {
 
-                vectorX = (Math.cos((angulo_robo + 180) / 180 * Math.PI) * ( gamepad2.left_stick_x /*+ (-ErroMovY/divisorY)*/))
-                        + Math.sin((angulo_robo + 180) / 180 * Math.PI) * (-gamepad2.left_stick_y/*+ (ErroMovY/divisorX)*/);
+                    vectorX = (Math.cos((angulo_robo + 180) / 180 * Math.PI) * ( gamepad2.left_stick_x /*+ (-ErroMovY/divisorY)*/))
+                            + Math.sin((angulo_robo + 180) / 180 * Math.PI) * (-gamepad2.left_stick_y/*+ (ErroMovY/divisorX)*/);
 
-                vectorY = ((-Math.sin((angulo_robo + 180) / 180 * Math.PI) * (gamepad2.left_stick_x /*+ (-ErroMovY/divisorY)*/))
-                        + Math.cos((angulo_robo + 180) / 180 * Math.PI) *   (-gamepad2.left_stick_y/*+ (ErroMovY/divisorX)*/));
+                    vectorY = ((-Math.sin((angulo_robo + 180) / 180 * Math.PI) * (gamepad2.left_stick_x /*+ (-ErroMovY/divisorY)*/))
+                            + Math.cos((angulo_robo + 180) / 180 * Math.PI) *   (-gamepad2.left_stick_y/*+ (ErroMovY/divisorX)*/));
 
-            }
+                }
 
             if (gamepad_1) {
                 leftBack.setPower((vectorY * 1 + vectorX * -1) * Speed + ((gamepad1.right_trigger - gamepad1.left_trigger) + correcao_angular));
@@ -720,56 +719,56 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoGRANDE {
 
         // Ajuste de velocidade baseado nos triggers do gamepad
         {
-            if(gamepad_1) {
-                if (Math.abs(gamepad1.left_trigger) > 0.1 || Math.abs(gamepad1.right_trigger) > 0.1) {
-                    angulo_desejado = angulo_robo;
-                    RotacaoRobo.reset();
+        if(gamepad_1) {
+            if (Math.abs(gamepad1.left_trigger) > 0.1 || Math.abs(gamepad1.right_trigger) > 0.1) {
+                angulo_desejado = angulo_robo;
+                RotacaoRobo.reset();
 
 
-                    Speed = 1 - 0.5 * Math.abs(gamepad1.left_trigger - gamepad1.right_trigger);
-                } else if (gamepad1.start) {
-                    // Resetando os encoders dos motores
-                    leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                Speed = 1 - 0.5 * Math.abs(gamepad1.left_trigger - gamepad1.right_trigger);
+            } else if (gamepad1.start) {
+                // Resetando os encoders dos motores
+                leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
-                    angulo_desejado = 180;
-                } else {
-                    // Ajustando a velocidade com base na correção angular
-                    Speed = 1.2 - Math.abs(correcao_angular) - (ControlHub_VoltageSensor.getVoltage() - 11) / 10;
+                angulo_desejado = 180;
+            } else {
+                // Ajustando a velocidade com base na correção angular
+                Speed = 1.2 - Math.abs(correcao_angular) - (ControlHub_VoltageSensor.getVoltage() - 11) / 10;
 
-                }
-            }else {
-                if (Math.abs(gamepad2.left_trigger) > 0.1 || Math.abs(gamepad2.right_trigger) > 0.1) {
-                    angulo_desejado = angulo_robo;
-                    RotacaoRobo.reset();
-
-
-                    Speed = 1 - 0.5 * Math.abs(gamepad2.left_trigger - gamepad2.right_trigger);
-                } else if (gamepad2.start) {
-                    // Resetando os encoders dos motores
-                    leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-                    angulo_desejado = 180;
-                } else {
-                    // Ajustando a velocidade com base na correção angular
-                    Speed = 1.2 - Math.abs(correcao_angular) - (ControlHub_VoltageSensor.getVoltage() - 11) / 10;
-
-                }
             }
+        }else {
+            if (Math.abs(gamepad2.left_trigger) > 0.1 || Math.abs(gamepad2.right_trigger) > 0.1) {
+                angulo_desejado = angulo_robo;
+                RotacaoRobo.reset();
+
+
+                Speed = 1 - 0.5 * Math.abs(gamepad2.left_trigger - gamepad2.right_trigger);
+            } else if (gamepad2.start) {
+                // Resetando os encoders dos motores
+                leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+                angulo_desejado = 180;
+            } else {
+                // Ajustando a velocidade com base na correção angular
+                Speed = 1.2 - Math.abs(correcao_angular) - (ControlHub_VoltageSensor.getVoltage() - 11) / 10;
+
+            }
+        }
         }
 
         // Reduzindo a velocidade caso o motor `slide_vertical_e` ultrapasse uma posição
@@ -861,13 +860,13 @@ public class TeleOperado_Vermelho extends Autonomo_VermelhoGRANDE {
             }
 
         }
-        double power_correction;
+    double power_correction;
         if(Iniciar_atirador) {
             double erro = velocidade_desejada + Atirador_1.getVelocity(); // Desired Vel - Velocity
 
 
-            power_correction = PiDF_Vel(erro, kpt, kit, kdt, kft, mint, maxt);
-        }else power_correction = 0;
+    power_correction = PiDF_Vel(erro, kpt, kit, kdt, kft, mint, maxt);
+}else power_correction = 0;
 
         if (power_correction < 0) power_correction = 0;
         if (velocidade_desejada == 0 ) Atirador_1.setPower(0);

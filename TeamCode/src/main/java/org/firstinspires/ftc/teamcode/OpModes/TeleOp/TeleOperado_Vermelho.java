@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.TeleOp;
+package org.firstinspires.ftc.teamcode.OpModes.TeleOp;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -20,8 +20,7 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Autos.Autonomo_VermelhoGRANDE;
-import org.firstinspires.ftc.teamcode.MecanumDrive;
+import org.firstinspires.ftc.teamcode.OpModes.Autos.Autonomo_VermelhoGRANDE;
 
 import java.util.List;
 
@@ -29,7 +28,7 @@ import java.util.List;
 @TeleOp
 
 
-public class Teleop_PIT extends Autonomo_VermelhoGRANDE {
+public class TeleOperado_Vermelho extends Autonomo_VermelhoGRANDE {
 
     public DigitalChannel  Alliance_B, Alliance_R, Auto1,Auto2, Auto3, Auto4, LED_S_R,LED_S_G,LED_S_B,LED_S_BB;
 
@@ -229,23 +228,23 @@ public class Teleop_PIT extends Autonomo_VermelhoGRANDE {
         }
 
         if (!Auto1.getState()){
-            XInicial = 20;
+            XInicial = -20;
             YInicial  = 40;
         }
         else if (!Auto2.getState()){
-            XInicial = 20;
+            XInicial = -20;
             YInicial  = -35;
         }
         else if (!Auto3.getState()){
-            XInicial = 15;
+            XInicial = -15;
             YInicial  = 40;
         }
         else if (!Auto4.getState()){
-            XInicial = 20;
+            XInicial = -20;
             YInicial  = 40;
         }
 
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, Math.toRadians(180)));
+        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(XInicial, YInicial, Math.toRadians(0)));
 
 
         limelight.start();
@@ -279,35 +278,36 @@ public class Teleop_PIT extends Autonomo_VermelhoGRANDE {
                     //Atualização de dados da Limelight----------------------
 
 
-                    {
-                        if (limelight.getLatestResult().isValid()) {
-                            detecting_ap = true;
-                            for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                        {
+                            if (limelight.getLatestResult().isValid()) {
+                                detecting_ap = true;
+                                for (LLResultTypes.FiducialResult fr : fiducialResults) {
 
-                                if ((limelight.getLatestResult().isValid()) && (fr.getFiducialId() == 24 || fr.getFiducialId() == 20)) {
-                                    TxOffset = fr.getTargetXPixels();
-                                    goal_ap = true;
-                                    limelight_posY = -result.getBotpose().getPosition().x * 35.3;
-                                    limelight_posX = result.getBotpose().getPosition().y * 35.3;
-                                    limelight_yaw = (result.getBotpose().getOrientation().getYaw() - 90);
-                                    if (result.getBotposeAvgDist() != 0)
-                                        distLime = result.getBotposeAvgDist() / 0.0254;
+                                    if ((limelight.getLatestResult().isValid()) && (fr.getFiducialId() == 24 || fr.getFiducialId() == 20)) {
+                                        TxOffset = fr.getTargetXPixels();
+                                        goal_ap = true;
+                                        limelight_posY = -result.getBotpose().getPosition().x * 35.3;
+                                        limelight_posX = result.getBotpose().getPosition().y * 35.3;
+                                        limelight_yaw = (result.getBotpose().getOrientation().getYaw() - 90);
+                                        if (result.getBotposeAvgDist() != 0)
+                                            distLime = result.getBotposeAvgDist() / 0.0254;
 
 
-                                    atualizar_limelight = true;
-                                    if (!Manual) drive = new MecanumDrive(hardwareMap, new Pose2d(limelight_posX, limelight_posY, Math.toRadians(angulo_robo)));
+                                        atualizar_limelight = true;
+                                        if (!Manual) drive = new MecanumDrive(hardwareMap, new Pose2d(limelight_posX, limelight_posY, Math.toRadians(angulo_robo)));
 
-                                } else {
-                                    TxOffset = 0;
-                                    distLime = 0;
-                                    goal_ap = false;
+                                    } else {
+                                        TxOffset = 0;
+                                        distLime = 0;
+                                        goal_ap = false;
+                                    }
                                 }
+                            } else {
+                                TxOffset = 0;
+                                detecting_ap = false;
                             }
-                        } else {
-                            TxOffset = 0;
-                            detecting_ap = false;
                         }
-                    }
+
                     //Sistema de posição-----------------------------------------------------------------------------
                     drive.updatePoseEstimate();
                     pose_atual = drive.localizer.getPose();
@@ -335,7 +335,7 @@ public class Teleop_PIT extends Autonomo_VermelhoGRANDE {
                         }
 
                         if (Movimento_robo == false) {
-                            ErroMovX = -pose_atual.position.x - last_pose_X;
+                            ErroMovX = pose_atual.position.x - last_pose_X;
                             ErroMovY = pose_atual.position.y - last_pose_Y;
                         } else {
                             ErroMovX = 0;
@@ -364,7 +364,7 @@ public class Teleop_PIT extends Autonomo_VermelhoGRANDE {
                                 last_pose_X = pose_atual.position.x;
                                 last_pose_Y = pose_atual.position.y;
                                 if (!Manual)
-                                    drive = new MecanumDrive(hardwareMap, new Pose2d(pose_atual.position.x, pose_atual.position.y, Math.toRadians(180)));
+                                    drive = new MecanumDrive(hardwareMap, new Pose2d(pose_atual.position.x, pose_atual.position.y, Math.toRadians(0)));
                             }
 
                         }
@@ -640,18 +640,18 @@ public class Teleop_PIT extends Autonomo_VermelhoGRANDE {
 
             if (gamepad_1) {
 
-                vectorX = (Math.cos((angulo_robo + 180) / 180 * Math.PI) * (gamepad1.left_stick_x+ (-ErroMovY/divisorY)))
-                        + Math.sin((angulo_robo + 180) / 180 * Math.PI) * (-gamepad1.left_stick_y+(-ErroMovX/divisorX));
+                vectorX = (Math.cos((angulo_robo + 180) / 180 * Math.PI) * (gamepad1.left_stick_x/*+ (-ErroMovY/divisorY)*/))
+                        + Math.sin((angulo_robo + 180) / 180 * Math.PI) * (-gamepad1.left_stick_y/*+(ErroMovX/divisorX)*/);
 
-                vectorY = ((-Math.sin((angulo_robo + 180) / 180 * Math.PI) * (gamepad1.left_stick_x+ (-ErroMovY/divisorY)))
-                        + Math.cos((angulo_robo + 180) / 180 * Math.PI) * (-gamepad1.left_stick_y +(-ErroMovX/divisorX)));
+                vectorY = ((-Math.sin((angulo_robo + 180) / 180 * Math.PI) * (gamepad1.left_stick_x/*+ (-ErroMovY/divisorY)*/))
+                        + Math.cos((angulo_robo + 180) / 180 * Math.PI) * (-gamepad1.left_stick_y /*+(ErroMovX/divisorX)*/));
             } else {
 
-                vectorX = (Math.cos((angulo_robo + 180) / 180 * Math.PI) * ( gamepad2.left_stick_x + (-ErroMovY/divisorY)))
-                        + Math.sin((angulo_robo + 180) / 180 * Math.PI) * (-gamepad2.left_stick_y+ (ErroMovY/divisorX));
+                vectorX = (Math.cos((angulo_robo + 180) / 180 * Math.PI) * ( gamepad2.left_stick_x /*+ (-ErroMovY/divisorY)*/))
+                        + Math.sin((angulo_robo + 180) / 180 * Math.PI) * (-gamepad2.left_stick_y/*+ (ErroMovY/divisorX)*/);
 
-                vectorY = ((-Math.sin((angulo_robo + 180) / 180 * Math.PI) * (gamepad2.left_stick_x + (-ErroMovY/divisorY)))
-                        + Math.cos((angulo_robo + 180) / 180 * Math.PI) *   (-gamepad2.left_stick_y+ (ErroMovY/divisorX)));
+                vectorY = ((-Math.sin((angulo_robo + 180) / 180 * Math.PI) * (gamepad2.left_stick_x /*+ (-ErroMovY/divisorY)*/))
+                        + Math.cos((angulo_robo + 180) / 180 * Math.PI) *   (-gamepad2.left_stick_y/*+ (ErroMovY/divisorX)*/));
 
             }
 
