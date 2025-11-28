@@ -678,8 +678,6 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
             rotate = -360;
         }
 
-        // if (gamepad2.triangle && !goal_ap) angulo_desejado = alpha;
-
 
         double corr_1 = angulo_robo - angulo_desejado;
         double corr_2 = angulo_desejado + rotate - angulo_robo;
