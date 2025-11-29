@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Autos;
+package org.firstinspires.ftc.teamcode.OpModes.Autos;
 
 import androidx.annotation.NonNull;
 
@@ -20,7 +20,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

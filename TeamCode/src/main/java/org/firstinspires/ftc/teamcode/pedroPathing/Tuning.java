@@ -38,13 +38,13 @@ import java.util.List;
 @Config
 @TeleOp
 public class Tuning extends SelectableOpMode {
-    public static Follower follower;
+    static Follower follower;
 
 
     static PoseHistory poseHistory;
 
 
-    static TelemetryManager telemetryM;
+    public static TelemetryManager telemetryM;
 
 
     static ArrayList<String> changes = new ArrayList<>();

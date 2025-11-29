@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Autos;
+package org.firstinspires.ftc.teamcode.OpModes.Autos;
 
 import androidx.annotation.NonNull;
 
@@ -30,7 +30,7 @@ import java.util.List;
 @Autonomous
 
 
-public class Autonomo__AZUL extends Rotas {
+public class Autonomo__VERMELHO extends Rotas {
     private static final Canvas DEFAULT_FIELD = new Canvas();
     public  class PIDs implements Action {
 
@@ -77,7 +77,7 @@ public class Autonomo__AZUL extends Rotas {
             if ( power_correction > 1) power_correction = 1;
             else if (power_correction < 0) power_correction = 0;
 
-if(erro < 0) power_correction = 0;
+            if(erro < 0) power_correction = 0;
             if (velocidade_desejada == 0 ) Atirador_1.setPower(0);
             else Atirador_1.setPower( power_correction );
 
@@ -139,24 +139,24 @@ if(erro < 0) power_correction = 0;
                     tx_offset = fr.getTargetXPixels();
                     if (tx_offset != 0){
 
-                        if (tx_offset < 1190 + Compen_tx) {
-                            leftBack.setPower(-0.154 + Compen_vl);
-                            leftFront.setPower(-0.154 + Compen_vl);
-                            rightBack.setPower(0.154 - Compen_vl);
-                            rightFront.setPower(0.154 - Compen_vl);
+                    if (tx_offset < 1190 + Compen_tx) {
+                        leftBack.setPower(-0.154 + Compen_vl);
+                        leftFront.setPower(-0.154 + Compen_vl);
+                        rightBack.setPower(0.154 - Compen_vl);
+                        rightFront.setPower(0.154 - Compen_vl);
 
-                        } else if (tx_offset > 1390+ Compen_tx) {
-                            leftBack.setPower(0.154 - Compen_vl);
-                            leftFront.setPower(0.154 - Compen_vl);
-                            rightBack.setPower(-0.154 + Compen_vl);
-                            rightFront.setPower(-0.154 + Compen_vl);
-                        } else {
-                            leftBack.setPower(0);
-                            leftFront.setPower(0);
-                            rightBack.setPower(0);
-                            rightFront.setPower(0);
-                        }
-                    }else {
+                    } else if (tx_offset > 1390+ Compen_tx) {
+                        leftBack.setPower(0.154 - Compen_vl);
+                        leftFront.setPower(0.154 - Compen_vl);
+                        rightBack.setPower(-0.154 + Compen_vl);
+                        rightFront.setPower(-0.154 + Compen_vl);
+                    } else {
+                        leftBack.setPower(0);
+                        leftFront.setPower(0);
+                        rightBack.setPower(0);
+                        rightFront.setPower(0);
+                    }
+                }else {
                         leftBack.setPower(0);
                         leftFront.setPower(0);
                         rightBack.setPower(0);
@@ -165,7 +165,8 @@ if(erro < 0) power_correction = 0;
                 }
 
             }
-                return PIDs_state;
+
+            return PIDs_state;
         }
     }
 
@@ -227,6 +228,7 @@ if(erro < 0) power_correction = 0;
         LED_S_B.setMode(DigitalChannel.Mode.OUTPUT);
 
 
+
         leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -261,7 +263,7 @@ if(erro < 0) power_correction = 0;
         Indexer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
-        timer_shooter = new ElapsedTime();
+        timer_shooter   = new ElapsedTime();
         deltaTime = new ElapsedTime();
 
         timer_shooter.reset();
@@ -271,10 +273,10 @@ if(erro < 0) power_correction = 0;
         limelight.pipelineSwitch(5);
         //--------Calcula Rotas e parametriza drivetrain---------------------
 
-        if (!Auto1.getState())      Rotas_APequeno_Perto();
-        else if (!Auto2.getState()) Rotas_APequeno_Longe();
-        else if (!Auto3.getState()) Rotas_AGrande_Fora();
-        else if (!Auto4.getState()) Rotas_AGrande_6();
+            if (!Auto1.getState()) Rotas_VPequeno_Perto();
+            else if (!Auto2.getState()) Rotas_VPequeno_Longe();
+            else if (!Auto3.getState()) Rotas_VGrande_Fora();
+            else if (!Auto4.getState()) Rotas_VGrande_6();
 
         //------------------------------------------
         //Leitura de AP
@@ -301,10 +303,10 @@ if(erro < 0) power_correction = 0;
         telemetry.addData("AZUL", Alliance_B.getState());
         telemetry.addData("vermelho", Alliance_R.getState());
 
-        if (!Auto1.getState()) telemetry.addLine("AUTO 1 ");
-        else if (!Auto2.getState()) telemetry.addLine("AUTO 2");
-        else if (!Auto3.getState()) telemetry.addLine("AUTO 3");
-        else if (!Auto4.getState()) telemetry.addLine("AUTO 4");
+        if(!Auto1.getState())telemetry.addLine("AUTO 1 ");
+        else if(!Auto2.getState())telemetry.addLine("AUTO 2");
+        else if(!Auto3.getState())telemetry.addLine("AUTO 3");
+        else if(!Auto4.getState())telemetry.addLine("AUTO 4");
 
         telemetry.update();
 
@@ -317,18 +319,21 @@ if(erro < 0) power_correction = 0;
         Led_3_R.on();
         Led_3_V.off();
 
+            if (!Auto1.getState()) Auto_VPequeno_Perto();
+            else if (!Auto2.getState()) Auto_VPequeno_Longe();
+            else if (!Auto3.getState()) Auto_VGrande_Fora();
+            else if (!Auto4.getState()) Auto_VGrande_Dentro();
 
-        if (!Auto1.getState()) Auto_APequeno_Perto();
-        else if (!Auto2.getState()) Auto_APequeno_Longe();
-        else if (!Auto3.getState()) Auto_AGrande_Fora();
-        else if (!Auto4.getState()) Auto_AGrande_Dentro();
     }
 
-    public void Auto_APequeno_Perto() {
+
+
+    public void Auto_VPequeno_Perto() {
         Compen_at = 0;
         Compen_tx = 0;
         Compen_vl = 0;
         PIDs_state = false;
+
 
 
         Actions.runBlocking(rota1);
@@ -435,11 +440,12 @@ if(erro < 0) power_correction = 0;
         Led_2_V.off();
         Led_3_R.off();
         Led_3_V.off();
+
     }
 
-    public void Auto_APequeno_Longe() {
+    public void Auto_VPequeno_Longe() {
         Compen_at = 150;
-        Compen_tx = 125;
+        Compen_tx = -125;
         Compen_vl = 0.011;
         PIDs_state = false;
         //Leitura de AP
@@ -541,15 +547,13 @@ if(erro < 0) power_correction = 0;
         Led_3_R.off();
         Led_3_V.off();
 
-
     }
 
-    public void Auto_AGrande_Fora() {
+    public void Auto_VGrande_Fora() {
         Compen_at = -30;
-        Compen_tx = -230;
+        Compen_tx = 230;
         Compen_vl = 0;
         PIDs_state = false;
-
 
         Actions.runBlocking(rota1);
         //Leitura de AP
@@ -577,8 +581,6 @@ if(erro < 0) power_correction = 0;
         limelight.start();
         limelight.pipelineSwitch(5);
 
-        Compen_at = -49;
-
         PIDs_state = true;
         Actions.runBlocking(new ParallelAction(rota3, new PIDs()));
 
@@ -605,7 +607,7 @@ if(erro < 0) power_correction = 0;
         Led_3_V.off();
         Actions.runBlocking(rota6);
         Intake.setPower(0);
-        Compen_at = -30;
+
         velocidade_desejada = 1150;
         limelight.start();
         limelight.pipelineSwitch(5);
@@ -653,14 +655,15 @@ if(erro < 0) power_correction = 0;
         Led_3_R.off();
         Led_3_V.off();
 
+
+
     }
 
-    public void Auto_AGrande_Dentro() {
+    public void Auto_VGrande_Dentro() {
         Compen_at = -30;
-        Compen_tx = -230;
+        Compen_tx = 230;
         Compen_vl = 0;
         PIDs_state = false;
-
 
         Actions.runBlocking(rota1);
         //Leitura de AP
@@ -736,9 +739,9 @@ if(erro < 0) power_correction = 0;
         PIDs_state = false;
 
 
+
+
     }
-
-
 
 
 
