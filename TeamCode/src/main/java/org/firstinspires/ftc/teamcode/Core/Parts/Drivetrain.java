@@ -28,6 +28,7 @@ import java.util.function.Supplier;
 public class Drivetrain implements InterfaceSimple {
     double rotation;
     double lastheading,atualheading;
+    public double headingError;
 
     public void StartFollower(Follower follower, Pose startingPose, HardwareMap hardwareMap){
         follower = Constants.createFollower(hardwareMap);
@@ -39,9 +40,9 @@ public class Drivetrain implements InterfaceSimple {
 
     }
 
-  public void Drive(Gamepad gamepad, Follower follower, boolean ManualAngle, double angulo_desejado){
+  public void Drive(Gamepad gamepad, Follower follower, boolean ManualAngle, double angulo_desejado, double corr_ang){
 
-      rotation = (gamepad.left_trigger - gamepad.right_trigger);
+      rotation = (gamepad.left_trigger - gamepad.right_trigger) + corr_ang;
       follower.setTeleOpDrive(gamepad.left_stick_y, gamepad.left_stick_x, rotation*0.5, false);
 
       if(rotation != 0) lastheading = Math.toDegrees(follower.getHeading());
@@ -62,9 +63,8 @@ public class Drivetrain implements InterfaceSimple {
 
       double corr_1 = atualheading - angulo_desejado;
       double corr_2 = angulo_desejado + rotate - atualheading;
-      double correcaoP;
-      if (Math.abs(corr_1) > Math.abs(corr_2)) correcaoP = -corr_2;
-      else correcaoP = corr_1;
+      if (Math.abs(corr_1) > Math.abs(corr_2)) headingError = -corr_2;
+      else headingError = corr_1;
 
 
       follower.update();

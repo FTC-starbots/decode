@@ -48,7 +48,7 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
 
     private RevBlinkinLedDriver Led_Strip;
 
-    private VoltageSensor myControlHubVoltageSensor;
+
     int posicao_desejada_indexer = 0, reservatorio = 1,lastreservatorio = 0, reservatorio_1, reservatorio_2, reservatorio_3;
 
     double controle_rotacao, Speed, angulo_desejado, angulo_robo, vectorX, vectorY, correcao_angular, velocidade_desejada = 0, kf_atirar,kp_atirar, alpha, kp_ap, ki_ap;
@@ -243,7 +243,6 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
             YInicial  = 40;
         }
 
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(XInicial, YInicial, Math.toRadians(180)));
 
 
         limelight.start();
@@ -293,7 +292,6 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
 
 
                                         atualizar_limelight = true;
-                                        if (!Manual) drive = new MecanumDrive(hardwareMap, new Pose2d(limelight_posX, limelight_posY, Math.toRadians(angulo_robo)));
 
                                     } else {
                                         TxOffset = 0;
@@ -307,8 +305,6 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
                             }
                         }
                     //Sistema de posição-----------------------------------------------------------------------------
-                    drive.updatePoseEstimate();
-                    pose_atual = drive.localizer.getPose();
 
                     //Controle da posição atual----------------------------------------------------------------------
 
@@ -361,8 +357,6 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
 
                                 last_pose_X = pose_atual.position.x;
                                 last_pose_Y = pose_atual.position.y;
-                                if (!Manual)
-                                    drive = new MecanumDrive(hardwareMap, new Pose2d(pose_atual.position.x, pose_atual.position.y, Math.toRadians(180)));
                             }
 
                         }
