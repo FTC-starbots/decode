@@ -4,6 +4,8 @@ package org.firstinspires.ftc.teamcode.OpModes.TeleOp;
 
 import static org.firstinspires.ftc.teamcode.Core.Algorithms.PIDFOController.pidSystem.CorAng;
 
+
+import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.control.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.bylazar.configurables.annotations.Configurable;
@@ -21,21 +23,30 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.PIDFOController;
 import org.firstinspires.ftc.teamcode.Core.Parts.Drivetrain;
 import org.firstinspires.ftc.teamcode.Core.Robot;
+import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
+
 
 import java.time.temporal.Temporal;
 import java.util.function.Supplier;
-
+@TeleOp
 public class TeleOperado extends OpMode{
 
-    Pose startingPose = new Pose(0,0,0);
+    Pose startingPose = new Pose(105.19626168224299,32.971962616822424, Math.toRadians(90));
     Follower followerteleop;
-    Drivetrain drivetrain;
-    Robot robot;
-     TelemetryManager telemetryM;
-     PIDFOController PID;
+
+    Robot robot = new Robot();
+
+    Drivetrain drivetrain = robot.drivetrain;
+    TelemetryManager telemetryM;
+
+
 
      ElapsedTime Ciclo;
 
@@ -43,38 +54,52 @@ public class TeleOperado extends OpMode{
 
     double CorrAng;
 
+    double volts;
+
     public  VoltageSensor myControlHubVoltageSensor;
 
      HardwareMap hardwareMapteleop;
 
 
+
+
     @Override
     public void init() {
-        drivetrain.StartFollower(followerteleop,startingPose,hardwareMapteleop);
+        myControlHubVoltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
+
+        followerteleop = Constants.createFollower(hardwareMap);
+        followerteleop.setStartingPose(startingPose);
+        followerteleop.update();
+        telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
+
+        followerteleop.startTeleopDrive();
     }
 
 
     public void start(){
         Ciclo = new ElapsedTime();
         Ciclo.reset();
+        followerteleop.activateHeading();
     }
 
     @Override
     public void loop() {
         Ciclo.reset();
 
-        CorrAng = PID.PIDF(CorAng,drivetrain.headingError,
-            0.014 ,0.4, 1.3, 0.15,-0.5,0.5,
-            PID.integral_CorAng,PID.lastheading_CorAng,
-            tempoCiclo,myControlHubVoltageSensor);
-
-
-        drivetrain.Drive(gamepad1, followerteleop, false, 0, CorrAng);
+        drivetrain.Drive(gamepad1, followerteleop, false);
 
         robot.update();
-
+        telemetry();
         tempoCiclo = Ciclo.milliseconds();
     }
 
+public void telemetry(){
+    telemetry.addData("Heading error", followerteleop.getHeadingError());
+        telemetry.addData("Heading Vector", followerteleop.getTeleopHeadingVector());
+    telemetry.addLine();
+    telemetry.addData("a", followerteleop.getVectorCalculator().getTeleopHeadingVector());
 
+    telemetry.update();
+
+}
 }

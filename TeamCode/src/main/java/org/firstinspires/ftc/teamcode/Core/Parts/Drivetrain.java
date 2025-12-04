@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode.Core.Parts;
 
-import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.telemetryM;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.pedropathing.control.PIDFCoefficients;
+import com.pedropathing.control.PIDFController;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
@@ -19,7 +20,7 @@ import org.firstinspires.ftc.teamcode.Core.Hardware.InterfaceSimple;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
@@ -27,47 +28,43 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import java.util.function.Supplier;
 public class Drivetrain implements InterfaceSimple {
     double rotation;
-    double lastheading,atualheading;
-    public double headingError;
+    public double lastheading = 0,atualheading = 0;
+    public double headingError ;
 
-    public void StartFollower(Follower follower, Pose startingPose, HardwareMap hardwareMap){
-        follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(startingPose == null ? new Pose() : startingPose);
-        follower.update();
-        telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
+    ElapsedTime timer = new ElapsedTime();
 
-        follower.startTeleopDrive();
 
-    }
+    PIDFController controllerHeading = new PIDFController(new PIDFCoefficients(2, 0, 0.01, 0));
 
-  public void Drive(Gamepad gamepad, Follower follower, boolean ManualAngle, double angulo_desejado, double corr_ang){
+    double targetHeading = Math.toRadians(90);
+    boolean headingLock;
+  public void Drive(Gamepad gamepad, Follower followerdrive, boolean ManualAngle){
 
-      rotation = (gamepad.left_trigger - gamepad.right_trigger) + corr_ang;
-      follower.setTeleOpDrive(gamepad.left_stick_y, gamepad.left_stick_x, rotation*0.5, false);
+      rotation = (gamepad.left_trigger - gamepad.right_trigger);
 
-      if(rotation != 0) lastheading = Math.toDegrees(follower.getHeading());
-      atualheading = Math.toDegrees(follower.getHeading()) % 360;
-      if (atualheading < 0) atualheading += 360;
+      double error = targetHeading - followerdrive.getHeading();
+      if(error > Math.toRadians(15)) controllerHeading.setCoefficients(new PIDFCoefficients(2, 0, 0.01, 0));
+      else controllerHeading.setCoefficients(new PIDFCoefficients(1, 0, 0.01, 0));
 
-      int rotate;
+      controllerHeading.updateError(error);
 
-      if (atualheading >= 0) {
-          rotate = 360;
-      } else {
-          rotate = -360;
+      if(gamepad.left_trigger > 0 || gamepad.right_trigger > 0){
+          headingLock = false;
+          targetHeading = followerdrive.getHeading();
+          timer.reset();
+      }else {
+          if (timer.seconds()> 0.6) headingLock = true;
+          else targetHeading = followerdrive.getHeading();
       }
 
-      if (!ManualAngle) {
-          if (gamepad.left_trigger > 0 || gamepad.right_trigger > 0) angulo_desejado = atualheading;
-      }
 
-      double corr_1 = atualheading - angulo_desejado;
-      double corr_2 = angulo_desejado + rotate - atualheading;
-      if (Math.abs(corr_1) > Math.abs(corr_2)) headingError = -corr_2;
-      else headingError = corr_1;
+      if (headingLock) followerdrive.setTeleOpDrive(gamepad.left_stick_y, gamepad.left_stick_x, controllerHeading.run(), false);
+      else followerdrive.setTeleOpDrive(gamepad.left_stick_y, gamepad.left_stick_x, rotation*0.5, false);
 
 
-      follower.update();
+
+
+      followerdrive.update();
 
   }
 
@@ -76,8 +73,6 @@ public class Drivetrain implements InterfaceSimple {
     @Override
     public void update(){
 
-
-        telemetryM.update();
 
 
     }

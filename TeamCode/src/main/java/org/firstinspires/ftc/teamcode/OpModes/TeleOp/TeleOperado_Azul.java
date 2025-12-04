@@ -74,7 +74,7 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
 
 
 
-    Pose2d pose_atual;
+
     double distLime, Velin0 = 0;
 
     double CorrTx,TxOffset, ErroMovX, ErroMovY, limelight_posX, limelight_posY, limelight_yaw, last_pose_X, last_pose_Y, goal_X, goal_Y = 55.630, Ai_shoot = 0, hip;
@@ -309,32 +309,7 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
                     //Controle da posição atual----------------------------------------------------------------------
 
                     {
-                        if (gamepad_1) {
-                            if (Math.abs(gamepad1.left_stick_x) > 0.085 || Math.abs(gamepad1.left_stick_y) > 0.085) {
-                                last_pose_X = pose_atual.position.x;
-                                last_pose_Y = pose_atual.position.y;
-                                Movimento_robo = true;
-                            } else {
-                                Movimento_robo = false;
-                            }
-                        } else {
-                            if (Math.abs(gamepad2.left_stick_x) > 0.085 || Math.abs(gamepad2.left_stick_y) > 0.085) {
-                                last_pose_X = pose_atual.position.x;
-                                last_pose_Y = pose_atual.position.y;
-                                Movimento_robo = true;
-                            } else {
-                                Movimento_robo = false;
-                            }
 
-                        }
-
-                        if (Movimento_robo == false) {
-                            ErroMovX = pose_atual.position.x - last_pose_X;
-                            ErroMovY = pose_atual.position.y - last_pose_Y;
-                        } else {
-                            ErroMovX = 0;
-                            ErroMovY = 0;
-                        }
                     }
                     //Funções principais ------------------------------------------------------
                     Base_Motriz();
@@ -344,33 +319,6 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
 
                     {
                         if (gamepad_1) {
-                            if (gamepad1.options) {
-
-                                last_pose_X = pose_atual.position.x;
-                                last_pose_Y = pose_atual.position.y;
-                                //if (!Manual)
-                                    //drive = new MecanumDrive(hardwareMap, new Pose2d(pose_atual.position.x, pose_atual.position.y, Math.toRadians(180)));
-
-                            }
-                        } else {
-                            if (gamepad2.options) {
-
-                                last_pose_X = pose_atual.position.x;
-                                last_pose_Y = pose_atual.position.y;
-                            }
-
-                        }
-                    }
-
-                    //Cálculo de alinhamento com o alvo----------------------------------------------------------------
-
-                    {
-                        double cateto_a = goal_X - pose_atual.position.x;
-                        double cateto_b = goal_Y - pose_atual.position.y;
-                        hip = Math.sqrt(Math.pow(cateto_a, 2) + Math.pow(cateto_b, 2));
-
-                        alpha = Math.toDegrees(Math.atan2(-cateto_b, cateto_a));
-                    }
 
                     //Velocidade do Atirador---------------------------------------------------------------------------
 
@@ -397,31 +345,7 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
                                 CorrTx = 0;
                                 velocidade_desejada = 0;
                             }
-                    }else {
-                        if (pose_atual.position.y >= Math.abs(pose_atual.position.x) || (pose_atual.position.y <= -Math.abs(pose_atual.position.x) - 40)){
-                            areapermitida = true;
-                        if (gamepad2.triangle) {
-                            limelight.start();
-                            limelight.pipelineSwitch(5);
-                            Iniciar_atirador = true;
-                            gamepad_1 = false;
-                            if (!Manual) velocidade_desejada = 695 + 6.1 * hip;
-                            else velocidade_desejada = 1120;
-                        } else if (gamepad2.square) {
-                            limelight.start();
-                            limelight.pipelineSwitch(5);
-
-                            Iniciar_atirador = true;
-                            velocidade_desejada = 1050;
-                        } else {
-                            limelight.stop();
-                            Iniciar_atirador = false;
-                            kf_atirar = 0;
-                            kp_atirar = 0;
-                            CorrTx = 0;
-                            velocidade_desejada = 0;
-                        }
-                    }
+                    }}
                 }
 
 

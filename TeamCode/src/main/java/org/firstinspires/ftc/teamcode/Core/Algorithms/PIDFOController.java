@@ -15,9 +15,9 @@ public class PIDFOController {
 
     }
 
-    public double PIDF(pidSystem sistema,double erro, double kp, double ki, double kd, double kf, double min, double max, double integral, double lasterror, double cicle_time, VoltageSensor voltagem){
+    public double PIDF(pidSystem sistema,double erro, double kp, double ki, double kd, double kf, double min, double max, double integral, double lasterror, double cicle_time, double voltagem){
 
-        double BatVoltage = voltagem.getVoltage();
+        double BatVoltage = voltagem;
         double feedfoward = 1 + (kf * (12.5-BatVoltage));
         double integrativo = ki * (erro * cicle_time);
         double derivativo = kd * ((erro - lasterror) / cicle_time);
