@@ -4,7 +4,7 @@ package org.firstinspires.ftc.teamcode.OpModes.TeleOp;
 
 import static org.firstinspires.ftc.teamcode.Core.Algorithms.PIDFOController.pidSystem.CorAng;
 
-
+import org.firstinspires.ftc.teamcode.Core.Parts.Intake;
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.control.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -26,6 +26,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.PIDFOController;
 import org.firstinspires.ftc.teamcode.Core.Parts.Drivetrain;
+import org.firstinspires.ftc.teamcode.Core.Parts.Intake;
+import org.firstinspires.ftc.teamcode.Core.Parts.Shooter;
 import org.firstinspires.ftc.teamcode.Core.Robot;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
@@ -58,7 +60,9 @@ public class TeleOperado extends OpMode{
 
     public  VoltageSensor myControlHubVoltageSensor;
 
-     HardwareMap hardwareMapteleop;
+     Shooter Shooter = robot.shooter;
+
+     Intake Intake = new Intake();
 
 
 
@@ -73,18 +77,28 @@ public class TeleOperado extends OpMode{
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
         followerteleop.startTeleopDrive();
+
+        Intake.start(hardwareMap);
+        Shooter.start(hardwareMap);
+
+
     }
 
 
     public void start(){
         Ciclo = new ElapsedTime();
         Ciclo.reset();
-        followerteleop.activateHeading();
+        Shooter.setCoefficients(0.003,0.0000001,0.003,0.05);
+
     }
 
     @Override
     public void loop() {
         Ciclo.reset();
+
+        Shooter.teleop(gamepad1);
+
+        Intake.teleop(gamepad1);
 
         drivetrain.Drive(gamepad1, followerteleop, false);
 

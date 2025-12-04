@@ -317,8 +317,10 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
                     Shooting_Vel();
                     //Reset robô----------------------------------------------------------------------------------------
 
+                    Iniciar_atirador = true;
+
                     {
-                        if (gamepad_1) {
+
 
                     //Velocidade do Atirador---------------------------------------------------------------------------
 
@@ -335,7 +337,7 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
                                 limelight.pipelineSwitch(5);
 
                                 Iniciar_atirador = true;
-                                velocidade_desejada = 1050;
+                                velocidade_desejada = 1320;
                             } else {
                                 limelight.stop();
 
@@ -346,7 +348,7 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
                                 velocidade_desejada = 0;
                             }
                     }}
-                }
+
 
 
 //----------------Intake-------------------------------------------------------------------------------------------
@@ -551,7 +553,6 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
 
 
         {
-            angulo_robo = Math.toDegrees(Math.atan2(pose_atual.heading.imag, pose_atual.heading.real));
 
             double divisorX = 5 + 10 * Math.max(0, 1.0 - (Math.abs(ErroMovX) / 4.0));
             double divisorY = 5 + 10 * Math.max(0, 1.0 - (Math.abs(ErroMovY) / 4.0));
@@ -607,8 +608,6 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
         if (RotacaoRobo.seconds() < 1) {
             correcao_angular = 0;
             angulo_desejado = angulo_robo;
-            last_pose_X = pose_atual.position.x;
-            last_pose_Y = pose_atual.position.y;
         } else {
             if (!Manual) {
                 if (!gamepad2.triangle && !goal_ap){
@@ -962,8 +961,7 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
             telemetry.addData("", "");
 
             // telemetry.addData("Posição", pose);
-            telemetry.addData("x", pose_atual.position.x);
-            telemetry.addData("y", pose_atual.position.y);
+
 
             telemetry.addData("lastx", last_pose_X);
             telemetry.addData("lasty", last_pose_Y);

@@ -38,6 +38,7 @@ public class Drivetrain implements InterfaceSimple {
 
     double targetHeading = Math.toRadians(90);
     boolean headingLock;
+
   public void Drive(Gamepad gamepad, Follower followerdrive, boolean ManualAngle){
 
       rotation = (gamepad.left_trigger - gamepad.right_trigger);
@@ -59,7 +60,7 @@ public class Drivetrain implements InterfaceSimple {
 
 
       if (headingLock) followerdrive.setTeleOpDrive(gamepad.left_stick_y, gamepad.left_stick_x, controllerHeading.run(), false);
-      else followerdrive.setTeleOpDrive(gamepad.left_stick_y, gamepad.left_stick_x, rotation*0.5, false);
+      else followerdrive.setTeleOpDrive(gamepad.left_stick_y * 1.2, gamepad.left_stick_x * 1.2, rotation * 0.7, false);
 
 
 
