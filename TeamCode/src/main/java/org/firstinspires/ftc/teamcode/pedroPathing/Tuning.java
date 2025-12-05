@@ -44,7 +44,7 @@ public class Tuning extends SelectableOpMode {
     static PoseHistory poseHistory;
 
 
-    public static TelemetryManager telemetryM;
+    static TelemetryManager telemetryM;
 
 
     static ArrayList<String> changes = new ArrayList<>();

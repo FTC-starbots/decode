@@ -151,7 +151,7 @@ public class Autonomo_VermelhoGRANDE extends LinearOpMode {
     private Action rota8;
     private Action rota9;
 
-    MecanumDrive drive;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -214,7 +214,7 @@ public class Autonomo_VermelhoGRANDE extends LinearOpMode {
         limelight.start();
         limelight.pipelineSwitch(5);
         //--------Calcula Rotas e parametriza drivetrain---------------------
-        Rotas();
+
         //------------------------------------------
         waitForStart();
         PIDs_state = false;
@@ -264,138 +264,7 @@ public class Autonomo_VermelhoGRANDE extends LinearOpMode {
 
     }
 
-    public void Rotas() {
 
-        MecanumDrive.PARAMS.axialGain = 7.5;
-        MecanumDrive.PARAMS.lateralGain = 40;
-        MecanumDrive.PARAMS.headingGain = 36;
-        MecanumDrive.PARAMS.maxWheelVel = 50;
-
-
-        drive = new MecanumDrive(hardwareMap, new Pose2d(-40, -55,
-                Math.toRadians(90)));
-
-        rota1 = drive.actionBuilder(new Pose2d(-40, -55, Math.toRadians(90)))
-
-                .strafeToLinearHeading(new Vector2d(-10, -40),Math.toRadians(85))
-
-                .waitSeconds(0.5)
-
-                .afterTime(0, ()->{
-                    PIDs_state = false;
-                })
-                .build();
-
-        rota2 = drive.actionBuilder(new Pose2d(-10, -40, Math.toRadians(95)))
-
-                .turnTo( Math.toRadians(17))
-
-                .afterTime(0, ()->{
-                    PIDs_state = false;
-                })
-
-                .build();
-
-        rota3 = drive.actionBuilder(new Pose2d(-10, -40, Math.toRadians(17)))
-                .afterTime(0, ()->{
-                    velocidade_desejada = 1280;
-
-                })
-
-                .afterTime(0, ()->{
-                    if (id_ap == 21) posicao_desejada_indexer = 0;
-                    if (id_ap == 22) posicao_desejada_indexer = 218;
-                    if (id_ap == 23) posicao_desejada_indexer = 218;
-
-                })
-
-                .waitSeconds(3.4)
-
-                .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_1.setPosition(1);
-                    if (id_ap == 22) Reservoir_2.setPosition(1);
-                    if (id_ap == 23) Reservoir_2.setPosition(1);
-
-                    PIDs_state = true;
-                })
-
-                .waitSeconds(1.5)
-
-                .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_1.setPosition(0);
-                    if (id_ap == 22) Reservoir_2.setPosition(0);
-                    if (id_ap == 23) Reservoir_2.setPosition(0);
-                })
-
-                .waitSeconds(1.2)
-
-                .afterTime(0, ()->{
-                    if (id_ap == 21) posicao_desejada_indexer = 218;
-                    if (id_ap == 22) posicao_desejada_indexer = 0;
-                    if (id_ap == 23) posicao_desejada_indexer = 440;
-
-                })
-
-                .waitSeconds(2)
-
-                .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_2.setPosition(1);
-                    if (id_ap == 22) Reservoir_1.setPosition(1);
-                    if (id_ap == 23) Reservoir_3.setPosition(1);
-
-                    PIDs_state = true;
-                })
-
-                .waitSeconds(1.2)
-
-                .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_2.setPosition(0);
-                    if (id_ap == 22) Reservoir_1.setPosition(0);
-                    if (id_ap == 23) Reservoir_3.setPosition(0);
-                    velocidade_desejada = 1292;
-
-                })
-
-                .waitSeconds(1.2)
-
-                .afterTime(0, ()->{
-                    if (id_ap == 21) posicao_desejada_indexer = 440;
-                    if (id_ap == 22) posicao_desejada_indexer = 440;
-                    if (id_ap == 23) posicao_desejada_indexer = 0;
-
-                })
-
-                .waitSeconds(2.2)
-
-                .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_3.setPosition(1);
-                    if (id_ap == 22) Reservoir_3.setPosition(1);
-                    if (id_ap == 23) Reservoir_1.setPosition(1);
-
-                    PIDs_state = true;
-                })
-
-                .waitSeconds(1.2)
-
-                .afterTime(0, ()->{
-                    if (id_ap == 21) Reservoir_3.setPosition(0);
-                    if (id_ap == 22) Reservoir_3.setPosition(0);
-                    if (id_ap == 23) Reservoir_1.setPosition(0);
-                    posicao_desejada_indexer = 0;
-                })
-
-                .waitSeconds(2)
-
-                .turnTo(Math.toRadians(180))
-
-                .afterTime(0, ()->{
-                    PIDs_state = false;
-                })
-
-                .build();
-
-
-    }
 
     public double PiDF_Ind(double erro, double kp, double ki, double kd, double kf, double min, double max){
 

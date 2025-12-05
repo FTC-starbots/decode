@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode.Core.Algorithms;
 
-public class PIDFController {
+public interface InterfaceSimple {
 
-    public double PIDF(){}
-
-
+    public void update();
 
 }

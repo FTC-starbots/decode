@@ -2,6 +2,13 @@ package org.firstinspires.ftc.teamcode.OpModes.TeleOp;
 
 
 
+import static org.firstinspires.ftc.teamcode.Core.Algorithms.PIDFOController.pidSystem.CorAng;
+
+import org.firstinspires.ftc.teamcode.Core.Hardware.AprilTag;
+import org.firstinspires.ftc.teamcode.Core.Hardware.Reservoirs;
+import org.firstinspires.ftc.teamcode.Core.Parts.Intake;
+import com.pedropathing.control.PIDFCoefficients;
+import com.pedropathing.control.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
@@ -15,34 +22,107 @@ import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Core.Algorithms.PIDFOController;
 import org.firstinspires.ftc.teamcode.Core.Parts.Drivetrain;
+import org.firstinspires.ftc.teamcode.Core.Parts.Intake;
+import org.firstinspires.ftc.teamcode.Core.Parts.Shooter;
 import org.firstinspires.ftc.teamcode.Core.Robot;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import org.firstinspires.ftc.teamcode.Core.Robot;
+import org.firstinspires.ftc.teamcode.Core.Hardware.Reservoirs.ReservoirsState;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+
+
+import java.time.temporal.Temporal;
 import java.util.function.Supplier;
-
+@TeleOp
 public class TeleOperado extends OpMode{
 
-    Pose startingPose = new Pose(0,0,0);
+    Pose startingPose = new Pose(105.19626168224299,32.971962616822424, Math.toRadians(90));
     Follower followerteleop;
-    Drivetrain drivetrain;
-    Robot robot;
-     TelemetryManager telemetryM;
 
-     HardwareMap hardwareMapteleop;
+    Robot robot = new Robot();
+
+    Drivetrain drivetrain = robot.drivetrain;
+    TelemetryManager telemetryM;
+
+
+
+     ElapsedTime Ciclo;
+
+     double tempoCiclo;
+
+    double CorrAng;
+
+    double volts;
+
+    public  VoltageSensor myControlHubVoltageSensor;
+
+     Shooter Shooter = robot.shooter;
+
+     Intake Intake = new Intake();
+
+     AprilTag AprilTag = new AprilTag();
+
+
+
 
 
     @Override
     public void init() {
-        drivetrain.StartFollower(followerteleop,startingPose,hardwareMapteleop);
+        myControlHubVoltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
+
+        followerteleop = Constants.createFollower(hardwareMap);
+        followerteleop.setStartingPose(startingPose);
+        followerteleop.update();
+        telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
+
+        followerteleop.startTeleopDrive();
+
+        Intake.start(hardwareMap);
+        Shooter.start(hardwareMap);
+
+
+
+    }
+
+
+    public void start(){
+        Ciclo = new ElapsedTime();
+        Ciclo.reset();
+        Shooter.setCoefficients(0.003,0.0000001,0.003,0.05);
+        AprilTag.initAprilTag();
     }
 
     @Override
     public void loop() {
+        AprilTag.AprilTagLocalization();
 
-    drivetrain.Drive(gamepad1, followerteleop, false, 0);
-    robot.update();
+
+        Ciclo.reset();
+
+        Shooter.teleop(gamepad1);
+
+        Intake.teleop(gamepad1);
+
+        drivetrain.Drive(gamepad1, followerteleop, false);
+
+        robot.update();
+        telemetry();
+        tempoCiclo = Ciclo.milliseconds();
     }
+
+public void telemetry(){
+    telemetry.addData("Heading error", followerteleop.getHeadingError());
+        telemetry.addData("Heading Vector", followerteleop.getTeleopHeadingVector());
+    telemetry.addLine();
+    telemetry.addData("a", followerteleop.getVectorCalculator().getTeleopHeadingVector());
+
+    telemetry.update();
+
+}
 }

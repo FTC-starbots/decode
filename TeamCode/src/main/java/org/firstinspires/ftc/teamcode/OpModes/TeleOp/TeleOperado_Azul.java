@@ -48,7 +48,7 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
 
     private RevBlinkinLedDriver Led_Strip;
 
-    private VoltageSensor myControlHubVoltageSensor;
+
     int posicao_desejada_indexer = 0, reservatorio = 1,lastreservatorio = 0, reservatorio_1, reservatorio_2, reservatorio_3;
 
     double controle_rotacao, Speed, angulo_desejado, angulo_robo, vectorX, vectorY, correcao_angular, velocidade_desejada = 0, kf_atirar,kp_atirar, alpha, kp_ap, ki_ap;
@@ -74,7 +74,7 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
 
 
 
-    Pose2d pose_atual;
+
     double distLime, Velin0 = 0;
 
     double CorrTx,TxOffset, ErroMovX, ErroMovY, limelight_posX, limelight_posY, limelight_yaw, last_pose_X, last_pose_Y, goal_X, goal_Y = 55.630, Ai_shoot = 0, hip;
@@ -243,7 +243,6 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
             YInicial  = 40;
         }
 
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(XInicial, YInicial, Math.toRadians(180)));
 
 
         limelight.start();
@@ -293,7 +292,6 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
 
 
                                         atualizar_limelight = true;
-                                        if (!Manual) drive = new MecanumDrive(hardwareMap, new Pose2d(limelight_posX, limelight_posY, Math.toRadians(angulo_robo)));
 
                                     } else {
                                         TxOffset = 0;
@@ -307,38 +305,11 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
                             }
                         }
                     //Sistema de posição-----------------------------------------------------------------------------
-                    drive.updatePoseEstimate();
-                    pose_atual = drive.localizer.getPose();
 
                     //Controle da posição atual----------------------------------------------------------------------
 
                     {
-                        if (gamepad_1) {
-                            if (Math.abs(gamepad1.left_stick_x) > 0.085 || Math.abs(gamepad1.left_stick_y) > 0.085) {
-                                last_pose_X = pose_atual.position.x;
-                                last_pose_Y = pose_atual.position.y;
-                                Movimento_robo = true;
-                            } else {
-                                Movimento_robo = false;
-                            }
-                        } else {
-                            if (Math.abs(gamepad2.left_stick_x) > 0.085 || Math.abs(gamepad2.left_stick_y) > 0.085) {
-                                last_pose_X = pose_atual.position.x;
-                                last_pose_Y = pose_atual.position.y;
-                                Movimento_robo = true;
-                            } else {
-                                Movimento_robo = false;
-                            }
 
-                        }
-
-                        if (Movimento_robo == false) {
-                            ErroMovX = pose_atual.position.x - last_pose_X;
-                            ErroMovY = pose_atual.position.y - last_pose_Y;
-                        } else {
-                            ErroMovX = 0;
-                            ErroMovY = 0;
-                        }
                     }
                     //Funções principais ------------------------------------------------------
                     Base_Motriz();
@@ -346,37 +317,10 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
                     Shooting_Vel();
                     //Reset robô----------------------------------------------------------------------------------------
 
-                    {
-                        if (gamepad_1) {
-                            if (gamepad1.options) {
-
-                                last_pose_X = pose_atual.position.x;
-                                last_pose_Y = pose_atual.position.y;
-                                //if (!Manual)
-                                    //drive = new MecanumDrive(hardwareMap, new Pose2d(pose_atual.position.x, pose_atual.position.y, Math.toRadians(180)));
-
-                            }
-                        } else {
-                            if (gamepad2.options) {
-
-                                last_pose_X = pose_atual.position.x;
-                                last_pose_Y = pose_atual.position.y;
-                                if (!Manual)
-                                    drive = new MecanumDrive(hardwareMap, new Pose2d(pose_atual.position.x, pose_atual.position.y, Math.toRadians(180)));
-                            }
-
-                        }
-                    }
-
-                    //Cálculo de alinhamento com o alvo----------------------------------------------------------------
+                    Iniciar_atirador = true;
 
                     {
-                        double cateto_a = goal_X - pose_atual.position.x;
-                        double cateto_b = goal_Y - pose_atual.position.y;
-                        hip = Math.sqrt(Math.pow(cateto_a, 2) + Math.pow(cateto_b, 2));
 
-                        alpha = Math.toDegrees(Math.atan2(-cateto_b, cateto_a));
-                    }
 
                     //Velocidade do Atirador---------------------------------------------------------------------------
 
@@ -393,7 +337,7 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
                                 limelight.pipelineSwitch(5);
 
                                 Iniciar_atirador = true;
-                                velocidade_desejada = 1050;
+                                velocidade_desejada = 1320;
                             } else {
                                 limelight.stop();
 
@@ -403,32 +347,8 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
                                 CorrTx = 0;
                                 velocidade_desejada = 0;
                             }
-                    }else {
-                        if (pose_atual.position.y >= Math.abs(pose_atual.position.x) || (pose_atual.position.y <= -Math.abs(pose_atual.position.x) - 40)){
-                            areapermitida = true;
-                        if (gamepad2.triangle) {
-                            limelight.start();
-                            limelight.pipelineSwitch(5);
-                            Iniciar_atirador = true;
-                            gamepad_1 = false;
-                            if (!Manual) velocidade_desejada = 695 + 6.1 * hip;
-                            else velocidade_desejada = 1120;
-                        } else if (gamepad2.square) {
-                            limelight.start();
-                            limelight.pipelineSwitch(5);
+                    }}
 
-                            Iniciar_atirador = true;
-                            velocidade_desejada = 1050;
-                        } else {
-                            limelight.stop();
-                            Iniciar_atirador = false;
-                            kf_atirar = 0;
-                            kp_atirar = 0;
-                            CorrTx = 0;
-                            velocidade_desejada = 0;
-                        }
-                    }
-                }
 
 
 //----------------Intake-------------------------------------------------------------------------------------------
@@ -633,7 +553,6 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
 
 
         {
-            angulo_robo = Math.toDegrees(Math.atan2(pose_atual.heading.imag, pose_atual.heading.real));
 
             double divisorX = 5 + 10 * Math.max(0, 1.0 - (Math.abs(ErroMovX) / 4.0));
             double divisorY = 5 + 10 * Math.max(0, 1.0 - (Math.abs(ErroMovY) / 4.0));
@@ -689,8 +608,6 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
         if (RotacaoRobo.seconds() < 1) {
             correcao_angular = 0;
             angulo_desejado = angulo_robo;
-            last_pose_X = pose_atual.position.x;
-            last_pose_Y = pose_atual.position.y;
         } else {
             if (!Manual) {
                 if (!gamepad2.triangle && !goal_ap){
@@ -876,8 +793,8 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
     }
 
     private void Shoot_single() {
-        Reservoir_1.setPosition(0);
-        Reservoir_2.setPosition(1);
+        Reservoir_1.setPosition(1);
+        Reservoir_2.setPosition(0);
         Reservoir_3.setPosition(0);
         if (0 < timer_shooter.seconds() && 0.6 >= timer_shooter.seconds()){
             if(reservatorio == 1)  posicao_desejada_indexer= -100;
@@ -1044,8 +961,7 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
             telemetry.addData("", "");
 
             // telemetry.addData("Posição", pose);
-            telemetry.addData("x", pose_atual.position.x);
-            telemetry.addData("y", pose_atual.position.y);
+
 
             telemetry.addData("lastx", last_pose_X);
             telemetry.addData("lasty", last_pose_Y);

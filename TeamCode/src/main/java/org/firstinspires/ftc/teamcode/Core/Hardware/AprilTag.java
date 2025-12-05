@@ -10,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.List;
 
@@ -17,10 +18,11 @@ public class AprilTag extends LinearOpMode {
     double ErroX;
     double ErroY;
     double ErroYaw;
-    double LeituraX;
-    double LeituraY;
-    double LeituraYaw;
-    int NumTagDetec;
+   public double LeituraX;
+    public double LeituraY;
+    public  double LeituraYaw;
+    public double LeituraTx;
+    public int NumTagDetec;
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
 
     private Position cameraPosition = new Position(DistanceUnit.INCH,
@@ -52,6 +54,11 @@ public class AprilTag extends LinearOpMode {
          */
 
     public void AprilTagLocalization() {
+        LeituraX = detection.robotPose.getPosition().x;
+        LeituraY = detection.robotPose.getPosition().y;
+        LeituraYaw = detection.robotPose.getOrientation().getYaw(AngleUnit.DEGREES);
+        LeituraTx= detection.center.x;
+        NumTagDetec = detection.id;
             telemetryAprilTag();
             telemetry.update();
             sleep(20);
@@ -66,9 +73,9 @@ public class AprilTag extends LinearOpMode {
                 //.setDrawAxes(false)
                 //.setDrawCubeProjection(false)
                 //.setDrawTagOutline(true)
-                //.setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
-                //.setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
-                //.setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
+                .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
+                .setTagLibrary(AprilTagGameDatabase.getDecodeTagLibrary())
+                .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
                 .setCameraPose(cameraPosition, cameraOrientation)
 
                 // == CAMERA CALIBRATION ==
@@ -145,13 +152,6 @@ public class AprilTag extends LinearOpMode {
                        LeituraYaw));
 
 
-                ErroX = detection.robotPose.getPosition().x - (-36.5);
-                ErroY = detection.robotPose.getPosition().y - 56.5;
-                ErroYaw = detection.robotPose.getOrientation().getYaw(AngleUnit.DEGREES) - 180;
-                LeituraX = detection.robotPose.getPosition().x;
-                LeituraY = detection.robotPose.getPosition().y;
-                LeituraYaw = detection.robotPose.getOrientation().getYaw(AngleUnit.DEGREES);
-                NumTagDetec = detection.id;
             } else {
                 telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
                 telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));

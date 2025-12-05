@@ -244,7 +244,6 @@ public class Teleop_PIT extends Autonomo_VermelhoGRANDE {
             YInicial  = 40;
         }
 
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, Math.toRadians(180)));
 
 
         limelight.start();
@@ -294,7 +293,6 @@ public class Teleop_PIT extends Autonomo_VermelhoGRANDE {
 
 
                                     atualizar_limelight = true;
-                                    if (!Manual) drive = new MecanumDrive(hardwareMap, new Pose2d(limelight_posX, limelight_posY, Math.toRadians(angulo_robo)));
 
                                 } else {
                                     TxOffset = 0;
@@ -308,8 +306,7 @@ public class Teleop_PIT extends Autonomo_VermelhoGRANDE {
                         }
                     }
                     //Sistema de posição-----------------------------------------------------------------------------
-                    drive.updatePoseEstimate();
-                    pose_atual = drive.localizer.getPose();
+
 
                     //Controle da posição atual----------------------------------------------------------------------
 
@@ -362,8 +359,6 @@ public class Teleop_PIT extends Autonomo_VermelhoGRANDE {
 
                                 last_pose_X = pose_atual.position.x;
                                 last_pose_Y = pose_atual.position.y;
-                                if (!Manual)
-                                    drive = new MecanumDrive(hardwareMap, new Pose2d(pose_atual.position.x, pose_atual.position.y, Math.toRadians(180)));
                             }
 
                         }
