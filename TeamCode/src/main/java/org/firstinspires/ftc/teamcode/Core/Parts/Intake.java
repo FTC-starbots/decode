@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.Core.Hardware.InterfaceSimple;
+import org.firstinspires.ftc.teamcode.Core.Algorithms.InterfaceSimple;
 
 public class Intake implements InterfaceSimple {
    public DcMotorEx Intake;

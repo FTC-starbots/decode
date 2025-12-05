@@ -4,6 +4,8 @@ package org.firstinspires.ftc.teamcode.OpModes.TeleOp;
 
 import static org.firstinspires.ftc.teamcode.Core.Algorithms.PIDFOController.pidSystem.CorAng;
 
+import org.firstinspires.ftc.teamcode.Core.Hardware.AprilTag;
+import org.firstinspires.ftc.teamcode.Core.Hardware.Reservoirs;
 import org.firstinspires.ftc.teamcode.Core.Parts.Intake;
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.control.PIDFController;
@@ -30,7 +32,7 @@ import org.firstinspires.ftc.teamcode.Core.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Core.Parts.Shooter;
 import org.firstinspires.ftc.teamcode.Core.Robot;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-
+import org.firstinspires.ftc.teamcode.Core.Hardware.Reservoirs.ReservoirsState;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 
@@ -64,6 +66,9 @@ public class TeleOperado extends OpMode{
 
      Intake Intake = new Intake();
 
+     AprilTag AprilTag = new AprilTag();
+
+
 
 
 
@@ -82,6 +87,7 @@ public class TeleOperado extends OpMode{
         Shooter.start(hardwareMap);
 
 
+
     }
 
 
@@ -89,11 +95,14 @@ public class TeleOperado extends OpMode{
         Ciclo = new ElapsedTime();
         Ciclo.reset();
         Shooter.setCoefficients(0.003,0.0000001,0.003,0.05);
-
+        AprilTag.initAprilTag();
     }
 
     @Override
     public void loop() {
+        AprilTag.AprilTagLocalization();
+
+
         Ciclo.reset();
 
         Shooter.teleop(gamepad1);

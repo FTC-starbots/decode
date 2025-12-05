@@ -793,8 +793,8 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
     }
 
     private void Shoot_single() {
-        Reservoir_1.setPosition(0);
-        Reservoir_2.setPosition(1);
+        Reservoir_1.setPosition(1);
+        Reservoir_2.setPosition(0);
         Reservoir_3.setPosition(0);
         if (0 < timer_shooter.seconds() && 0.6 >= timer_shooter.seconds()){
             if(reservatorio == 1)  posicao_desejada_indexer= -100;

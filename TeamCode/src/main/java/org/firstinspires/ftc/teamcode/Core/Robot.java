@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.Core;
 
 import org.firstinspires.ftc.teamcode.Core.Algorithms.PIDFOController;
-import org.firstinspires.ftc.teamcode.Core.Hardware.InterfaceSimple;
+import org.firstinspires.ftc.teamcode.Core.Algorithms.InterfaceSimple;
 import org.firstinspires.ftc.teamcode.Core.Parts.Drivetrain;
 import org.firstinspires.ftc.teamcode.Core.Parts.Shooter;
 

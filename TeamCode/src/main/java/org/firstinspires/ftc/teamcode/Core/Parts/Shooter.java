@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.Core.Hardware.InterfaceSimple;
+import org.firstinspires.ftc.teamcode.Core.Algorithms.InterfaceSimple;
 
 public class Shooter implements InterfaceSimple {
     public int velocidade_desejada;
@@ -50,6 +50,7 @@ public class Shooter implements InterfaceSimple {
         double power = controllerHeading.run();
 
         if (power <= 0) power = 0;
+        if (velocidade_desejada == 0) power = 0;
 
         Atirador_1.setPower(power);
         Atirador_2.setPower(-Atirador_1.getPower());
