@@ -1,7 +1,5 @@
-package org.firstinspires.ftc.teamcode.Core.Hardware;
+package org.firstinspires.ftc.teamcode.Core.Parts;
 
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 

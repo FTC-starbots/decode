@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 import java.util.function.Supplier;
 
-@Configurable
+
 @TeleOp
 public class ExampleTeleOp extends OpMode {
     private Follower follower;

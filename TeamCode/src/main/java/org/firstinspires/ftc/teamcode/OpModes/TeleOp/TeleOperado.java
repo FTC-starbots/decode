@@ -2,43 +2,29 @@ package org.firstinspires.ftc.teamcode.OpModes.TeleOp;
 
 
 
-import static org.firstinspires.ftc.teamcode.Core.Algorithms.PIDFOController.pidSystem.CorAng;
 
+
+import org.firstinspires.ftc.teamcode.Core.Algorithms.Launching;
 import org.firstinspires.ftc.teamcode.Core.Hardware.AprilTag;
-import org.firstinspires.ftc.teamcode.Core.Hardware.Reservoirs;
 import org.firstinspires.ftc.teamcode.Core.Parts.Intake;
-import com.pedropathing.control.PIDFCoefficients;
-import com.pedropathing.control.PIDFController;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
 import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.panels.Panels;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.HeadingInterpolator;
-import com.pedropathing.paths.Path;
-import com.pedropathing.paths.PathChain;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Core.Algorithms.PIDFOController;
 import org.firstinspires.ftc.teamcode.Core.Parts.Drivetrain;
-import org.firstinspires.ftc.teamcode.Core.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Core.Parts.Shooter;
 import org.firstinspires.ftc.teamcode.Core.Robot;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import org.firstinspires.ftc.teamcode.Core.Hardware.Reservoirs.ReservoirsState;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
+@Configurable
 
-
-
-import java.time.temporal.Temporal;
-import java.util.function.Supplier;
 @TeleOp
 public class TeleOperado extends OpMode{
 
@@ -50,8 +36,10 @@ public class TeleOperado extends OpMode{
     Drivetrain drivetrain = robot.drivetrain;
     TelemetryManager telemetryM;
 
+    TelemetryManager telemetryGraph;
 
-
+Launching launching = new Launching();
+public static double kp = 0.003, ki = 0.0000001, kd = 0.003, kf = 0.05;
      ElapsedTime Ciclo;
 
      double tempoCiclo;
@@ -66,7 +54,7 @@ public class TeleOperado extends OpMode{
 
      Intake Intake = new Intake();
 
-     AprilTag AprilTag = new AprilTag();
+   //  AprilTag AprilTag = new AprilTag();
 
 
 
@@ -94,21 +82,20 @@ public class TeleOperado extends OpMode{
     public void start(){
         Ciclo = new ElapsedTime();
         Ciclo.reset();
-        Shooter.setCoefficients(0.003,0.0000001,0.003,0.05);
-        AprilTag.initAprilTag();
+        Shooter.setCoefficients(kp,ki,kd,kf);
+       // AprilTag.initAprilTag();
     }
 
     @Override
     public void loop() {
-        AprilTag.AprilTagLocalization();
-
-
         Ciclo.reset();
 
+       // AprilTag.AprilTagLocalization();
+
+        launching.teleop(gamepad1);
+
         Shooter.teleop(gamepad1);
-
         Intake.teleop(gamepad1);
-
         drivetrain.Drive(gamepad1, followerteleop, false);
 
         robot.update();
@@ -117,11 +104,20 @@ public class TeleOperado extends OpMode{
     }
 
 public void telemetry(){
-    telemetry.addData("Heading error", followerteleop.getHeadingError());
-        telemetry.addData("Heading Vector", followerteleop.getTeleopHeadingVector());
-    telemetry.addLine();
-    telemetry.addData("a", followerteleop.getVectorCalculator().getTeleopHeadingVector());
 
+
+telemetryM.addData("Velocidade desejada" , Shooter.velocidade_desejada);
+    telemetryM.addData("Velocidade atual" , Shooter.Atirador_1.getVelocity());
+    telemetryM.addData("erro " , Shooter.erro);
+
+
+
+
+    telemetry.addData("Heading error", followerteleop.getHeadingError());
+    telemetry.addData("Heading Vector", followerteleop.getTeleopHeadingVector());
+    telemetry.addLine();
+
+    telemetryM.update(telemetry);
     telemetry.update();
 
 }

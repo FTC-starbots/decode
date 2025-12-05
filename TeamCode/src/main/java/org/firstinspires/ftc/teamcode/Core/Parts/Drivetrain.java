@@ -7,6 +7,7 @@ import com.pedropathing.follower.Follower;
 
 import org.firstinspires.ftc.teamcode.Core.Algorithms.InterfaceSimple;
 
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 

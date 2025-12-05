@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.Core.Algorithms.InterfaceSimple;
 
 public class Shooter implements InterfaceSimple {
     public int velocidade_desejada;
-    DcMotorEx Atirador_1, Atirador_2;
+   public  DcMotorEx Atirador_1, Atirador_2;
     public double erro;
 
     PIDFController controllerHeading = new PIDFController(new PIDFCoefficients(0, 0, 0, 0));
@@ -20,7 +20,7 @@ public class Shooter implements InterfaceSimple {
     }
 
     public void teleop(Gamepad gamepad){
-        if (gamepad.triangle) setVelDesejada(1100);
+        if (gamepad.triangle) setVelDesejada(1550);
         else setVelDesejada(0);
     }
 
@@ -38,6 +38,8 @@ public class Shooter implements InterfaceSimple {
         Atirador_1.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         Atirador_2.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
+        Atirador_1.setDirection(DcMotorEx.Direction.REVERSE);
+
         Atirador_1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         Atirador_2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
@@ -45,15 +47,20 @@ public class Shooter implements InterfaceSimple {
     }
     @Override
     public void update() {
-        erro = velocidade_desejada + Atirador_1.getVelocity();
+        erro = velocidade_desejada - Atirador_1.getVelocity();
         controllerHeading.updateError(erro);
         double power = controllerHeading.run();
 
         if (power <= 0) power = 0;
         if (velocidade_desejada == 0) power = 0;
+        if (erro > 0) {
+            Atirador_1.setPower(-1);
+            Atirador_2.setPower(-1);
+        } else {
+            Atirador_1.setPower(0.1);
+            Atirador_2.setPower(0.1);
+        }
 
-        Atirador_1.setPower(power);
-        Atirador_2.setPower(-Atirador_1.getPower());
 
 
     }
