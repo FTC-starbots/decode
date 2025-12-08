@@ -8,10 +8,14 @@ import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.FollowerBuilder;
 import com.pedropathing.ftc.drivetrains.MecanumConstants;
 import com.pedropathing.ftc.localization.Encoder;
+import com.pedropathing.ftc.localization.constants.PinpointConstants;
 import com.pedropathing.ftc.localization.constants.ThreeWheelConstants;
 import com.pedropathing.paths.PathConstraints;
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 
 public class Constants {
@@ -51,7 +55,16 @@ public class Constants {
             .xVelocity(57.31187253090515)
             .yVelocity(9.81911837038496);
 
-    public static ThreeWheelConstants localizerConstants = new ThreeWheelConstants()
+    public static PinpointConstants localizerConstants = new PinpointConstants()
+            .forwardPodY(5.63194)
+            .strafePodX(3.29294)
+            .distanceUnit(DistanceUnit.INCH)
+            .hardwareMapName("pinpoint")
+            .customEncoderResolution(2.851)
+            .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED)
+            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
+
+    public static ThreeWheelConstants a = new ThreeWheelConstants()
             .forwardTicksToInches(.001989436789)
             .strafeTicksToInches(.001989436789)
             .turnTicksToInches(.001989436789)
@@ -71,7 +84,7 @@ public class Constants {
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)
-                .threeWheelLocalizer(localizerConstants)
+                .pinpointLocalizer(localizerConstants)
                 .pathConstraints(pathConstraints)
                 .mecanumDrivetrain(driveConstants)
                 .build();

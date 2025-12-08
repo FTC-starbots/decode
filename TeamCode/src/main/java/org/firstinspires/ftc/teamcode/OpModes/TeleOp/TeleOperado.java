@@ -6,10 +6,9 @@ package org.firstinspires.ftc.teamcode.OpModes.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Core.Algorithms.Launching;
 import org.firstinspires.ftc.teamcode.Core.Hardware.AprilTag;
-import org.firstinspires.ftc.teamcode.Core.Parts.Intake;
+import org.firstinspires.ftc.teamcode.Core.Hardware.Lime;
 
 import com.bylazar.configurables.annotations.Configurable;
-import com.bylazar.panels.Panels;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
@@ -21,6 +20,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Core.Parts.Drivetrain;
 import org.firstinspires.ftc.teamcode.Core.Parts.Shooter;
+import org.firstinspires.ftc.teamcode.Core.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Core.Robot;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 @Configurable
@@ -36,10 +36,9 @@ public class TeleOperado extends OpMode{
     Drivetrain drivetrain = robot.drivetrain;
     TelemetryManager telemetryM;
 
-    TelemetryManager telemetryGraph;
 
-Launching launching = new Launching();
-public static double kp = 0.003, ki = 0.0000001, kd = 0.003, kf = 0.05;
+    Launching launching = new Launching();
+    public static double kp = 0.003, ki = 0.0000001, kd = 0.003, kf = 0.05;
      ElapsedTime Ciclo;
 
      double tempoCiclo;
@@ -53,6 +52,8 @@ public static double kp = 0.003, ki = 0.0000001, kd = 0.003, kf = 0.05;
      Shooter Shooter = robot.shooter;
 
      Intake Intake = new Intake();
+
+     Lime Limelight = robot.limelight;
 
    //  AprilTag AprilTag = new AprilTag();
 
@@ -70,7 +71,7 @@ public static double kp = 0.003, ki = 0.0000001, kd = 0.003, kf = 0.05;
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
         followerteleop.startTeleopDrive();
-
+        Limelight.setup(hardwareMap);
         Intake.start(hardwareMap);
         Shooter.start(hardwareMap);
 
