@@ -13,7 +13,7 @@ public class Lime implements InterfaceSimple {
 
     public Limelight3A limelight;
     int pipeline;
-     double id, x, y, angle, distance, returnedData, tx;
+    public double id, x, y, angle, distance, returnedData, tx, tdegrees, tpixel;
 
 
     public enum Data{
@@ -23,7 +23,9 @@ public class Lime implements InterfaceSimple {
         ID,
         VALID,
         DISTANCETO_TARGET,
-        TagTx
+        TagTx,
+        TagDegrees,
+        TagPixels
     }
     public void setup(HardwareMap hardware) {
         limelight = hardware.get(Limelight3A.class, "limelight");
@@ -70,6 +72,7 @@ public class Lime implements InterfaceSimple {
                 case TagTx:
                 returnedData = tx;
                 break;
+
         }
         } else {
             returnedData = 0;
@@ -104,14 +107,17 @@ public class Lime implements InterfaceSimple {
     public void update(){
         LLResult result = limelight.getLatestResult();
         List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
-        for (LLResultTypes.FiducialResult id_verifier : fiducialResults) {
+        for (LLResultTypes.FiducialResult fr : fiducialResults) {
 
             if (limelight.getLatestResult().isValid()){
-               id = id_verifier.getFiducialId();
+               id = fr.getFiducialId();
                x = result.getBotpose().getPosition().x;
                y = result.getBotpose().getPosition().y;
                angle = result.getBotpose().getOrientation().getYaw();
                distance = result.getBotposeAvgDist();
+               tx = result.getTx();
+               tdegrees = fr.getTargetXDegrees();
+                tpixel = fr.getTargetXPixels();
 
             }
         }

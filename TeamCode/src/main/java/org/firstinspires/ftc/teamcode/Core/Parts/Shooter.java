@@ -12,6 +12,7 @@ public class Shooter implements InterfaceSimple {
     public int velocidade_desejada;
    public  DcMotorEx Atirador_1, Atirador_2;
     public double erro;
+    public boolean shooting = false;
 
     PIDFController controllerHeading = new PIDFController(new PIDFCoefficients(0, 0, 0, 0));
 
@@ -20,8 +21,14 @@ public class Shooter implements InterfaceSimple {
     }
 
     public void teleop(Gamepad gamepad){
-        if (gamepad.triangle) setVelDesejada(1550);
-        else setVelDesejada(0);
+        if (gamepad.triangle){
+            shooting = true;
+            setVelDesejada(1550);
+        }
+        else {
+            shooting = false;
+            setVelDesejada(0);
+        }
     }
 
     public void setCoefficients(double kp, double ki, double kd, double kf){
@@ -51,9 +58,10 @@ public class Shooter implements InterfaceSimple {
         controllerHeading.updateError(erro);
         double power = controllerHeading.run();
 
-        if (power <= 0) power = 0;
-        if (velocidade_desejada == 0) power = 0;
-        if (erro > 0) {
+        if (velocidade_desejada == 0){
+            Atirador_1.setPower(0);
+            Atirador_2.setPower(0);
+        } else if (erro > 0) {
             Atirador_1.setPower(-1);
             Atirador_2.setPower(-1);
         } else {

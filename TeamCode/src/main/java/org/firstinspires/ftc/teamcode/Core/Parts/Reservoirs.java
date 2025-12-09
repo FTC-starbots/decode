@@ -19,21 +19,22 @@ public class Reservoirs {
     }
 
     public void resetServos() {
-        Reservoir_1.setPosition(1);
-        Reservoir_2.setPosition(0);
+        Reservoir_1.setPosition(0);
+        Reservoir_2.setPosition(1);
         Reservoir_3.setPosition(0);
     }
 
     public void servoPosition(Servo Reservoir, ReservoirsState state) {
         switch (state) {
             case UP:
-                if (Reservoir == Reservoir_1) Reservoir.setPosition(0);
+                if (Reservoir == Reservoir_2) Reservoir.setPosition(0.5);
                 else Reservoir.setPosition(1);
                 break;
 
             case DOWN:
-                if (Reservoir == Reservoir_1) Reservoir.setPosition(1);
+                if (Reservoir == Reservoir_2) Reservoir.setPosition(1);
                 else Reservoir.setPosition(0);
+                break;
 
 
         }

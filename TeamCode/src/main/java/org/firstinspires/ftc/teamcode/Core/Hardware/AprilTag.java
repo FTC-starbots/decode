@@ -59,7 +59,8 @@ public class AprilTag extends LinearOpMode {
         LeituraYaw = detection.robotPose.getOrientation().getYaw(AngleUnit.DEGREES);
         LeituraTx= detection.center.x;
         NumTagDetec = detection.id;
-            telemetryAprilTag();
+
+    telemetryAprilTag();
             telemetry.update();
             sleep(20);
     }

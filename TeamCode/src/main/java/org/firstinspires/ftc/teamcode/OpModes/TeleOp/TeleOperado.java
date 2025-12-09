@@ -74,6 +74,9 @@ public class TeleOperado extends OpMode{
         Limelight.setup(hardwareMap);
         Intake.start(hardwareMap);
         Shooter.start(hardwareMap);
+        launching.start(hardwareMap);
+        Limelight.setPipeline(5);
+
 
 
 
@@ -81,6 +84,7 @@ public class TeleOperado extends OpMode{
 
 
     public void start(){
+
         Ciclo = new ElapsedTime();
         Ciclo.reset();
         Shooter.setCoefficients(kp,ki,kd,kf);
@@ -97,7 +101,7 @@ public class TeleOperado extends OpMode{
 
         Shooter.teleop(gamepad1);
         Intake.teleop(gamepad1);
-        drivetrain.Drive(gamepad1, followerteleop, false);
+        drivetrain.Drive(gamepad1, followerteleop, Shooter.shooting, Limelight.tdegrees, Limelight.limelight.getLatestResult().isValid());
 
         robot.update();
         telemetry();
@@ -112,8 +116,13 @@ telemetryM.addData("Velocidade desejada" , Shooter.velocidade_desejada);
     telemetryM.addData("erro " , Shooter.erro);
 
 
+    telemetry.addData("Target Heading", drivetrain.targetHeading);
+    telemetry.addData("Heading", followerteleop.getHeading());
+    telemetry.addLine();
 
-
+    telemetry.addData("TagTx", Limelight.tx);
+    telemetry.addData("TagDegrees",Limelight.tdegrees );
+    telemetry.addData("TagPixels", Limelight.tpixel);
     telemetry.addData("Heading error", followerteleop.getHeadingError());
     telemetry.addData("Heading Vector", followerteleop.getTeleopHeadingVector());
     telemetry.addLine();
