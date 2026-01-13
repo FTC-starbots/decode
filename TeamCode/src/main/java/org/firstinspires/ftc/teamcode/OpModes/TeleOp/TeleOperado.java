@@ -5,7 +5,7 @@ package org.firstinspires.ftc.teamcode.OpModes.TeleOp;
 
 
 import org.firstinspires.ftc.teamcode.Core.Algorithms.Launching;
-import org.firstinspires.ftc.teamcode.Core.Hardware.AprilTag;
+import org.firstinspires.ftc.teamcode.Core.Hardware.AprilTagCam;
 import org.firstinspires.ftc.teamcode.Core.Hardware.Lime;
 
 import com.bylazar.configurables.annotations.Configurable;
@@ -55,7 +55,7 @@ public class TeleOperado extends OpMode{
 
      Lime Limelight = robot.limelight;
 
-   //  AprilTag AprilTag = new AprilTag();
+    AprilTagCam aptag = robot.aptag;
 
 
 
@@ -65,16 +65,17 @@ public class TeleOperado extends OpMode{
     public void init() {
         myControlHubVoltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
 
-        followerteleop = Constants.createFollower(hardwareMap);
-        followerteleop.setStartingPose(startingPose);
-        followerteleop.update();
+       // followerteleop = Constants.createFollower(hardwareMap);
+       // followerteleop.setStartingPose(startingPose);
+       // followerteleop.update();
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
-        followerteleop.startTeleopDrive();
-        Limelight.setup(hardwareMap);
-        Intake.start(hardwareMap);
-        Shooter.start(hardwareMap);
-        launching.start(hardwareMap);
+        //followerteleop.startTeleopDrive();
+       Limelight.setup(hardwareMap);
+       aptag.setup(hardwareMap);
+       // Intake.start(hardwareMap);
+       // Shooter.start(hardwareMap);
+       // launching.start(hardwareMap);
         Limelight.setPipeline(5);
 
 
@@ -87,8 +88,8 @@ public class TeleOperado extends OpMode{
 
         Ciclo = new ElapsedTime();
         Ciclo.reset();
-        Shooter.setCoefficients(kp,ki,kd,kf);
-       // AprilTag.initAprilTag();
+       // Shooter.setCoefficients(kp,ki,kd,kf);
+
     }
 
     @Override
@@ -97,11 +98,11 @@ public class TeleOperado extends OpMode{
 
        // AprilTag.AprilTagLocalization();
 
-        launching.teleop(gamepad1);
+       // launching.teleop(gamepad1);
 
-        Shooter.teleop(gamepad1);
-        Intake.teleop(gamepad1);
-        drivetrain.Drive(gamepad1, followerteleop, Shooter.shooting, Limelight.tdegrees, Limelight.limelight.getLatestResult().isValid());
+        //Shooter.teleop(gamepad1);
+        //Intake.teleop(gamepad1);
+       // drivetrain.Drive(gamepad1, followerteleop, Shooter.shooting, Limelight.tpixel, Limelight.limelight.getLatestResult().isValid());
 
         robot.update();
         telemetry();
@@ -111,20 +112,22 @@ public class TeleOperado extends OpMode{
 public void telemetry(){
 
 
-telemetryM.addData("Velocidade desejada" , Shooter.velocidade_desejada);
-    telemetryM.addData("Velocidade atual" , Shooter.Atirador_1.getVelocity());
+//telemetryM.addData("Velocidade desejada" , Shooter.velocidade_desejada);
+  //  telemetryM.addData("Velocidade atual" , Shooter.Atirador_1.getVelocity());
     telemetryM.addData("erro " , Shooter.erro);
 
-
-    telemetry.addData("Target Heading", drivetrain.targetHeading);
-    telemetry.addData("Heading", followerteleop.getHeading());
+    telemetry.addLine();
+   // telemetry.addData("Target Heading", drivetrain.targetHeading);
+   // telemetry.addData("Heading", followerteleop.getHeading());
     telemetry.addLine();
 
-    telemetry.addData("TagTx", Limelight.tx);
-    telemetry.addData("TagDegrees",Limelight.tdegrees );
-    telemetry.addData("TagPixels", Limelight.tpixel);
-    telemetry.addData("Heading error", followerteleop.getHeadingError());
-    telemetry.addData("Heading Vector", followerteleop.getTeleopHeadingVector());
+
+    telemetry.addData("TagPixels LIME", Limelight.tpixel);
+    telemetry.addData("TagPixels CAM", aptag.LeituraDegrees);
+    telemetry.addLine();
+
+   // telemetry.addData("Heading error", followerteleop.getHeadingError());
+  //  telemetry.addData("Heading Vector", followerteleop.getTeleopHeadingVector());
     telemetry.addLine();
 
     telemetryM.update(telemetry);

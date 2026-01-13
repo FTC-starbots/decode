@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Core.Hardware;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -13,15 +14,15 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.List;
-
-public class AprilTag extends LinearOpMode {
+@TeleOp
+public class AprilTagCam {
     double ErroX;
     double ErroY;
     double ErroYaw;
    public double LeituraX;
     public double LeituraY;
     public  double LeituraYaw;
-    public double LeituraTx;
+    public double LeituraDegrees;
     public int NumTagDetec;
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
 
@@ -35,37 +36,9 @@ public class AprilTag extends LinearOpMode {
     AprilTagDetection myAprilTagDetection;
 
     AprilTagDetection detection;
-    @Override
-    public void runOpMode() throws InterruptedException {
-            // Wait for the DS start button to be touched.
 
-            telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
-            telemetry.addData(">", "Touch START to start OpMode");
-            telemetry.update();
-            waitForStart();
 
-            // Save more CPU resources when camera is no longer needed.
-            visionPortal.close();
-
-        }   // end method runOpMode()
-
-        /**
-         * Initialize the AprilTag processor.
-         */
-
-    public void AprilTagLocalization() {
-        LeituraX = detection.robotPose.getPosition().x;
-        LeituraY = detection.robotPose.getPosition().y;
-        LeituraYaw = detection.robotPose.getOrientation().getYaw(AngleUnit.DEGREES);
-        LeituraTx= detection.center.x;
-        NumTagDetec = detection.id;
-
-    telemetryAprilTag();
-            telemetry.update();
-            sleep(20);
-    }
-
-    public void initAprilTag() {
+    public void setup(HardwareMap hardware) {
 
         // Create the AprilTag processor.
         aprilTag = new AprilTagProcessor.Builder()
@@ -101,7 +74,7 @@ public class AprilTag extends LinearOpMode {
 
         // Set the camera (webcam vs. built-in RC phone camera).
         if (USE_WEBCAM) {
-            builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
+            builder.setCamera(hardware.get(WebcamName.class, "camera"));
         } else {
             builder.setCamera(BuiltinCameraDirection.BACK);
         }
@@ -110,8 +83,9 @@ public class AprilTag extends LinearOpMode {
         //builder.setCameraResolution(new Size(640, 480));
 
         // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
-        //builder.enableLiveView(true);
+       // builder.enableLiveView(true);
 
+       // builder.setAutoStartStreamOnBuild(true);
         // Set the stream format; MJPEG uses less bandwidth than default YUY2.
         //builder.setStreamFormat(VisionPortal.StreamFormat.YUY2);
 
@@ -134,34 +108,27 @@ public class AprilTag extends LinearOpMode {
     /**
      * Add telemetry about AprilTag detections.
      */
-    public void telemetryAprilTag() {
+    public void update() {
 
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
-        telemetry.addData("# AprilTags Detected", currentDetections.size());
 
         // Step through the list of detections and display info for each one.
         for (AprilTagDetection detection : currentDetections) {
             if (detection.metadata != null) {
-                telemetry.addLine(String.format("\n==== (ID %d) %s", NumTagDetec, detection.metadata.name));
-                telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)",
-                        LeituraX,
-                        LeituraY,
-                        detection.robotPose.getPosition().z));
-                telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)",
-                        detection.robotPose.getOrientation().getPitch(AngleUnit.DEGREES),
-                        detection.robotPose.getOrientation().getRoll(AngleUnit.DEGREES),
-                       LeituraYaw));
-
-
+               NumTagDetec = detection.id;
+               LeituraX = detection.robotPose.getPosition().x;
+               LeituraY = detection.robotPose.getPosition().y;
+               LeituraYaw = detection.robotPose.getOrientation().getYaw(AngleUnit.DEGREES);
+               LeituraDegrees = detection.center.x;
             } else {
-                telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
-                telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
-            }
+                NumTagDetec = 0;
+                LeituraX =0;
+                LeituraY =0;
+                LeituraYaw = 0;
+                LeituraDegrees = 0;
+                 }
         }   // end for() loop
 
-        // Add "key" information to telemetry
-        telemetry.addLine("\nkey:\nXYZ = X (Right), Y (Forward), Z (Up) dist.");
-        telemetry.addLine("PRY = Pitch, Roll & Yaw (XYZ Rotation)");
     }   // end method telemetryAprilTag()
 
 }   // end class
