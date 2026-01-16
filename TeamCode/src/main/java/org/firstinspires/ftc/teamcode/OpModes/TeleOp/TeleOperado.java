@@ -24,6 +24,9 @@ import org.firstinspires.ftc.teamcode.Core.Parts.Shooter;
 import org.firstinspires.ftc.teamcode.Core.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Core.Robot;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import org.firstinspires.ftc.teamcode.Core.Algorithms.Drawing;
+import org.firstinspires.ftc.teamcode.pedroPathing.Tuning;
+
 @Configurable
 
 @TeleOp
@@ -31,6 +34,7 @@ public class TeleOperado extends OpMode{
 
     Pose startingPose = new Pose(105.19626168224299,32.971962616822424, Math.toRadians(90));
     Follower followerteleop;
+
 
     Robot robot = new Robot();
 
@@ -57,7 +61,7 @@ public class TeleOperado extends OpMode{
 
      Lime Limelight = robot.limelight;
 
-    AprilTagCam aptag = robot.aptag;
+   // AprilTagCam aptag = robot.aptag;
 
     TagAlign tagalign = new TagAlign();
 
@@ -79,7 +83,7 @@ public class TeleOperado extends OpMode{
         //Shooter.start(hardwareMap);
         //launching.start(hardwareMap);
        // Limelight.setPipeline(5);
-
+Drawing.init();
 
 
 
@@ -97,7 +101,7 @@ public class TeleOperado extends OpMode{
     @Override
     public void loop() {
         Ciclo.reset();
-        tagalign.setValues(Limelight.tpixel, aptag.LeituraPixels, Limelight.tagdetected, aptag.tagdetected, 2592, 720);
+       // tagalign.setValues(Limelight.tpixel, aptag.LeituraPixels, Limelight.tagdetected, aptag.tagdetected, 2592, 720);
 
 
         //launching.teleop(gamepad1);
@@ -108,6 +112,7 @@ public class TeleOperado extends OpMode{
         robot.update();
         telemetry();
         tempoCiclo = Ciclo.milliseconds();
+        Drawing.draw(followerteleop);
     }
 
 

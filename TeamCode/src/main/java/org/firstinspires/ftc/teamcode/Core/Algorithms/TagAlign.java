@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.Core.Algorithms;
 
 public class TagAlign {
-   public boolean validation;
-    public double width;
-    public double pixel;
+   public boolean validation = false;
+    public double width = 0;
+    public double pixel = 0;
 
     public void setValues(double LIMEpix,double CAMpix, boolean LIMEstate, boolean CAMstate, double LIMEwidth, double CAMwidth){
             if (CAMstate){

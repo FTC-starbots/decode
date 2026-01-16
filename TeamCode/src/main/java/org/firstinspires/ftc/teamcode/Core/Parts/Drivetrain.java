@@ -61,7 +61,7 @@ public class Drivetrain implements InterfaceSimple {
           targetHeading = followerdrive.getHeading();
           timer.reset();
       }else {
-          if (timer.seconds()> 0.3) headingLock = true;
+          if (timer.seconds()> 0.15) headingLock = true;
           else targetHeading = followerdrive.getHeading();
       }
 

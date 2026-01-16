@@ -13,7 +13,7 @@ public Lime limelight = new Lime();
    public Shooter shooter = new Shooter();
     public Drivetrain drivetrain = new Drivetrain();
 
-    public AprilTagCam aptag = new AprilTagCam();
+  //  public AprilTagCam aptag = new AprilTagCam();
 
     @Override
     public void update() {
