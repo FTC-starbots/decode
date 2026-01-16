@@ -5,6 +5,7 @@ package org.firstinspires.ftc.teamcode.OpModes.TeleOp;
 
 
 import org.firstinspires.ftc.teamcode.Core.Algorithms.Launching;
+import org.firstinspires.ftc.teamcode.Core.Algorithms.TagAlign;
 import org.firstinspires.ftc.teamcode.Core.Hardware.AprilTagCam;
 import org.firstinspires.ftc.teamcode.Core.Hardware.Lime;
 
@@ -47,6 +48,7 @@ public class TeleOperado extends OpMode{
 
     double volts;
 
+
     public  VoltageSensor myControlHubVoltageSensor;
 
      Shooter Shooter = robot.shooter;
@@ -57,7 +59,7 @@ public class TeleOperado extends OpMode{
 
     AprilTagCam aptag = robot.aptag;
 
-
+    TagAlign tagalign = new TagAlign();
 
 
 
@@ -65,18 +67,18 @@ public class TeleOperado extends OpMode{
     public void init() {
         myControlHubVoltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
 
-       // followerteleop = Constants.createFollower(hardwareMap);
-       // followerteleop.setStartingPose(startingPose);
-       // followerteleop.update();
+        followerteleop = Constants.createFollower(hardwareMap);
+        followerteleop.setStartingPose(startingPose);
+        followerteleop.update();
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
-        //followerteleop.startTeleopDrive();
-       Limelight.setup(hardwareMap);
-       aptag.setup(hardwareMap);
-       // Intake.start(hardwareMap);
-       // Shooter.start(hardwareMap);
-       // launching.start(hardwareMap);
-        Limelight.setPipeline(5);
+        followerteleop.startTeleopDrive();
+       // Limelight.setup(hardwareMap);
+        //aptag.setup(hardwareMap);
+        //Intake.start(hardwareMap);
+        //Shooter.start(hardwareMap);
+        //launching.start(hardwareMap);
+       // Limelight.setPipeline(5);
 
 
 
@@ -88,46 +90,49 @@ public class TeleOperado extends OpMode{
 
         Ciclo = new ElapsedTime();
         Ciclo.reset();
-       // Shooter.setCoefficients(kp,ki,kd,kf);
+        //Shooter.setCoefficients(kp,ki,kd,kf);
 
     }
 
     @Override
     public void loop() {
         Ciclo.reset();
+        tagalign.setValues(Limelight.tpixel, aptag.LeituraPixels, Limelight.tagdetected, aptag.tagdetected, 2592, 720);
 
-       // AprilTag.AprilTagLocalization();
 
-       // launching.teleop(gamepad1);
-
+        //launching.teleop(gamepad1);
         //Shooter.teleop(gamepad1);
         //Intake.teleop(gamepad1);
-       // drivetrain.Drive(gamepad1, followerteleop, Shooter.shooting, Limelight.tpixel, Limelight.limelight.getLatestResult().isValid());
+        drivetrain.Drive(gamepad1, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, tagalign.validation);
 
         robot.update();
         telemetry();
         tempoCiclo = Ciclo.milliseconds();
     }
 
+
+    public void stop(){
+       // aptag.stop();
+    }
 public void telemetry(){
 
 
-//telemetryM.addData("Velocidade desejada" , Shooter.velocidade_desejada);
-  //  telemetryM.addData("Velocidade atual" , Shooter.Atirador_1.getVelocity());
-    telemetryM.addData("erro " , Shooter.erro);
+    //telemetryM.addData("Velocidade desejada" , Shooter.velocidade_desejada);
+    //telemetryM.addData("Velocidade atual" , Shooter.Atirador_1.getVelocity());
+    //telemetryM.addData("erro " , Shooter.erro);
 
     telemetry.addLine();
-   // telemetry.addData("Target Heading", drivetrain.targetHeading);
-   // telemetry.addData("Heading", followerteleop.getHeading());
+    telemetry.addData("Target Heading", drivetrain.targetHeading);
+    telemetry.addData("Heading", followerteleop.getHeading());
     telemetry.addLine();
 
 
-    telemetry.addData("TagPixels LIME", Limelight.tpixel);
-    telemetry.addData("TagPixels CAM", aptag.LeituraDegrees);
+    //telemetry.addData("TagPixels LIME", Limelight.tpixel);
+    //telemetry.addData("TagPixels CAM", aptag.LeituraDegrees);
     telemetry.addLine();
 
-   // telemetry.addData("Heading error", followerteleop.getHeadingError());
-  //  telemetry.addData("Heading Vector", followerteleop.getTeleopHeadingVector());
+    telemetry.addData("Heading error", followerteleop.getHeadingError());
+    telemetry.addData("Heading Vector", followerteleop.getTeleopHeadingVector());
     telemetry.addLine();
 
     telemetryM.update(telemetry);

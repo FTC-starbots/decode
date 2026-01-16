@@ -22,8 +22,9 @@ public class AprilTagCam {
    public double LeituraX;
     public double LeituraY;
     public  double LeituraYaw;
-    public double LeituraDegrees;
+    public double LeituraPixels;
     public int NumTagDetec;
+    public boolean tagdetected;
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
 
     private Position cameraPosition = new Position(DistanceUnit.INCH,
@@ -108,10 +109,13 @@ public class AprilTagCam {
     /**
      * Add telemetry about AprilTag detections.
      */
+
+    public void stop(){
+        visionPortal.close();
+    }
     public void update() {
 
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
-
         // Step through the list of detections and display info for each one.
         for (AprilTagDetection detection : currentDetections) {
             if (detection.metadata != null) {
@@ -119,13 +123,16 @@ public class AprilTagCam {
                LeituraX = detection.robotPose.getPosition().x;
                LeituraY = detection.robotPose.getPosition().y;
                LeituraYaw = detection.robotPose.getOrientation().getYaw(AngleUnit.DEGREES);
-               LeituraDegrees = detection.center.x;
+               LeituraPixels = detection.center.x;
+               tagdetected = true;
+
             } else {
                 NumTagDetec = 0;
                 LeituraX =0;
                 LeituraY =0;
                 LeituraYaw = 0;
-                LeituraDegrees = 0;
+                LeituraPixels = 0;
+                tagdetected = false;
                  }
         }   // end for() loop
 

@@ -15,6 +15,8 @@ public class Lime implements InterfaceSimple {
     int pipeline;
     public double id, x, y, angle, distance, returnedData, tx, tdegrees, tpixel;
 
+    public boolean tagdetected;
+
 
     public enum Data{
         BOTPOSE_X,
@@ -118,7 +120,18 @@ public class Lime implements InterfaceSimple {
                tx = result.getTx();
                tdegrees = fr.getTargetXDegrees();
                 tpixel = fr.getTargetXPixels();
+                tagdetected = true;
 
+            }else{
+                id = 0;
+                x = 0;
+                y = 0;
+                angle = 0;
+                distance = 0;
+                tx = 0;
+                tdegrees = 0;
+                tpixel = 0;
+                tagdetected = false;
             }
         }
     }
