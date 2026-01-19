@@ -56,12 +56,12 @@ public class Constants {
             .yVelocity(9.81911837038496);
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(5.63194)
-            .strafePodX(3.29294)
+            .forwardPodY(5.62992)
+            .strafePodX(3.30709)
             .distanceUnit(DistanceUnit.INCH)
             .hardwareMapName("pinpoint")
-            .customEncoderResolution(2.851)
-            .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED)
+            .customEncoderResolution(2.851)//2.851
+            .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
             .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
 
     public static ThreeWheelConstants a = new ThreeWheelConstants()

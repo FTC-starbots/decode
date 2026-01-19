@@ -19,7 +19,7 @@ public Lime limelight = new Lime();
     public void update() {
         //limelight.update();
         //aptag.update();
-        //shooter.update();
+        shooter.update();
         drivetrain.update();
     }
 }

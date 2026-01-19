@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Core.Hardware;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -9,13 +10,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.Core.Algorithms.InterfaceSimple;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.List;
 @TeleOp
-public class AprilTagCam {
+public class AprilTagCam extends LinearOpMode implements InterfaceSimple  {
     double ErroX;
     double ErroY;
     double ErroYaw;
@@ -106,13 +108,18 @@ public class AprilTagCam {
 
     }   // end method initAprilTag()
 
+    @Override
+    public void runOpMode() throws InterruptedException {
+        if(!opModeIsActive()){
+            visionPortal.close();
+        }
+    }
+
     /**
      * Add telemetry about AprilTag detections.
      */
 
-    public void stop(){
-        visionPortal.close();
-    }
+    @Override
     public void update() {
 
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();

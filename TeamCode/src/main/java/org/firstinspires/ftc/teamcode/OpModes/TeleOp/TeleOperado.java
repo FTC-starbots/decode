@@ -79,11 +79,11 @@ public class TeleOperado extends OpMode{
         followerteleop.startTeleopDrive();
        // Limelight.setup(hardwareMap);
         //aptag.setup(hardwareMap);
-        //Intake.start(hardwareMap);
-        //Shooter.start(hardwareMap);
-        //launching.start(hardwareMap);
+        Intake.start(hardwareMap);
+        Shooter.start(hardwareMap);
+        launching.start(hardwareMap);
        // Limelight.setPipeline(5);
-Drawing.init();
+    Drawing.init();
 
 
 
@@ -94,7 +94,7 @@ Drawing.init();
 
         Ciclo = new ElapsedTime();
         Ciclo.reset();
-        //Shooter.setCoefficients(kp,ki,kd,kf);
+        Shooter.setCoefficients(kp,ki,kd,kf);
 
     }
 
@@ -104,10 +104,11 @@ Drawing.init();
        // tagalign.setValues(Limelight.tpixel, aptag.LeituraPixels, Limelight.tagdetected, aptag.tagdetected, 2592, 720);
 
 
-        //launching.teleop(gamepad1);
-        //Shooter.teleop(gamepad1);
-        //Intake.teleop(gamepad1);
-        drivetrain.Drive(gamepad1, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, tagalign.validation);
+        launching.teleop(gamepad2);
+        Shooter.teleop(gamepad2);
+        Intake.teleop(gamepad1);
+        //drivetrain.Drive(gamepad1, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, tagalign.validation);
+        drivetrain.Drive(gamepad1, followerteleop, Shooter.shooting, 0,100, false);
 
         robot.update();
         telemetry();
@@ -122,11 +123,12 @@ Drawing.init();
 public void telemetry(){
 
 
-    //telemetryM.addData("Velocidade desejada" , Shooter.velocidade_desejada);
-    //telemetryM.addData("Velocidade atual" , Shooter.Atirador_1.getVelocity());
-    //telemetryM.addData("erro " , Shooter.erro);
+    telemetryM.addData("Velocidade desejada" , Shooter.velocidade_desejada);
+    telemetryM.addData("Velocidade atual" , Shooter.Atirador_1.getVelocity());
+    telemetryM.addData("erro " , Shooter.erro);
 
     telemetry.addLine();
+    telemetry.addData("Target Heading", followerteleop.getPose());
     telemetry.addData("Target Heading", drivetrain.targetHeading);
     telemetry.addData("Heading", followerteleop.getHeading());
     telemetry.addLine();

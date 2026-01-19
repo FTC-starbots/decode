@@ -22,13 +22,13 @@ public class Launching {
         reservatorio.resetServos();
         if(timer_all.seconds() > 0.2 && timer_all.seconds() < 1.5){
             reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
-        }
-        else if (timer_all.seconds() > 1.5 && timer_all.seconds() < 2.8) {
-            reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.DOWN);
             reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
             reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
-        }else if (timer_all.seconds() > 2.8 && timer_all.seconds() < 2.9){
-            reservatorio.resetServos();
+        }
+        else if (timer_all.seconds() > 1.5 && timer_all.seconds() < 2.8) {
+            reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.DOWN);
+            reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.DOWN);
+            reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.DOWN);
             shoot_all = false;
         }
 
@@ -37,25 +37,33 @@ public class Launching {
 
     public void teleop(Gamepad gamepad){
         if (gamepad.leftBumperWasPressed()){
-            pressed_button.reset();
+
+            reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
+            reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
+            reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
+            /*pressed_button.reset();
             reservatorio.resetServos();
             timer_all.reset();
             shoot_all = true;
-            shoot_sequence = false;
+            shoot_sequence = false;*/
         }
         else if (gamepad.rightBumperWasPressed()){
-            pressed_button.reset();
+
+            reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.DOWN);
+            reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.DOWN);
+            reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.DOWN);
+            /*pressed_button.reset();
             reservatorio.resetServos();
             timer_all.reset();
             shoot_all = false;
-            shoot_sequence = true;
+            shoot_sequence = true;*/
 
         }
 
-        if (pressed_button.seconds() > 3.4) {
-            shoot_all = false;
+        if (pressed_button.seconds() > 3) {
+           /* shoot_all = false;
             shoot_sequence = false;
-            reservatorio.resetServos();
+            reservatorio.resetServos();*/
         }
 
         if (shoot_all) launch_all();

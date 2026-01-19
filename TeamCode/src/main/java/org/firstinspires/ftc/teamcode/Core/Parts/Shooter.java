@@ -21,9 +21,9 @@ public class Shooter implements InterfaceSimple {
     }
 
     public void teleop(Gamepad gamepad){
-        if (gamepad.triangle){
+        if (gamepad.triangle || gamepad.y){
             shooting = true;
-            setVelDesejada(1550);
+            setVelDesejada(1600);
         }
         else {
             shooting = false;
@@ -62,11 +62,11 @@ public class Shooter implements InterfaceSimple {
             Atirador_1.setPower(0);
             Atirador_2.setPower(0);
         } else if (erro > 0) {
-            Atirador_1.setPower(-1);
-            Atirador_2.setPower(-1);
+            Atirador_1.setPower(1);
+            Atirador_2.setPower(1);
         } else {
-            Atirador_1.setPower(0.1);
-            Atirador_2.setPower(0.1);
+            Atirador_1.setPower(-0.1);
+            Atirador_2.setPower(-0.1);
         }
 
 
