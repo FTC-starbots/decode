@@ -8,7 +8,7 @@ public class TagAlign {
     public void setValues(double LIMEpix,double CAMpix, boolean LIMEstate, boolean CAMstate, double LIMEwidth, double CAMwidth){
             if (CAMstate){
                 validation = true;
-                width = CAMwidth;;
+                width = CAMwidth;
                 pixel = CAMpix;
             } else if (LIMEstate) {
                 validation = true;

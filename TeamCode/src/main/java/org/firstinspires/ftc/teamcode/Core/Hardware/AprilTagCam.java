@@ -123,6 +123,16 @@ public class AprilTagCam extends LinearOpMode implements InterfaceSimple  {
     public void update() {
 
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
+        if (currentDetections.isEmpty()){
+            NumTagDetec = 0;
+            LeituraX =0;
+            LeituraY =0;
+            LeituraYaw = 0;
+            LeituraPixels = 0;
+            tagdetected = false;
+            telemetry.addData("lista vazia", tagdetected);
+
+        }
         // Step through the list of detections and display info for each one.
         for (AprilTagDetection detection : currentDetections) {
             if (detection.metadata != null) {
@@ -132,15 +142,8 @@ public class AprilTagCam extends LinearOpMode implements InterfaceSimple  {
                LeituraYaw = detection.robotPose.getOrientation().getYaw(AngleUnit.DEGREES);
                LeituraPixels = detection.center.x;
                tagdetected = true;
-
-            } else {
-                NumTagDetec = 0;
-                LeituraX =0;
-                LeituraY =0;
-                LeituraYaw = 0;
-                LeituraPixels = 0;
-                tagdetected = false;
-                 }
+                telemetry.addData("validationON", tagdetected);
+            }
         }   // end for() loop
 
     }   // end method telemetryAprilTag()

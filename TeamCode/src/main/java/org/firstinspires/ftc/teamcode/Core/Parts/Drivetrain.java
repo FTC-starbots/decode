@@ -21,7 +21,11 @@ public class Drivetrain implements InterfaceSimple {
 
     ElapsedTime timer = new ElapsedTime();
 
+     public double error_hor;
+    public double error_anti_hor;
+    public double error_final;
 
+    public double widht_divididopor2menospixel;
     PIDFController controllerHeading = new PIDFController(new PIDFCoefficients(2, 0, 0.01, 0));
 
    public double targetHeading = Math.toRadians(90);
@@ -31,37 +35,46 @@ public class Drivetrain implements InterfaceSimple {
 
       rotation = (gamepad.left_trigger - gamepad.right_trigger);
 
-      double error;
+
 
      if (AptagLock && validation){
-         error = (width - pixel)/(width* 0.03);
+         error_final = (((width/2)- 25) - pixel )/(((width/2)-25)* 0.03);
+         widht_divididopor2menospixel = (width/2) - pixel;
          aptag = true;
 
      } else{
-         error = targetHeading - followerdrive.getHeading();
+         error_hor = targetHeading - followerdrive.getHeading();
+         error_anti_hor = followerdrive.getHeading() - targetHeading;
          aptag = false;
+
+         if (Math.abs(error_hor) < Math.abs(error_anti_hor)) error_final = error_hor;
+         else error_final = -error_anti_hor;
      }
 
 
 
-      if(error > Math.toRadians(15)){
+     if(AptagLock && validation){
+         controllerHeading.setCoefficients(new PIDFCoefficients(0.025, 0, 0, 0));
 
-          if(AptagLock&& validation) controllerHeading.setCoefficients(new PIDFCoefficients(1.5, 0, 0.01, 0));
-          else controllerHeading.setCoefficients(new PIDFCoefficients(2, 0, 0.01, 0));
-      }
-      else{
-          if(AptagLock&& validation)  controllerHeading.setCoefficients(new PIDFCoefficients(0.5, 0.000001, 0.01, 0));
-          controllerHeading.setCoefficients(new PIDFCoefficients(1, 0, 0.01, 0));
-      }
 
-      controllerHeading.updateError(error);
+     }else{
+         if(Math.abs(error_final) > 15) controllerHeading.setCoefficients(new PIDFCoefficients(2, 0, 0.01, 0));
+         else controllerHeading.setCoefficients(new PIDFCoefficients(1, 0, 0.01, 0));
+
+
+
+     }
+
+
+
+      controllerHeading.updateError(error_final);
 
       if(gamepad.left_trigger > 0 || gamepad.right_trigger > 0 ){
           headingLock = false;
           targetHeading = followerdrive.getHeading();
           timer.reset();
       }else {
-          if (timer.seconds()> 0.15) headingLock = true;
+          if (timer.seconds()> 0.2) headingLock = true;
           else targetHeading = followerdrive.getHeading();
       }
 

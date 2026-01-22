@@ -23,7 +23,7 @@ public class Shooter implements InterfaceSimple {
     public void teleop(Gamepad gamepad){
         if (gamepad.triangle || gamepad.y){
             shooting = true;
-            setVelDesejada(1600);
+            setVelDesejada(1300);
         }
         else {
             shooting = false;
@@ -45,7 +45,8 @@ public class Shooter implements InterfaceSimple {
         Atirador_1.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         Atirador_2.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
-        Atirador_1.setDirection(DcMotorEx.Direction.REVERSE);
+        Atirador_2.setDirection(DcMotorEx.Direction.REVERSE);
+
 
         Atirador_1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         Atirador_2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
@@ -61,13 +62,21 @@ public class Shooter implements InterfaceSimple {
         if (velocidade_desejada == 0){
             Atirador_1.setPower(0);
             Atirador_2.setPower(0);
-        } else if (erro > 0) {
+        }else if(Atirador_1.getVelocity() < velocidade_desejada*0.9){
             Atirador_1.setPower(1);
             Atirador_2.setPower(1);
-        } else {
-            Atirador_1.setPower(-0.1);
-            Atirador_2.setPower(-0.1);
+        }else{
+            Atirador_1.setPower(power);
+            Atirador_2.setPower(power);
         }
+
+        /* else if (erro > 0) {
+            Atirador_1.setPower(-1);
+            Atirador_2.setPower(-1);
+        } else {
+            Atirador_1.setPower(0.1);
+            Atirador_2.setPower(0.1);
+        }*/
 
 
 
