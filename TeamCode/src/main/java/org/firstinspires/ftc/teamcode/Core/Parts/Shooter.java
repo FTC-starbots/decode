@@ -7,12 +7,15 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.Core.Algorithms.InterfaceSimple;
+import org.firstinspires.ftc.teamcode.Core.Algorithms.Launching;
 
 public class Shooter implements InterfaceSimple {
     public int velocidade_desejada;
    public  DcMotorEx Atirador_1, Atirador_2;
     public double erro;
-    public boolean shooting = false;
+    public boolean shooting = false, right_vel = false;
+    boolean servo_lift;
+
 
     PIDFController controllerHeading = new PIDFController(new PIDFCoefficients(0, 0, 0, 0));
 
@@ -20,10 +23,17 @@ public class Shooter implements InterfaceSimple {
         velocidade_desejada = vel;
     }
 
-    public void teleop(Gamepad gamepad){
+    public void teleop(Gamepad gamepad, int vel){
+       if(gamepad.crossWasPressed() || gamepad.aWasPressed()){
+           setVelDesejada(velocidade_desejada - 20);
+       }else if(gamepad.circleWasPressed() || gamepad.bWasPressed()){
+           setVelDesejada(velocidade_desejada + 20);
+       }
+
+
         if (gamepad.triangle || gamepad.y){
             shooting = true;
-            setVelDesejada(1300);
+            setVelDesejada(vel);
         }
         else {
             shooting = false;
@@ -53,30 +63,39 @@ public class Shooter implements InterfaceSimple {
 
 
     }
+
+    public void isServoLifted(boolean lift){servo_lift = lift;}
+
     @Override
     public void update() {
         erro = velocidade_desejada - Atirador_1.getVelocity();
         controllerHeading.updateError(erro);
         double power = controllerHeading.run();
 
+        if((velocidade_desejada <= Atirador_1.getVelocity()) && velocidade_desejada != 0) right_vel = true;
+        else right_vel = false;
+
+
         if (velocidade_desejada == 0){
             Atirador_1.setPower(0);
             Atirador_2.setPower(0);
-        }else if(Atirador_1.getVelocity() < velocidade_desejada*0.9){
+        }else{
+            Atirador_1.setPower(1);
+            Atirador_2.setPower(1);
+        }
+
+
+       /* if (velocidade_desejada == 0){
+            Atirador_1.setPower(0);
+            Atirador_2.setPower(0);
+        }else if((Atirador_1.getVelocity() < velocidade_desejada*0.85) || servo_lift ){
             Atirador_1.setPower(1);
             Atirador_2.setPower(1);
         }else{
             Atirador_1.setPower(power);
             Atirador_2.setPower(power);
         }
-
-        /* else if (erro > 0) {
-            Atirador_1.setPower(-1);
-            Atirador_2.setPower(-1);
-        } else {
-            Atirador_1.setPower(0.1);
-            Atirador_2.setPower(0.1);
-        }*/
+*/
 
 
 

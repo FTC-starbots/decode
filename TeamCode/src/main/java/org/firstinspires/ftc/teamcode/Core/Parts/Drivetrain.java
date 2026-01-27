@@ -38,8 +38,7 @@ public class Drivetrain implements InterfaceSimple {
 
 
      if (AptagLock && validation){
-         error_final = (((width/2)- 25) - pixel )/(((width/2)-25)* 0.03);
-         widht_divididopor2menospixel = (width/2) - pixel;
+         error_final = (((width/2)- (width* 0.035)) - pixel )/(((width/2)-(width* 0.035))* 0.03);
          aptag = true;
 
      } else{
@@ -54,7 +53,7 @@ public class Drivetrain implements InterfaceSimple {
 
 
      if(AptagLock && validation){
-         controllerHeading.setCoefficients(new PIDFCoefficients(0.025, 0, 0, 0));
+         controllerHeading.setCoefficients(new PIDFCoefficients(0.02, 0.00005, 0, 0));
 
 
      }else{

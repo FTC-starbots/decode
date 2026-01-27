@@ -15,8 +15,9 @@ public class Launching {
 
     boolean shoot_all;
     boolean shoot_sequence;
-   public boolean shoot_requested;
-    boolean post_shoot;
+    boolean right_vel;
+   public boolean shoot_requested, servo_lifted = false;
+    public boolean post_shoot;
     public void start(HardwareMap hardware){
         Capota.start(hardware);
         reservatorio.start(hardware);
@@ -26,7 +27,7 @@ public class Launching {
 
 
     public void teleop(Gamepad gamepad){
-        if (gamepad.leftBumperWasPressed()){
+        if (gamepad.leftBumperWasPressed() || right_vel){
 
 
             pressed_button.reset();
@@ -52,11 +53,16 @@ public class Launching {
             reservatorio.resetServos();
         }
 
-        if (shoot_all &&pressed_button.seconds() < 0.08 ) launch_all();
-        else if (shoot_sequence&&pressed_button.seconds() < 0.08 ) launch_sequence();
+        if (shoot_all) launch_all();
+        else if (shoot_sequence) launch_sequence();
     }
+public void atPostShoot(boolean post){
+        post_shoot = post;
+}
 
-
+public void isAtRightVel(boolean vel){
+        right_vel = vel;
+}
 
     public void launch_all(){
 
@@ -65,15 +71,17 @@ public class Launching {
             reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
             reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
             reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
+            servo_lifted = true;
+
         }
 
         else if (timer_all.seconds() > 0.8 && timer_all.seconds() < 1.5) {
             reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.DOWN);
             reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.DOWN);
             reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.DOWN);
+            servo_lifted = false;
         }else if (timer_all.seconds() > 1.5 && timer_all.seconds() < 1.6) {
             shoot_all = false;
-            Capota.setValue(0.65);
             post_shoot = true;
             shoot_requested = false;
 

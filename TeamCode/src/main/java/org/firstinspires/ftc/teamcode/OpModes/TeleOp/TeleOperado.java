@@ -22,13 +22,14 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Core.Parts.AimAssisters;
 import org.firstinspires.ftc.teamcode.Core.Parts.Drivetrain;
+import org.firstinspires.ftc.teamcode.Core.Parts.LimeServo;
 import org.firstinspires.ftc.teamcode.Core.Parts.Reservoirs;
 import org.firstinspires.ftc.teamcode.Core.Parts.Shooter;
 import org.firstinspires.ftc.teamcode.Core.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Core.Robot;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.Drawing;
-import org.firstinspires.ftc.teamcode.pedroPathing.Tuning;
+
 
 @Configurable
 
@@ -46,7 +47,7 @@ public class TeleOperado extends OpMode{
 
 
     Launching launching = new Launching();
-    public static double kp = 0.003, ki = 0.0000001, kd = 0.003, kf = 0.05;
+    public static double kp = 0.000125, ki = 0.00009, kd = 0, kf = 0.05;
      ElapsedTime Ciclo;
 
      double tempoCiclo;
@@ -66,9 +67,16 @@ public class TeleOperado extends OpMode{
     TagAlign tagalign = new TagAlign();
     AimAssisters Capota = launching.Capota;
     public Reservoirs reservatorio = new Reservoirs();
-    public static double position1 = 0, position2 = 0, position3 = 0;
+    public static double position1 = 0.82, position2 = 0.88, position3 = 0.85, limepos = 0;
+
+    public static int vel = 1440;
 
     PoseIdentifier poseidentifier = new PoseIdentifier();
+
+    LimeServo servolime = new LimeServo();
+
+
+
 
 
 
@@ -81,16 +89,21 @@ public class TeleOperado extends OpMode{
         followerteleop.update();
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
         followerteleop.startTeleopDrive();
-       // Limelight.setup(hardwareMap);
+       Limelight.setup(hardwareMap);
         reservatorio.start(hardwareMap);
         aptag.setup(hardwareMap);
         Intake.start(hardwareMap);
         Shooter.start(hardwareMap);
         launching.start(hardwareMap);
         Capota.start(hardwareMap);
-       // Limelight.setPipeline(5);
+        servolime.start(hardwareMap);
+       Limelight.setPipeline(5);
         Capota.setMode(AimAssisters.Mode.SET_POSITION);
-    Drawing.init();
+
+
+        Shooter.setCoefficients(kp,ki,kd,kf);
+
+        Drawing.init();
 
 
 
@@ -107,42 +120,37 @@ public class TeleOperado extends OpMode{
 
     @Override
     public void loop() {
-        Shooter.setCoefficients(kp,ki,kd,kf);
         Ciclo.reset();
        tagalign.setValues(Limelight.tpixel, aptag.LeituraPixels, Limelight.tagdetected, aptag.tagdetected, 2592, 720);
 
-       if (gamepad1.dpad_down) Capota.setHeight(AimAssisters.Height.RESETED);
-       else if (gamepad1.dpad_left) Capota.setHeight(AimAssisters.Height.LOW);
-       else if (gamepad1.dpad_right) Capota.setHeight(AimAssisters.Height.MEDIUM);
-       else if (gamepad1.dpad_up) Capota.setHeight(AimAssisters.Height.HIGH);
-
-
+       servolime.setPosition(limepos);
 
 //===FUNÇÕES VITAIS==============================================================================
         {
             launching.teleop(gamepad2);
 
-            Shooter.teleop(gamepad2);
+            Shooter.teleop(gamepad2, vel);
 
             Intake.teleop(gamepad1);
         }
 
-//===FUNÇÕES DE MOVIMENTO========================================================================
+//===LANÇAMENTO==================================================================================
         {
-            if (isGamepad1) {
-                drivetrain.Drive(gamepad1, followerteleop, Shooter.shooting, aptag.LeituraPixels, 720, aptag.tagdetected);
-
-
-            } else {
-                drivetrain.Drive(gamepad2, followerteleop, Shooter.shooting, aptag.LeituraPixels, 720, aptag.tagdetected);
-
+            if (Shooter.shooting && !launching.shoot_requested) {
+                reservatorio.setPosition(reservatorio.Reservoir_1, position1);
+                reservatorio.setPosition(reservatorio.Reservoir_2, position2);
+                reservatorio.setPosition(reservatorio.Reservoir_3, position3);
+            } else if (!Shooter.shooting && !launching.shoot_requested) {
+                reservatorio.setPosition(reservatorio.Reservoir_1, 0.48);
+                reservatorio.setPosition(reservatorio.Reservoir_2, 0.5);
+                reservatorio.setPosition(reservatorio.Reservoir_3, 0.5);
             }
+
+            Shooter.isServoLifted(launching.servo_lifted);
+            launching.isAtRightVel(Shooter.right_vel);
         }
 
-
-
-        /* certo
-
+//===FUNÇÕES DE MOVIMENTO========================================================================
         {
             if (isGamepad1) {
                 if (isManual) drivetrain.Drive(gamepad1, followerteleop, Shooter.shooting, 0, 100, false);
@@ -154,22 +162,25 @@ public class TeleOperado extends OpMode{
                 else drivetrain.Drive(gamepad2, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, tagalign.validation);
 
             }
-        }*/
+        }
 
 //===FUNÇÕES DE CONTROLE=========================================================================
         {
             if (gamepad2.back) isManual = !isManual;
 
 
-            if (gamepad1.square || gamepad1.x) isGamepad1 = true;
+            if (gamepad1.square || gamepad1.x) {
+                isGamepad1 = true;
+            }
 
-            else if (gamepad2.square || gamepad2.x) isGamepad1 = false;
-
-
+            else if (gamepad2.square || gamepad2.x){
+                isGamepad1 = false;
+            }
 
 
 
         }
+
 //===UPDATE DE POSIÇÃO===========================================================================
         {
             poseidentifier.infoLIME(Limelight.x, Limelight.y, Limelight.angle, Limelight.distance);
@@ -190,9 +201,16 @@ public class TeleOperado extends OpMode{
     }
 
     public void telemetry(){
+
+        telemetry.addData("Capota " , Capota.getPosition());
         telemetry.addLine();
         telemetry.addLine();
         telemetry.addLine("POSIÇÕES");
+        telemetry.addData("CamX", poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.X));
+        telemetry.addData("CamY",  poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.Y));
+        telemetry.addData("CamYaw",  poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.YAW));
+        telemetry.addData("CamDist",  poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.DISTANCE));
+        telemetry.addLine();
         telemetry.addData("CamX", poseidentifier.getInfo(PoseIdentifier.Source.CAMERA, PoseIdentifier.DataInfo.X));
         telemetry.addData("CamY",  poseidentifier.getInfo(PoseIdentifier.Source.CAMERA, PoseIdentifier.DataInfo.Y));
         telemetry.addData("CamYaw",  poseidentifier.getInfo(PoseIdentifier.Source.CAMERA, PoseIdentifier.DataInfo.YAW));

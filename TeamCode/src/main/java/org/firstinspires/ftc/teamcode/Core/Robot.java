@@ -17,7 +17,7 @@ public Lime limelight = new Lime();
 
     @Override
     public void update() {
-        //limelight.update();
+        limelight.update();
         aptag.update();
         shooter.update();
         drivetrain.update();

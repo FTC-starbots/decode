@@ -33,11 +33,12 @@ public class Reservoirs {
     public void servoPosition(Servo Reservoir, ReservoirsState state) {
         switch (state) {
             case UP:
-                 Reservoir.setPosition(0.75);
+                 Reservoir.setPosition(1);
                 break;
 
             case DOWN:
-                Reservoir.setPosition(0.5);
+                if(Reservoir == Reservoir_1)Reservoir.setPosition(0.48);
+                else Reservoir.setPosition(0.5);
                 break;
 
 
