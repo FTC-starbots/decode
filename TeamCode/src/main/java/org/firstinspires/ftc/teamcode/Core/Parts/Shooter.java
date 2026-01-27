@@ -7,11 +7,15 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.Core.Algorithms.InterfaceSimple;
+import org.firstinspires.ftc.teamcode.Core.Algorithms.Launching;
 
 public class Shooter implements InterfaceSimple {
     public int velocidade_desejada;
-    DcMotorEx Atirador_1, Atirador_2;
+   public  DcMotorEx Atirador_1, Atirador_2;
     public double erro;
+    public boolean shooting = false, right_vel = false;
+    boolean servo_lift;
+
 
     PIDFController controllerHeading = new PIDFController(new PIDFCoefficients(0, 0, 0, 0));
 
@@ -19,9 +23,22 @@ public class Shooter implements InterfaceSimple {
         velocidade_desejada = vel;
     }
 
-    public void teleop(Gamepad gamepad){
-        if (gamepad.triangle) setVelDesejada(1100);
-        else setVelDesejada(0);
+    public void teleop(Gamepad gamepad, int vel){
+       if(gamepad.crossWasPressed() || gamepad.aWasPressed()){
+           setVelDesejada(velocidade_desejada - 20);
+       }else if(gamepad.circleWasPressed() || gamepad.bWasPressed()){
+           setVelDesejada(velocidade_desejada + 20);
+       }
+
+
+        if (gamepad.triangle || gamepad.y){
+            shooting = true;
+            setVelDesejada(vel);
+        }
+        else {
+            shooting = false;
+            setVelDesejada(0);
+        }
     }
 
     public void setCoefficients(double kp, double ki, double kd, double kf){
@@ -38,22 +55,48 @@ public class Shooter implements InterfaceSimple {
         Atirador_1.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         Atirador_2.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
+        Atirador_2.setDirection(DcMotorEx.Direction.REVERSE);
+
+
         Atirador_1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         Atirador_2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
 
     }
+
+    public void isServoLifted(boolean lift){servo_lift = lift;}
+
     @Override
     public void update() {
-        erro = velocidade_desejada + Atirador_1.getVelocity();
+        erro = velocidade_desejada - Atirador_1.getVelocity();
         controllerHeading.updateError(erro);
         double power = controllerHeading.run();
 
-        if (power <= 0) power = 0;
-        if (velocidade_desejada == 0) power = 0;
+        if((velocidade_desejada <= Atirador_1.getVelocity()) && velocidade_desejada != 0) right_vel = true;
+        else right_vel = false;
 
-        Atirador_1.setPower(power);
-        Atirador_2.setPower(-Atirador_1.getPower());
+
+        if (velocidade_desejada == 0){
+            Atirador_1.setPower(0);
+            Atirador_2.setPower(0);
+        }else{
+            Atirador_1.setPower(1);
+            Atirador_2.setPower(1);
+        }
+
+
+       /* if (velocidade_desejada == 0){
+            Atirador_1.setPower(0);
+            Atirador_2.setPower(0);
+        }else if((Atirador_1.getVelocity() < velocidade_desejada*0.85) || servo_lift ){
+            Atirador_1.setPower(1);
+            Atirador_2.setPower(1);
+        }else{
+            Atirador_1.setPower(power);
+            Atirador_2.setPower(power);
+        }
+*/
+
 
 
     }

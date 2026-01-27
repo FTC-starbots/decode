@@ -1,4 +1,4 @@
-#Thu Dec 04 17:35:06 BRT 2025
+#Tue Jan 27 10:34:50 BRT 2026
 base.0=C\:\\Users\\Dell\\StudioProjects\\decode\\TeamCode\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
 base.1=C\:\\Users\\Dell\\StudioProjects\\decode\\TeamCode\\build\\intermediates\\dex\\debug\\mergeLibDexDebug\\10\\classes.dex
 base.10=C\:\\Users\\Dell\\StudioProjects\\decode\\TeamCode\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\9\\classes.dex

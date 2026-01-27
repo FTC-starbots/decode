@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.InterfaceSimple;
 
 public class Intake implements InterfaceSimple {
-   public DcMotorEx Intake;
+   public DcMotor Intake_1, Intake_2;
 
 
     public enum Mode{
@@ -19,31 +19,40 @@ public class Intake implements InterfaceSimple {
     }
 
     public void start(HardwareMap hardware){
-        Intake = hardware.get(DcMotorEx .class, "Intake");
+        Intake_1 = hardware.get(DcMotor.class, "Intake_1");
+        Intake_2 = hardware.get(DcMotor.class, "Intake_2");
 
-        Intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        Intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        Intake.setDirection(DcMotorSimple.Direction.REVERSE);
-        Intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Intake_1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Intake_1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Intake_1.setDirection(DcMotor.Direction.REVERSE);
+        Intake_1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        Intake_2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Intake_2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Intake_2.setDirection(DcMotor.Direction.FORWARD);
+        Intake_2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     public void setMode(Mode mode){
         switch (mode){
             case INTAKE:
-                Intake.setPower(1);
+                Intake_1.setPower(-1);
+                Intake_2.setPower(-1);
                 break;
             case EJECT:
-                Intake.setPower(-1);
+                Intake_1.setPower(1);
+                Intake_2.setPower(1);
                 break;
             case STOP:
-                Intake.setPower(0);
+                Intake_1.setPower(0);
+                Intake_2.setPower(0);
                 break;
         }
     }
 
 public void teleop(Gamepad gamepad){
-        if (gamepad.cross) setMode(Mode.INTAKE);
-        else if (gamepad.circle) setMode(Mode.EJECT);
+        if (gamepad.cross || gamepad.a) setMode(Mode.INTAKE);
+        else if (gamepad.circle || gamepad.b) setMode(Mode.EJECT);
         else setMode(Mode.STOP);
 }
 
