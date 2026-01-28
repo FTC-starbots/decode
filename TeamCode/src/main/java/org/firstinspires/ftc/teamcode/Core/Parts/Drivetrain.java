@@ -31,14 +31,24 @@ public class Drivetrain implements InterfaceSimple {
    public double targetHeading = Math.toRadians(90);
     boolean headingLock, aptag;
 
-  public void Drive(Gamepad gamepad, Follower followerdrive, boolean AptagLock, double pixel, double width, boolean validation){
+    double kpa, kia, kda, kfa;
+
+
+  public void setCoeficcients(double kp, double ki, double kd, double kf)  {
+      kpa = kp;
+      kia = ki;
+      kda = kd;
+      kfa = kf;
+  }
+
+  public void Drive(Gamepad gamepad, Follower followerdrive, boolean AptagLock, double pixel, double width, boolean validation, double offsetpercent){
 
       rotation = (gamepad.left_trigger - gamepad.right_trigger);
 
 
 
      if (AptagLock && validation){
-         error_final = (((width/2)- (width* 0.035)) - pixel )/(((width/2)-(width* 0.035))* 0.03);
+         error_final = (((width/2)- (width* offsetpercent)) - pixel )/(((width/2)-(width* offsetpercent))* 0.03);
          aptag = true;
 
      } else{

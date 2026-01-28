@@ -16,6 +16,8 @@ public class Shooter implements InterfaceSimple {
     public boolean shooting = false, right_vel = false;
     boolean servo_lift;
 
+    boolean pre_shoot;
+
 
     PIDFController controllerHeading = new PIDFController(new PIDFCoefficients(0, 0, 0, 0));
 
@@ -23,19 +25,19 @@ public class Shooter implements InterfaceSimple {
         velocidade_desejada = vel;
     }
 
-    public void teleop(Gamepad gamepad, int vel){
-       if(gamepad.crossWasPressed() || gamepad.aWasPressed()){
-           setVelDesejada(velocidade_desejada - 20);
-       }else if(gamepad.circleWasPressed() || gamepad.bWasPressed()){
-           setVelDesejada(velocidade_desejada + 20);
-       }
-
+    public void teleop(Gamepad gamepad, int vel, boolean gamepad1, int minvel){
 
         if (gamepad.triangle || gamepad.y){
+            pre_shoot = false;
             shooting = true;
             setVelDesejada(vel);
         }
-        else {
+        else if(!gamepad1){
+            shooting = false;
+            pre_shoot = true;
+            setVelDesejada(minvel);
+        } else{
+            pre_shoot = false;
             shooting = false;
             setVelDesejada(0);
         }
@@ -72,31 +74,26 @@ public class Shooter implements InterfaceSimple {
         controllerHeading.updateError(erro);
         double power = controllerHeading.run();
 
-        if((velocidade_desejada <= Atirador_1.getVelocity()) && velocidade_desejada != 0) right_vel = true;
+        if((velocidade_desejada == Atirador_1.getVelocity()) && velocidade_desejada != 0 && !pre_shoot) right_vel = true;
         else right_vel = false;
 
 
         if (velocidade_desejada == 0){
             Atirador_1.setPower(0);
             Atirador_2.setPower(0);
-        }else{
-            Atirador_1.setPower(1);
-            Atirador_2.setPower(1);
-        }
-
-
-       /* if (velocidade_desejada == 0){
-            Atirador_1.setPower(0);
-            Atirador_2.setPower(0);
-        }else if((Atirador_1.getVelocity() < velocidade_desejada*0.85) || servo_lift ){
-            Atirador_1.setPower(1);
-            Atirador_2.setPower(1);
-        }else{
+        }else if(pre_shoot){
             Atirador_1.setPower(power);
             Atirador_2.setPower(power);
+        } else{
+            if(erro>20) {
+                Atirador_1.setPower(1);
+                Atirador_2.setPower(1);
+            }
+            else{
+                Atirador_1.setPower(power);
+                Atirador_2.setPower(power);
+            }
         }
-*/
-
 
 
     }

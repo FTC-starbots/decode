@@ -47,7 +47,9 @@ public class TeleOperado extends OpMode{
 
 
     Launching launching = new Launching();
-    public static double kp = 0.000125, ki = 0.00009, kd = 0, kf = 0.05;
+    public static double kpShooter = 0.0002, kiShooter = 0.00009, kdShooter = 0, kfShooter = 0.05;
+    public static double kpAlign = 0.02, kiAlign = 0.00005, kdAlign = 0, kfAlign = 0;
+
      ElapsedTime Ciclo;
 
      double tempoCiclo;
@@ -67,15 +69,27 @@ public class TeleOperado extends OpMode{
     TagAlign tagalign = new TagAlign();
     AimAssisters Capota = launching.Capota;
     public Reservoirs reservatorio = new Reservoirs();
-    public static double position1 = 0.82, position2 = 0.88, position3 = 0.85, limepos = 0;
+    public static double  limepos = 0;
 
-    public static int vel = 1440;
+
 
     PoseIdentifier poseidentifier = new PoseIdentifier();
 
     LimeServo servolime = new LimeServo();
 
+    public static double servoA = 0.000022, servoB = 0.0079, servoC = 1.55;
 
+    public static double velA = 2.1;
+    public static int velB = 940;
+
+    public static double offset = 0.035;
+
+
+ public double servoIdeal;
+
+ public int  velIdeal;
+
+ public static double timer;
 
 
 
@@ -101,7 +115,7 @@ public class TeleOperado extends OpMode{
         Capota.setMode(AimAssisters.Mode.SET_POSITION);
 
 
-        Shooter.setCoefficients(kp,ki,kd,kf);
+        Shooter.setCoefficients(kpShooter,kiShooter, kdShooter, kfShooter);
 
         Drawing.init();
 
@@ -111,7 +125,6 @@ public class TeleOperado extends OpMode{
 
 
     public void start(){
-        Capota.setValue(0.65);
         Ciclo = new ElapsedTime();
         Ciclo.reset();
 
@@ -123,43 +136,49 @@ public class TeleOperado extends OpMode{
         Ciclo.reset();
        tagalign.setValues(Limelight.tpixel, aptag.LeituraPixels, Limelight.tagdetected, aptag.tagdetected, 2592, 720);
 
+
        servolime.setPosition(limepos);
+        double d = poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.DISTANCE);
+
+        servoIdeal = servoA * d * d - servoB * d + servoC;
+
+        velIdeal = (int) (Math.round((velA * d + velB) / 20.0) * 20);
 
 //===FUNÇÕES VITAIS==============================================================================
         {
-            launching.teleop(gamepad2);
+            launching.teleop(gamepad2,timer);
 
-            Shooter.teleop(gamepad2, vel);
+            Shooter.teleop(gamepad2, velIdeal, isGamepad1, velB);
 
             Intake.teleop(gamepad1);
         }
 
 //===LANÇAMENTO==================================================================================
         {
-            if (Shooter.shooting && !launching.shoot_requested) {
-                reservatorio.setPosition(reservatorio.Reservoir_1, position1);
-                reservatorio.setPosition(reservatorio.Reservoir_2, position2);
-                reservatorio.setPosition(reservatorio.Reservoir_3, position3);
-            } else if (!Shooter.shooting && !launching.shoot_requested) {
-                reservatorio.setPosition(reservatorio.Reservoir_1, 0.48);
-                reservatorio.setPosition(reservatorio.Reservoir_2, 0.5);
-                reservatorio.setPosition(reservatorio.Reservoir_3, 0.5);
+            if (!Shooter.shooting) {
+               reservatorio.setPosition(reservatorio.Reservoir_1, 0.48);
+               reservatorio.setPosition(reservatorio.Reservoir_2, 0.5);
+               reservatorio.setPosition(reservatorio.Reservoir_3, 0.5);
             }
+
+
 
             Shooter.isServoLifted(launching.servo_lifted);
             launching.isAtRightVel(Shooter.right_vel);
+            launching.isShooting(Shooter.shooting);
+            Capota.setValue(servoIdeal);
         }
 
 //===FUNÇÕES DE MOVIMENTO========================================================================
         {
             if (isGamepad1) {
-                if (isManual) drivetrain.Drive(gamepad1, followerteleop, Shooter.shooting, 0, 100, false);
-                else drivetrain.Drive(gamepad1, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, tagalign.validation);
+                if (isManual) drivetrain.Drive(gamepad1, followerteleop, Shooter.shooting, 0, 100, false, offset);
+                else drivetrain.Drive(gamepad1, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, tagalign.validation, offset);
 
 
             } else {
-                if (isManual) drivetrain.Drive(gamepad2, followerteleop, Shooter.shooting, 0, 100, false);
-                else drivetrain.Drive(gamepad2, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, tagalign.validation);
+                if (isManual) drivetrain.Drive(gamepad2, followerteleop, Shooter.shooting, 0, 100, false, offset);
+                else drivetrain.Drive(gamepad2, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, tagalign.validation, offset);
 
             }
         }
