@@ -33,24 +33,56 @@ public class Drivetrain implements InterfaceSimple {
 
     double kpa, kia, kda, kfa;
 
+    double kpf, kif, kdf, kff;
 
-  public void setCoeficcients(double kp, double ki, double kd, double kf)  {
+    double kps, kis, kds, kfs;
+
+
+public boolean right_pos;
+
+
+    public void setCoefficientsAptag(double kp, double ki, double kd, double kf)  {
       kpa = kp;
       kia = ki;
       kda = kd;
       kfa = kf;
   }
 
-  public void Drive(Gamepad gamepad, Follower followerdrive, boolean AptagLock, double pixel, double width, boolean validation, double offsetpercent){
+    public void setCoefficientsfirt(double kp, double ki, double kd, double kf)  {
+        kpf = kp;
+        kif = ki;
+        kdf = kd;
+        kff = kf;
+    }
+
+    public void setCoefficientssecond(double kp, double ki, double kd, double kf)  {
+        kps = kp;
+        kis = ki;
+        kds = kd;
+        kfs = kf;
+    }
+
+
+  public void Drive(Gamepad gamepad, Follower followerdrive, boolean AptagLock, double pixel, double width, boolean validation, double offsetpercent, double IdealAngle,double corrreserv){
 
       rotation = (gamepad.left_trigger - gamepad.right_trigger);
 
 
 
-     if (AptagLock && validation){
-         error_final = (((width/2)- (width* offsetpercent)) - pixel )/(((width/2)-(width* offsetpercent))* 0.03);
-         aptag = true;
+     if (AptagLock){
 
+         if (validation) {
+             error_final = (((width / 2) - (width * offsetpercent)) - pixel) / (((width / 2) - (width * offsetpercent)) * 0.03);
+             aptag = true;
+         }else{
+             targetHeading = IdealAngle + Math.toRadians(corrreserv) * -6;
+             error_hor = targetHeading - followerdrive.getHeading();
+             error_anti_hor = followerdrive.getHeading() - targetHeading;
+             aptag = false;
+
+             if (Math.abs(error_hor) < Math.abs(error_anti_hor)) error_final = error_hor;
+             else error_final = -error_anti_hor;
+         }
      } else{
          error_hor = targetHeading - followerdrive.getHeading();
          error_anti_hor = followerdrive.getHeading() - targetHeading;
@@ -63,18 +95,20 @@ public class Drivetrain implements InterfaceSimple {
 
 
      if(AptagLock && validation){
-         controllerHeading.setCoefficients(new PIDFCoefficients(0.02, 0.00005, 0, 0));
-
+         controllerHeading.setCoefficients(new PIDFCoefficients(kpa, kia, kda, kfa));
+         timer.reset();
 
      }else{
-         if(Math.abs(error_final) > 15) controllerHeading.setCoefficients(new PIDFCoefficients(2, 0, 0.01, 0));
-         else controllerHeading.setCoefficients(new PIDFCoefficients(1, 0, 0.01, 0));
+         if(Math.abs(error_final) > 15) controllerHeading.setCoefficients(new PIDFCoefficients(kpf, kif, kdf, kff));
+         else controllerHeading.setCoefficients(new PIDFCoefficients(kps, kis, kds, kfs));
 
 
 
      }
 
-
+    if(Math.abs(error_final) < 5) {
+        right_pos = true;
+    }
 
       controllerHeading.updateError(error_final);
 

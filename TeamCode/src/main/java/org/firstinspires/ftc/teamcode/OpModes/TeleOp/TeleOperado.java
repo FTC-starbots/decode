@@ -50,7 +50,11 @@ public class TeleOperado extends OpMode{
     public static double kpShooter = 0.0002, kiShooter = 0.00009, kdShooter = 0, kfShooter = 0.05;
     public static double kpAlign = 0.02, kiAlign = 0.00005, kdAlign = 0, kfAlign = 0;
 
-     ElapsedTime Ciclo;
+
+    public static double Firstkp = 2, Firstki = 0, Firstkd = 0.01, Firstkf = 0;
+    public static double Secondkp = 0.5, Secondki= 0.00005, Secondkd = 0.01, Secondkf = 0;
+
+    ElapsedTime Ciclo;
 
      double tempoCiclo;
 
@@ -82,14 +86,16 @@ public class TeleOperado extends OpMode{
     public static double velA = 2.1;
     public static int velB = 940;
 
-    public static double offset = 0.035;
+    public static double offset = 0.0000001;
 
 
  public double servoIdeal;
 
  public int  velIdeal;
 
- public static double timer;
+ public static double timer = 0.2;
+
+ public static double  corr;
 
 
 
@@ -103,7 +109,7 @@ public class TeleOperado extends OpMode{
         followerteleop.update();
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
         followerteleop.startTeleopDrive();
-       Limelight.setup(hardwareMap);
+        Limelight.setup(hardwareMap);
         reservatorio.start(hardwareMap);
         aptag.setup(hardwareMap);
         Intake.start(hardwareMap);
@@ -111,7 +117,7 @@ public class TeleOperado extends OpMode{
         launching.start(hardwareMap);
         Capota.start(hardwareMap);
         servolime.start(hardwareMap);
-       Limelight.setPipeline(5);
+        Limelight.setPipeline(5);
         Capota.setMode(AimAssisters.Mode.SET_POSITION);
 
 
@@ -137,12 +143,19 @@ public class TeleOperado extends OpMode{
        tagalign.setValues(Limelight.tpixel, aptag.LeituraPixels, Limelight.tagdetected, aptag.tagdetected, 2592, 720);
 
 
+       drivetrain.setCoefficientsAptag(kpAlign,kiAlign,kdAlign,kfAlign);
+       drivetrain.setCoefficientsfirt(Firstkp,Firstki,Firstkd,Firstkf);
+       drivetrain.setCoefficientssecond(Secondkp,Secondki,Secondkd,Secondkf);
+
+
        servolime.setPosition(limepos);
         double d = poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.DISTANCE);
 
         servoIdeal = servoA * d * d - servoB * d + servoC;
 
         velIdeal = (int) (Math.round((velA * d + velB) / 20.0) * 20);
+
+        double angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 138, poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 12);
 
 //===FUNÇÕES VITAIS==============================================================================
         {
@@ -167,18 +180,19 @@ public class TeleOperado extends OpMode{
             launching.isAtRightVel(Shooter.right_vel);
             launching.isShooting(Shooter.shooting);
             Capota.setValue(servoIdeal);
+            launching.isAtRightPos(drivetrain.right_pos);
         }
 
 //===FUNÇÕES DE MOVIMENTO========================================================================
         {
             if (isGamepad1) {
-                if (isManual) drivetrain.Drive(gamepad1, followerteleop, Shooter.shooting, 0, 100, false, offset);
-                else drivetrain.Drive(gamepad1, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, tagalign.validation, offset);
+                if (isManual) drivetrain.Drive(gamepad1, followerteleop, Shooter.shooting, 0, 100, false, offset, angleIdeal, launching.corretor);
+                else drivetrain.Drive(gamepad1, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, tagalign.validation, offset, angleIdeal,launching.corretor);
 
 
             } else {
-                if (isManual) drivetrain.Drive(gamepad2, followerteleop, Shooter.shooting, 0, 100, false, offset);
-                else drivetrain.Drive(gamepad2, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, tagalign.validation, offset);
+                if (isManual) drivetrain.Drive(gamepad2, followerteleop, Shooter.shooting, 0, 100, false, offset, angleIdeal, launching.corretor);
+                else drivetrain.Drive(gamepad2, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, tagalign.validation, offset, angleIdeal,launching.corretor);
 
             }
         }
@@ -255,6 +269,10 @@ public class TeleOperado extends OpMode{
         telemetry.addData("power " , Shooter.Atirador_1.getPower());
 
         telemetry.addLine();
+        telemetryM.addData("Target Heading", drivetrain.targetHeading);
+        telemetryM.addData("Heading", followerteleop.getHeading());
+        telemetry.addLine();
+
         telemetry.addData("Target Heading", followerteleop.getPose());
         telemetry.addData("Target Heading", drivetrain.targetHeading);
         telemetry.addData("Heading", followerteleop.getHeading());

@@ -19,12 +19,14 @@ public class Launching {
 
     boolean shoot_all;
     boolean shoot_sequence;
-    boolean right_vel;
+    boolean right_vel, right_pos;
         public boolean servo_lifted = false;
     public boolean post_shoot;
 
     public int last_shoot_type;
     boolean shoot_split;
+
+    public int corretor;
 
     public int times_atRightVel = 0, last_value = 0;
     public void start(HardwareMap hardware){
@@ -77,6 +79,9 @@ public class Launching {
     public void isAtRightVel(boolean vel){
             right_vel = vel;
     }
+    public void isAtRightPos(boolean pos){
+        right_pos = pos;
+    }
 
     public void isShooting(boolean shoot){
         if (!shoot) times_atRightVel = 0;
@@ -85,10 +90,11 @@ public class Launching {
     public void launch_all_split(double timer){
 
         if(times_atRightVel < 3) {
-            if (times_atRightVel == 0 && right_vel) {
+            if (times_atRightVel == 0 && right_vel && right_pos) {
                 timer_split.reset();
                 reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
                 times_atRightVel = 1;
+                corretor = 1;
 
             }
 
@@ -96,12 +102,14 @@ public class Launching {
                 timer_split.reset();
                 reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
                 times_atRightVel = 2;
+                corretor = 0;
             }
 
             if (times_atRightVel == 2 && right_vel && timer_split.seconds() > timer) {
                 timer_split.reset();
                 reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
                 times_atRightVel = 3;
+                corretor = -1;
                 post_shoot = true;
                 shoot_split = false;
 
