@@ -9,6 +9,7 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
@@ -21,13 +22,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @Autonomous
 
 
-public class Rotas extends LinearOpMode {
+public class Rotas extends OpMode {
 
     public DigitalChannel  Alliance_B, Alliance_R, Auto1,Auto2, Auto3, Auto4, LED_S_R,LED_S_G,LED_S_B;
     public LED Led_1_R, Led_1_V, Led_2_R, Led_2_V, Led_3_R, Led_3_V;
     public AnalogInput S1, S2,S3,S4;
     public VoltageSensor myControlHubVoltageSensor;
-    int posicao_desejada_indexer = 0, reservatorio = 0, reservatorio_1, reservatorio_2, reservatorio_3;
 
     double power_correction, tx_offset;
     double potencia_indexer, integral_PiDF_Shooter, lasterror_PiDF_Shooter, integral_Indexer, lasterror_PiDF_Indexer;
@@ -59,31 +59,7 @@ public class Rotas extends LinearOpMode {
 
     ElapsedTime timer_shooter, deltaTime;
 
-    public double velocidade_desejada = 1165, Ai_shoot, Compen_at = 0, Compen_tx = 0, Compen_vl = 0;
 
-    public Action rota1;
-    public Action rota2;
-    public Action rota3;
-    public Action rota4;
-
-    public Action rota5;
-
-    public Action rota6;
-
-    public Action rota7;
-    public Action rota8;
-    public Action rota9;
-    public Action rota10;
-
-    public Action rota11;
-
-
-
-
-
-    @Override
-    public void runOpMode() throws InterruptedException {
-    }
 
     public void Rotas_APequeno_Perto() {}
 
@@ -101,20 +77,13 @@ public class Rotas extends LinearOpMode {
 
     public void Rotas_VGrande_6() {}
 
-    public void Aciona_servo(){
-        if (Indexer.getCurrentPosition() <  100) Reservoir_1.setPosition(1);
-        else if (Indexer.getCurrentPosition() > 300) Reservoir_3.setPosition(1);
-        else Reservoir_2.setPosition(0);
 
-
+    @Override
+    public void init() {
 
     }
+    @Override
+    public void loop() {
 
-
-
-
-
-
-
-
+    }
 }

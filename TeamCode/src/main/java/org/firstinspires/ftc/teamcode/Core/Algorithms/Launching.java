@@ -20,13 +20,14 @@ public class Launching {
     boolean shoot_all;
     boolean shoot_sequence;
     boolean right_vel, right_pos;
-        public boolean servo_lifted = false;
+    public boolean servo_lifted = false;
     public boolean post_shoot;
 
     public int last_shoot_type;
     boolean shoot_split;
 
     public int corretor;
+    boolean toShootauto, isTeleop;
 
     public int times_atRightVel = 0, last_value = 0;
     public void start(HardwareMap hardware){
@@ -36,8 +37,14 @@ public class Launching {
     }
 
 
+public void auto(double timer, int sequence, boolean toShoot){
+    toShootauto = toShoot;
+        if (right_vel && toShoot) launch_auto(sequence,timer);
 
+        if (!toShootauto && !isTeleop) times_atRightVel = 0;
+}
     public void teleop(Gamepad gamepad, double timer){
+        isTeleop = true;
         if (gamepad.leftBumperWasPressed()){
 
             last_shoot_type = 1;
@@ -86,6 +93,8 @@ public class Launching {
     public void isShooting(boolean shoot){
         if (!shoot) times_atRightVel = 0;
     }
+
+    public int getCorretor(){return corretor;}
 
     public void launch_all_split(double timer){
 
@@ -156,4 +165,151 @@ public class Launching {
 
 
     }
+
+    public void launch_auto(int sequence, double timer){
+        if (sequence == 1){
+            if(times_atRightVel < 3) {
+                if (times_atRightVel == 0 && right_vel && right_pos) {
+                    timer_split.reset();
+                    reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
+                    times_atRightVel = 1;
+                    corretor = 1;
+
+                }
+
+                if (times_atRightVel == 1 && right_vel && timer_split.seconds() > timer) {
+                    timer_split.reset();
+                    reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
+                    times_atRightVel = 2;
+                    corretor = 0;
+                }
+
+                if (times_atRightVel == 2 && right_vel && timer_split.seconds() > timer) {
+                    timer_split.reset();
+                    reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
+                    times_atRightVel = 3;
+                    corretor = -1;
+                    post_shoot = true;
+                    shoot_split = false;
+
+                }
+
+            }
+        }
+        else if (sequence ==2) {
+            if(times_atRightVel < 3) {
+                if (times_atRightVel == 0 && right_vel && right_pos) {
+                    timer_split.reset();
+                    reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
+                    times_atRightVel = 1;
+                    corretor = 0;
+
+                }
+
+                if (times_atRightVel == 1 && right_vel && timer_split.seconds() > timer) {
+                    timer_split.reset();
+                    reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
+                    times_atRightVel = 2;
+                    corretor = 1;
+                }
+
+                if (times_atRightVel == 2 && right_vel && timer_split.seconds() > timer) {
+                    timer_split.reset();
+                    reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
+                    times_atRightVel = 3;
+                    corretor = -1;
+                    post_shoot = true;
+                    shoot_split = false;
+
+                }
+
+            }
+        } else if (sequence == 3) {
+            if(times_atRightVel < 3) {
+                if (times_atRightVel == 0 && right_vel && right_pos) {
+                    timer_split.reset();
+                    reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
+                    times_atRightVel = 1;
+                    corretor = -1;
+
+                }
+
+                if (times_atRightVel == 1 && right_vel && timer_split.seconds() > timer) {
+                    timer_split.reset();
+                    reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
+                    times_atRightVel = 2;
+                    corretor = 0;
+                }
+
+                if (times_atRightVel == 2 && right_vel && timer_split.seconds() > timer) {
+                    timer_split.reset();
+                    reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
+                    times_atRightVel = 3;
+                    corretor = 1;
+                    post_shoot = true;
+                    shoot_split = false;
+
+                }
+
+            }
+        }else if (sequence ==4) {
+            if (times_atRightVel < 3) {
+                if (times_atRightVel == 0 && right_vel && right_pos) {
+                    timer_split.reset();
+                    reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
+                    times_atRightVel = 1;
+                    corretor = 0;
+
+                }
+
+                if (times_atRightVel == 1 && right_vel && timer_split.seconds() > timer) {
+                    timer_split.reset();
+                    reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
+                    times_atRightVel = 2;
+                    corretor = -1;
+                }
+
+                if (times_atRightVel == 2 && right_vel && timer_split.seconds() > timer) {
+                    timer_split.reset();
+                    reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
+                    times_atRightVel = 3;
+                    corretor = 1;
+                    post_shoot = true;
+                    shoot_split = false;
+
+                }
+
+            }
+        }
+        else if (sequence ==5) {
+            if (times_atRightVel < 3) {
+                if (times_atRightVel == 0 && right_vel && right_pos) {
+                    timer_split.reset();
+                    reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
+                    times_atRightVel = 1;
+                    corretor = 1;
+
+                }
+
+                if (times_atRightVel == 1 && right_vel && timer_split.seconds() > timer) {
+                    timer_split.reset();
+                    reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
+                    times_atRightVel = 2;
+                    corretor = -1;
+                }
+
+                if (times_atRightVel == 2 && right_vel && timer_split.seconds() > timer) {
+                    timer_split.reset();
+                    reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
+                    times_atRightVel = 3;
+                    corretor = 0;
+                    post_shoot = true;
+                    shoot_split = false;
+
+                }
+
+            }
+        }
+    }
+
 }
