@@ -2,11 +2,11 @@ package org.firstinspires.ftc.teamcode.OpModes.TeleOp;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -20,7 +20,6 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.OpModes.Autos.Autonomo_VermelhoGRANDE;
 
 import java.util.List;
 
@@ -28,7 +27,7 @@ import java.util.List;
 @TeleOp
 
 
-public class TeleOperado_Azul extends Autonomo_VermelhoGRANDE {
+public class TeleOperado_Azul extends LinearOpMode {
 
     public DigitalChannel  Alliance_B, Alliance_R, Auto1,Auto2, Auto3, Auto4, LED_S_R,LED_S_G,LED_S_B,LED_S_BB;
 
@@ -92,7 +91,6 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
     public void runOpMode() throws InterruptedException {
         // Mapeamento dos sensores e motores
         {
-            myControlHubVoltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
             ControlHub_VoltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
 
 
@@ -432,7 +430,7 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
     private double PiDFO_Correcao_Angular(double erro, double kp, double ki, double kd, double kf,double ko, double min, double max){
 
 
-        double BatVoltage = myControlHubVoltageSensor.getVoltage();
+        double BatVoltage = ControlHub_VoltageSensor.getVoltage();
         double feedfoward = 1 + (kf * (12.5-BatVoltage));
         double integrativo = ki * (erro * cicle_time);
         double derivativo = kd * ((erro - lasterror_PiDF_Correcao_Angular) / cicle_time);
@@ -474,7 +472,7 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
     private double PiDFO_Indexer(double erro, double kp, double ki, double kd, double kf,double ko, double min, double max){
 
 
-        double BatVoltage = myControlHubVoltageSensor.getVoltage();
+        double BatVoltage = ControlHub_VoltageSensor.getVoltage();
         double feedfoward = 1 + (kf * (12.5-BatVoltage));
         double integrativo = ki * (erro * cicle_time);
         double derivativo = kd * ((erro - lasterror_PiDF_Indexer) / cicle_time);
@@ -526,7 +524,7 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
 
         }
 
-        double BatVoltage = myControlHubVoltageSensor.getVoltage();
+        double BatVoltage = ControlHub_VoltageSensor.getVoltage();
         double feedfoward = 1 + (kf * (12.5-BatVoltage));
         double integrativo = ki * (erro * cicle_time);
         double derivativo = kd * ((erro - lasterror_PiDF_Shooter) / cicle_time);

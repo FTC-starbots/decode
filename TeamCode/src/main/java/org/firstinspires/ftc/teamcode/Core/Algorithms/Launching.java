@@ -29,6 +29,8 @@ public class Launching {
     public int corretor;
     boolean toShootauto, isTeleop;
 
+
+
     public int times_atRightVel = 0, last_value = 0;
     public void start(HardwareMap hardware){
         Capota.start(hardware);
@@ -37,11 +39,18 @@ public class Launching {
     }
 
 
-public void auto(double timer, int sequence, boolean toShoot){
-    toShootauto = toShoot;
-        if (right_vel && toShoot) launch_auto(sequence,timer);
+    public void auto(double timer, int sequence, boolean toShoot){
+        isTeleop = false;
+        toShootauto = toShoot;
+        if (right_vel && toShoot){
+            launch_auto(sequence,timer);
+            pressed_button.reset();
+            timer_all.reset();
+        }
 
         if (!toShootauto && !isTeleop) times_atRightVel = 0;
+
+
 }
     public void teleop(Gamepad gamepad, double timer){
         isTeleop = true;
@@ -74,10 +83,9 @@ public void auto(double timer, int sequence, boolean toShoot){
         else if (shoot_sequence) launch_sequence();
         else if (shoot_split) launch_all_split(timer);
 
-        if (pressed_button.seconds() > 1.6 && pressed_button.seconds() < 1.7 && post_shoot) {
+        if (pressed_button.seconds() > 2 && pressed_button.seconds() < 2.3 && post_shoot) {
             shoot_all = false;
             shoot_sequence = false;
-            reservatorio.resetServos();
             post_shoot = false;
         }
 
@@ -169,7 +177,7 @@ public void auto(double timer, int sequence, boolean toShoot){
     public void launch_auto(int sequence, double timer){
         if (sequence == 1){
             if(times_atRightVel < 3) {
-                if (times_atRightVel == 0 && right_vel && right_pos) {
+                if (times_atRightVel == 0 && right_vel) {
                     timer_split.reset();
                     reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
                     times_atRightVel = 1;
@@ -189,8 +197,10 @@ public void auto(double timer, int sequence, boolean toShoot){
                     reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
                     times_atRightVel = 3;
                     corretor = -1;
+
+                }if (times_atRightVel == 3 && right_vel && timer_split.seconds() > timer) {
                     post_shoot = true;
-                    shoot_split = false;
+                    times_atRightVel = 4;
 
                 }
 
@@ -198,7 +208,7 @@ public void auto(double timer, int sequence, boolean toShoot){
         }
         else if (sequence ==2) {
             if(times_atRightVel < 3) {
-                if (times_atRightVel == 0 && right_vel && right_pos) {
+                if (times_atRightVel == 0 && right_vel ) {
                     timer_split.reset();
                     reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
                     times_atRightVel = 1;
@@ -218,15 +228,19 @@ public void auto(double timer, int sequence, boolean toShoot){
                     reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
                     times_atRightVel = 3;
                     corretor = -1;
+
+
+
+                } if (times_atRightVel == 3 && right_vel && timer_split.seconds() > timer) {
                     post_shoot = true;
-                    shoot_split = false;
+                    times_atRightVel = 4;
 
                 }
 
             }
         } else if (sequence == 3) {
             if(times_atRightVel < 3) {
-                if (times_atRightVel == 0 && right_vel && right_pos) {
+                if (times_atRightVel == 0 && right_vel ) {
                     timer_split.reset();
                     reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
                     times_atRightVel = 1;
@@ -246,15 +260,19 @@ public void auto(double timer, int sequence, boolean toShoot){
                     reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
                     times_atRightVel = 3;
                     corretor = 1;
+
+
+
+                }if (times_atRightVel == 3 && right_vel && timer_split.seconds() > timer) {
                     post_shoot = true;
-                    shoot_split = false;
+                    times_atRightVel = 4;
 
                 }
 
             }
         }else if (sequence ==4) {
             if (times_atRightVel < 3) {
-                if (times_atRightVel == 0 && right_vel && right_pos) {
+                if (times_atRightVel == 0 && right_vel ) {
                     timer_split.reset();
                     reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
                     times_atRightVel = 1;
@@ -274,8 +292,10 @@ public void auto(double timer, int sequence, boolean toShoot){
                     reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
                     times_atRightVel = 3;
                     corretor = 1;
+
+                }if (times_atRightVel == 3 && right_vel && timer_split.seconds() > timer) {
                     post_shoot = true;
-                    shoot_split = false;
+                    times_atRightVel = 4;
 
                 }
 
@@ -283,7 +303,7 @@ public void auto(double timer, int sequence, boolean toShoot){
         }
         else if (sequence ==5) {
             if (times_atRightVel < 3) {
-                if (times_atRightVel == 0 && right_vel && right_pos) {
+                if (times_atRightVel == 0 && right_vel) {
                     timer_split.reset();
                     reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
                     times_atRightVel = 1;
@@ -303,8 +323,11 @@ public void auto(double timer, int sequence, boolean toShoot){
                     reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
                     times_atRightVel = 3;
                     corretor = 0;
+
+
+                }if (times_atRightVel == 3 && right_vel && timer_split.seconds() > timer) {
                     post_shoot = true;
-                    shoot_split = false;
+                    times_atRightVel = 4;
 
                 }
 

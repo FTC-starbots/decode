@@ -61,13 +61,10 @@ public class Rotas extends OpMode {
 
 
 
-    public void Rotas_APequeno_Perto() {}
+    public void Azul_12_AbrindoGate() {}
 
-    public void Rotas_APequeno_Longe() {}
+    public void  Azul_9_AbrindoGate() {}
 
-    public void Rotas_AGrande_Fora(){}
-
-    public void Rotas_AGrande_6() {}
 //------------------------------------------------------
     public void Rotas_VPequeno_Perto() {}
 

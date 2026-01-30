@@ -16,7 +16,7 @@ public class Shooter implements InterfaceSimple {
     public boolean shooting = false, right_vel = false;
     boolean servo_lift;
 
-    boolean pre_shoot;
+    public boolean pre_shoot;
 
 
     PIDFController controllerHeading = new PIDFController(new PIDFCoefficients(0, 0, 0, 0));
@@ -24,6 +24,11 @@ public class Shooter implements InterfaceSimple {
     public void setVelDesejada(int vel){
         velocidade_desejada = vel;
     }
+
+    public void isShooting(boolean isshooting){shooting = isshooting;}
+
+    public void isPreShoot(boolean ispre){pre_shoot = ispre;}
+
 
     public void teleop(Gamepad gamepad, int vel, boolean gamepad1, int minvel){
 
@@ -74,7 +79,7 @@ public class Shooter implements InterfaceSimple {
         controllerHeading.updateError(erro);
         double power = controllerHeading.run();
 
-        if((velocidade_desejada == Atirador_1.getVelocity()) && velocidade_desejada != 0 && !pre_shoot) right_vel = true;
+        if(velocidade_desejada == Atirador_1.getVelocity() && velocidade_desejada != 0 && !pre_shoot) right_vel = true;
         else right_vel = false;
 
 

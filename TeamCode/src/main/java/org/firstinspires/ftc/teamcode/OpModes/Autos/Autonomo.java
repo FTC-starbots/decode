@@ -4,23 +4,18 @@ package org.firstinspires.ftc.teamcode.OpModes.Autos;
 
 import static android.os.SystemClock.sleep;
 
-import static org.firstinspires.ftc.teamcode.OpModes.TeleOp.TeleOperado.servoA;
-import static org.firstinspires.ftc.teamcode.OpModes.TeleOp.TeleOperado.servoB;
-import static org.firstinspires.ftc.teamcode.OpModes.TeleOp.TeleOperado.servoC;
-import static org.firstinspires.ftc.teamcode.OpModes.TeleOp.TeleOperado.velA;
-import static org.firstinspires.ftc.teamcode.OpModes.TeleOp.TeleOperado.velB;
-
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Core.Algorithms.Drawing;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.Launching;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.PoseIdentifier;
 import org.firstinspires.ftc.teamcode.Core.Hardware.Lime;
@@ -29,17 +24,19 @@ import org.firstinspires.ftc.teamcode.Core.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Core.Parts.Shooter;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Pedro Pathing Autonomous", group = "Autonomous")
+@Autonomous
 @Configurable // Panels
-public class PedroAutonomous extends OpMode {
+public class Autonomo extends OpMode {
 
     private TelemetryManager panelsTelemetry; // Panels Telemetry instance
     public Follower follower; // Pedro Pathing follower instance
     private int pathState; // Current autonomous path state (state machine)
     private Paths paths; // Paths defined in the Paths class
 
+    ElapsedTime timerShooter = new ElapsedTime();
 
-    public double servoIdeal, velIdeal;
+    public double servoIdeal;
+    public int velIdeal;
 
 
     Shooter shooter = new Shooter();
@@ -51,18 +48,25 @@ public class PedroAutonomous extends OpMode {
 
      Lime limelight = new Lime();
 
+
+
 boolean toShoot;
 int sequence;
 
-int timesShoot;
+int timesShoot = 0;
 
 public double id;
+
+boolean timerReset;
+boolean atrightvel;
+
+int timesReset;
     @Override
     public void init() {
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(23.102803738317753, 124.48598130841118, Math.toRadians(324)));
+        follower.setStartingPose(new Pose(32.29906542056075, 134.5794392523364, Math.toRadians(-90)));
 
         paths = new Paths(follower); // Build paths
 
@@ -75,9 +79,11 @@ public double id;
 
         limelight.setPipeline(5);
 
+        shooter.setCoefficients(0.0002, 0.00009, 0, 0.05);
 
+        id = 21;
 
-
+        launching.reservatorio.resetServos();
         panelsTelemetry.debug("Status", "Initialized");
         panelsTelemetry.update(telemetry);
     }
@@ -85,28 +91,75 @@ public double id;
     @Override
     public void loop() {
 
+        poseidentifier.infoPINPOINT(follower.getPose().getX(), follower.getPose().getY(), follower.getPose().getHeading());
+
+
         double d = poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.DISTANCE);
 
-        servoIdeal = servoA * d * d - servoB * d + servoC;
+        servoIdeal = 0.000022 * d * d - 0.0079 * d + 1.55;
 
-        velIdeal = (int) (Math.round((velA * d + velB) / 20.0) * 20);
+        velIdeal = (int) (Math.round((2.1 * d + 980) / 20.0) * 20);
 
         Capota.setValue(servoIdeal);
 
+        if (toShoot) {
+            shooter.isShooting(true);
+            shooter.isPreShoot(false);
+            shooter.setVelDesejada(velIdeal);
+        } else {
+            shooter.isShooting(false);
+            shooter.isPreShoot(true);
+            shooter.setVelDesejada(980);
+        }
 
 
+        if (timerReset && timesReset == 0) {
+            timerShooter.reset();
+            timesReset = 1;
+        }
+
+
+        if (!toShoot) launching.reservatorio.resetServos();
+
+        launching.isShooting(shooter.shooting);
+        launching.isAtRightVel(shooter.right_vel);
         sequenceAnalyzer(id);
         launching.auto(0.5, sequence, toShoot);
 
+
+        shooter.update();
+        limelight.update();
+
+
+        Drawing.draw(follower);
         follower.update(); // Update Pedro Pathing
         autonomousPathUpdate(); // Update autonomous state machine
+        {
+            // Log values to Panels and Driver Station
+            panelsTelemetry.debug("Path State", pathState);
+            panelsTelemetry.debug("X", follower.getPose().getX());
+            panelsTelemetry.debug("Y", follower.getPose().getY());
+            panelsTelemetry.debug("Heading", follower.getPose().getHeading());
+            telemetry.addLine();
+            telemetry.addData("RightVel", shooter.right_vel);
+            telemetry.addData("ToShoot", toShoot);
+            telemetry.addData("shooting", shooter.shooting);
+            telemetry.addData("ToShoot", shooter.pre_shoot);
 
-        // Log values to Panels and Driver Station
-        panelsTelemetry.debug("Path State", pathState);
-        panelsTelemetry.debug("X", follower.getPose().getX());
-        panelsTelemetry.debug("Y", follower.getPose().getY());
-        panelsTelemetry.debug("Heading", follower.getPose().getHeading());
-        panelsTelemetry.update(telemetry);
+
+            telemetry.addLine();
+            telemetry.addData("Velocidade desejada", shooter.velocidade_desejada);
+            telemetry.addData("Velocidade atual", shooter.Atirador_1.getVelocity());
+            telemetry.addData("shooter erro", shooter.erro);
+            telemetry.addData("power ", shooter.Atirador_1.getPower());
+            telemetry.addLine();
+            panelsTelemetry.addData("Velocidade desejada", shooter.velocidade_desejada);
+            panelsTelemetry.addData("Velocidade atual", shooter.Atirador_1.getVelocity());
+            panelsTelemetry.addData("shooter erro", shooter.erro);
+            panelsTelemetry.addData("power ", shooter.Atirador_1.getPower());
+
+            panelsTelemetry.update(telemetry);
+        }
     }
 
     public static class Paths {
@@ -125,56 +178,57 @@ public double id;
         public Paths(Follower follower) {
             Path1 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(23.103, 124.486),
+                                    new Pose(32.299, 134.579),
 
                                     new Pose(48.000, 96.000)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(324), Math.toRadians(317))
+                    ).setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(317))
+
                     .build();
 
             Path2 = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(48.000, 96.000),
 
-                                    new Pose(23.776, 106.093)
+                                    new Pose(23.776, 102.280)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(317), Math.toRadians(-90))
-                    .setReversed()
+
                     .build();
 
             Path3 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(23.776, 106.093),
+                                    new Pose(23.776, 102.280),
 
-                                    new Pose(24.234, 76.467)
+                                    new Pose(23.785, 80.729)
                             )
                     ).setTangentHeadingInterpolation()
 
                     .build();
 
-            Path11 = follower.pathBuilder().addPath(
+            Path4 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(24.234, 76.467),
+                                    new Pose(23.785, 80.729),
 
-                                    new Pose(13.009, 70.206)
+                                    new Pose(15.252, 75.364)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-90))
 
                     .build();
 
-            Path4 = follower.pathBuilder().addPath(
+            Path5 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(13.009, 70.206),
+                                    new Pose(15.252, 75.364),
 
-                                    new Pose(53.981, 89.729)
+                                    new Pose(53.981, 89.953)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(317))
 
                     .build();
 
-            Path5 = follower.pathBuilder().addPath(
+            Path6 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(53.981, 89.729),
+                                    new Pose(53.981, 89.953),
 
                                     new Pose(24.121, 72.028)
                             )
@@ -182,19 +236,19 @@ public double id;
 
                     .build();
 
-            Path6 = follower.pathBuilder().addPath(
+            Path7 = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(24.121, 72.028),
 
-                                    new Pose(23.879, 52.140)
+                                    new Pose(23.879, 56.178)
                             )
                     ).setTangentHeadingInterpolation()
 
                     .build();
 
-            Path7 = follower.pathBuilder().addPath(
+            Path8 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(23.879, 52.140),
+                                    new Pose(23.879, 56.178),
 
                                     new Pose(59.636, 83.364)
                             )
@@ -202,7 +256,7 @@ public double id;
 
                     .build();
 
-            Path8 = follower.pathBuilder().addPath(
+            Path9 = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(59.636, 83.364),
 
@@ -212,19 +266,19 @@ public double id;
 
                     .build();
 
-            Path9 = follower.pathBuilder().addPath(
+            Path10 = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(24.000, 48.224),
 
-                                    new Pose(23.579, 26.935)
+                                    new Pose(24.028, 30.972)
                             )
                     ).setTangentHeadingInterpolation()
 
                     .build();
 
-            Path10 = follower.pathBuilder().addPath(
+            Path11 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(23.579, 26.935),
+                                    new Pose(24.028, 30.972),
 
                                     new Pose(61.533, 81.458)
                             )
@@ -263,102 +317,48 @@ public double id;
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                follower.followPath(paths.Path1, false);
+                follower.followPath(paths.Path1,0.8, true);
                 pathState = 1;
 
                 break;
             case 1:
 
                 if(!follower.isBusy()){
+                 //   id = limelight.id;
                     toShoot = true;
-                    sleep(2001);
-                    toShoot = false;
-                        follower.followPath(paths.Path2, true);
+
+                    if (launching.post_shoot) {
+                        timerReset = false;
+                        toShoot = false;
+                        follower.followPath(paths.Path2,0.7, true);
                         pathState = 2;
+                        timesShoot = 1;
+                    }
                 }
                 break;
 
             case 2:
                 if(!follower.isBusy()) {
                     intake.setMode(Intake.Mode.INTAKE);
-                    follower.followPath(paths.Path3, true);
+                    follower.followPath(paths.Path3,0.65, true);
                     pathState = 3;
                 }
                 break;
             case 3:
                 if(!follower.isBusy()) {
-                    intake.setMode(Intake.Mode.STOP);
-                    follower.followPath(paths.Path4, true);
+                    follower.followPath(paths.Path4,0.5, true);
                     pathState = 4;
                 }
                 break;
             case 4:
                 if(!follower.isBusy()) {
-
-                    follower.followPath(paths.Path5, false);
+                    intake.setMode(Intake.Mode.STOP);
+                    follower.followPath(paths.Path5,0.65, true);
                     pathState = 5;
+
                 }
                 break;
 
-            case 5:
-                if(!follower.isBusy()) {
-                    toShoot = true;
-                    sleep(2001);
-                    toShoot = false;
-                    follower.followPath(paths.Path6, true);
-                    pathState = 6;
-                }
-                break;
-
-            case 6:
-                if(!follower.isBusy()) {
-                    intake.setMode(Intake.Mode.INTAKE);
-                    follower.followPath(paths.Path7, true);
-                    pathState = 7;
-                }
-                break;
-            case 7:
-                if(!follower.isBusy()) {
-                    intake.setMode(Intake.Mode.STOP);
-                    follower.followPath(paths.Path8, false);
-                    pathState = 8;
-                }
-                break;
-
-            case 8:
-
-                if(!follower.isBusy()) {
-                    toShoot = true;
-                    sleep(2001);
-                    toShoot = false;
-                    follower.followPath(paths.Path9, true);
-                    pathState = 9;
-                }
-                break;
-
-            case 9:
-                if(!follower.isBusy()) {
-                    intake.setMode(Intake.Mode.INTAKE);
-                    follower.followPath(paths.Path10, true);
-                    pathState = 10;
-                }
-                break;
-            case 10:
-                if(!follower.isBusy()) {
-                    intake.setMode(Intake.Mode.STOP);
-                    follower.followPath(paths.Path11, false);
-                    pathState = 11;
-                }
-                break;
-
-            case 11:
-            if(!follower.isBusy()) {
-                toShoot = true;
-                sleep(2001);
-                toShoot = false;
-                pathState = -1;
-            }
-            break;
         }
     }
 }
