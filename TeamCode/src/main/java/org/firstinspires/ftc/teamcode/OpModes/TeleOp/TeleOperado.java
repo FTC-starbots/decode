@@ -6,6 +6,7 @@ package org.firstinspires.ftc.teamcode.OpModes.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Core.Algorithms.Launching;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.PoseIdentifier;
+import org.firstinspires.ftc.teamcode.Core.Algorithms.Selectors;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.TagAlign;
 import org.firstinspires.ftc.teamcode.Core.Hardware.AprilTagCam;
 import org.firstinspires.ftc.teamcode.Core.Hardware.Lime;
@@ -76,7 +77,7 @@ public class TeleOperado extends OpMode{
     public static double  limepos = 0;
 
 
-
+    Selectors seletores = new Selectors();
     PoseIdentifier poseidentifier = new PoseIdentifier();
 
     LimeServo servolime = new LimeServo();
@@ -117,6 +118,8 @@ public class TeleOperado extends OpMode{
         launching.start(hardwareMap);
         Capota.start(hardwareMap);
         servolime.start(hardwareMap);
+        seletores.start(hardwareMap);
+
         Limelight.setPipeline(5);
         Capota.setMode(AimAssisters.Mode.SET_POSITION);
 
@@ -234,9 +237,16 @@ public class TeleOperado extends OpMode{
     }
 
     public void telemetry(){
-
-        telemetry.addData("Capota " , Capota.getPosition());
         telemetry.addLine();
+        telemetry.addData("Alliace_blue", seletores.Alliance_B.getState());
+        telemetry.addData("Alliace_red", seletores.Alliance_R.getState());
+        telemetry.addData("Auto1", seletores.Auto1.getState());
+        telemetry.addData("Auto2", seletores.Auto2.getState());
+        telemetry.addData("Auto3", seletores.Auto3.getState());
+        telemetry.addData("Auto4", seletores.Auto4.getState());
+
+        telemetry.addLine();
+        telemetry.addData("Capota " , Capota.getPosition());
         telemetry.addLine();
         telemetry.addLine("POSIÇÕES");
         telemetry.addData("CamX", poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.X));

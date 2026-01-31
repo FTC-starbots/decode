@@ -61,7 +61,11 @@ public class Rotas extends OpMode {
 
 
 
-    public void Azul_12_AbrindoGate() {}
+    public void Azul_12_AbrindoGate() {
+
+
+
+    }
 
     public void  Azul_9_AbrindoGate() {}
 

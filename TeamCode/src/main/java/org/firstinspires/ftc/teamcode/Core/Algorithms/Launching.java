@@ -98,6 +98,8 @@ public class Launching {
         right_pos = pos;
     }
 
+    public void ispost_shoot(boolean shoot){post_shoot = shoot;}
+
     public void isShooting(boolean shoot){
         if (!shoot) times_atRightVel = 0;
     }
@@ -176,12 +178,13 @@ public class Launching {
 
     public void launch_auto(int sequence, double timer){
         if (sequence == 1){
-            if(times_atRightVel < 3) {
+            if(times_atRightVel < 4) {
                 if (times_atRightVel == 0 && right_vel) {
                     timer_split.reset();
                     reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
                     times_atRightVel = 1;
                     corretor = 1;
+
 
                 }
 
@@ -189,25 +192,25 @@ public class Launching {
                     timer_split.reset();
                     reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
                     times_atRightVel = 2;
-                    corretor = 0;
                 }
 
                 if (times_atRightVel == 2 && right_vel && timer_split.seconds() > timer) {
                     timer_split.reset();
                     reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
                     times_atRightVel = 3;
-                    corretor = -1;
 
-                }if (times_atRightVel == 3 && right_vel && timer_split.seconds() > timer) {
-                    post_shoot = true;
+
+                }if (times_atRightVel == 3  && timer_split.seconds() > timer) {
+                    timer_split.reset();
                     times_atRightVel = 4;
+                    post_shoot = true;
 
                 }
 
             }
         }
         else if (sequence ==2) {
-            if(times_atRightVel < 3) {
+            if(times_atRightVel < 4) {
                 if (times_atRightVel == 0 && right_vel ) {
                     timer_split.reset();
                     reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
@@ -231,15 +234,17 @@ public class Launching {
 
 
 
-                } if (times_atRightVel == 3 && right_vel && timer_split.seconds() > timer) {
-                    post_shoot = true;
+
+                }if (times_atRightVel == 3  && timer_split.seconds() > timer) {
+                    timer_split.reset();
                     times_atRightVel = 4;
+                    post_shoot = true;
 
                 }
 
             }
         } else if (sequence == 3) {
-            if(times_atRightVel < 3) {
+            if(times_atRightVel < 4) {
                 if (times_atRightVel == 0 && right_vel ) {
                     timer_split.reset();
                     reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
@@ -262,16 +267,17 @@ public class Launching {
                     corretor = 1;
 
 
-
-                }if (times_atRightVel == 3 && right_vel && timer_split.seconds() > timer) {
-                    post_shoot = true;
+                }
+                if (times_atRightVel == 3  && timer_split.seconds() > timer) {
+                    timer_split.reset();
                     times_atRightVel = 4;
+                    post_shoot = true;
 
                 }
 
             }
         }else if (sequence ==4) {
-            if (times_atRightVel < 3) {
+            if(times_atRightVel < 4) {
                 if (times_atRightVel == 0 && right_vel ) {
                     timer_split.reset();
                     reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
@@ -293,16 +299,18 @@ public class Launching {
                     times_atRightVel = 3;
                     corretor = 1;
 
-                }if (times_atRightVel == 3 && right_vel && timer_split.seconds() > timer) {
-                    post_shoot = true;
+
+                }if (times_atRightVel == 3  && timer_split.seconds() > timer) {
+                    timer_split.reset();
                     times_atRightVel = 4;
 
+                    post_shoot = true;
                 }
 
             }
         }
         else if (sequence ==5) {
-            if (times_atRightVel < 3) {
+            if(times_atRightVel < 4) {
                 if (times_atRightVel == 0 && right_vel) {
                     timer_split.reset();
                     reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
@@ -325,9 +333,11 @@ public class Launching {
                     corretor = 0;
 
 
-                }if (times_atRightVel == 3 && right_vel && timer_split.seconds() > timer) {
-                    post_shoot = true;
+
+                }if (times_atRightVel == 3 && timer_split.seconds() > timer) {
+                    timer_split.reset();
                     times_atRightVel = 4;
+                    post_shoot = true;
 
                 }
 
