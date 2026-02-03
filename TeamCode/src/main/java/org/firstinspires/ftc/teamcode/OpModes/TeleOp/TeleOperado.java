@@ -37,7 +37,7 @@ import org.firstinspires.ftc.teamcode.Core.Algorithms.Drawing;
 @TeleOp
 public class TeleOperado extends OpMode{
 
-    Pose startingPose = new Pose(105.19626168224299,32.971962616822424, Math.toRadians(90));
+
     Follower followerteleop;
 
     boolean isGamepad1 = false, isManual = false;
@@ -98,6 +98,10 @@ public class TeleOperado extends OpMode{
 
  public static double  corr;
 
+ public int auto;
+
+ public boolean isBlue, manualSelectAlliance, manualSelectAuto;
+
 
 
 
@@ -106,25 +110,37 @@ public class TeleOperado extends OpMode{
         myControlHubVoltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
 
         followerteleop = Constants.createFollower(hardwareMap);
-        followerteleop.setStartingPose(startingPose);
-        followerteleop.update();
-        telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
-        followerteleop.startTeleopDrive();
-        Limelight.setup(hardwareMap);
-        reservatorio.start(hardwareMap);
-        aptag.setup(hardwareMap);
-        Intake.start(hardwareMap);
-        Shooter.start(hardwareMap);
-        launching.start(hardwareMap);
-        Capota.start(hardwareMap);
-        servolime.start(hardwareMap);
-        seletores.start(hardwareMap);
 
-        Limelight.setPipeline(5);
+
+        telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
+
+
+
+        reservatorio.start(hardwareMap);
+
+        aptag.setup(hardwareMap);
+
+        Intake.start(hardwareMap);
+
+        Shooter.start(hardwareMap);
+        Shooter.setCoefficients(kpShooter,kiShooter, kdShooter, kfShooter);
+
+        launching.start(hardwareMap);
+
+        Capota.start(hardwareMap);
         Capota.setMode(AimAssisters.Mode.SET_POSITION);
 
+        servolime.start(hardwareMap);
 
-        Shooter.setCoefficients(kpShooter,kiShooter, kdShooter, kfShooter);
+        seletores.start(hardwareMap);
+
+
+        Limelight.setup(hardwareMap);
+        Limelight.setPipeline(5);
+
+
+
+
 
         Drawing.init();
 
@@ -132,17 +148,87 @@ public class TeleOperado extends OpMode{
 
     }
 
+    @Override
+    public void init_loop(){
 
+
+
+        if (!manualSelectAuto){
+            auto = seletores.getAuto();
+        }
+
+        if (gamepad2.aWasPressed() || gamepad2.crossWasPressed()) {
+            manualSelectAuto = true;
+            auto =1;
+        }
+        else if (gamepad2.bWasPressed() || gamepad2.circleWasPressed()){
+            manualSelectAuto = true;
+            auto =2;
+        }
+        else if (gamepad2.yWasPressed() || gamepad2.triangleWasPressed()){
+            manualSelectAuto = true;
+            auto =3;
+        }
+        else if (gamepad2.xWasPressed() || gamepad2.squareWasPressed()) {
+            manualSelectAuto = true;
+            auto = 4;
+        }
+
+
+
+        if (!manualSelectAlliance){
+            isBlue = seletores.isBlueAlliance();
+        }
+
+        if (gamepad2.dpadLeftWasPressed()) {
+            manualSelectAlliance = true;
+            isBlue = true;
+        }
+        else if (gamepad2.dpadRightWasPressed()){
+            manualSelectAlliance = true;
+            isBlue = false;
+        }
+
+        telemetry.addData("auto", auto);
+        telemetry.addData("isBlue", isBlue);
+        telemetry.update();
+
+    }
+
+
+@Override
     public void start(){
         Ciclo = new ElapsedTime();
         Ciclo.reset();
 
+//
+//    if (auto == 1 || auto == 2){
+//        if (isBlue) {
+//            follower.setStartingPose(new Pose(32.29906542056075, 134.5794392523364, Math.toRadians(-90)));
+//        }else {
+//            follower.setStartingPose(new Pose(111.70093457943925, 134.5794392523364, Math.toRadians(270)));
+//        }
+//    }
+//    else if (auto == 3 || auto == 4){
+//        if (isBlue) {
+//            follower.setStartingPose(new Pose(55.55140186915888, 8.448598130841138, Math.toRadians(-90)));
+//        }else {
+//            follower.setStartingPose(new Pose(88.44859813084112, 8.448598130841138, Math.toRadians(270)));
+//        }
+//    }
 
+
+    Pose startingPose = new Pose(105.19626168224299,32.971962616822424, Math.toRadians(90));
+    followerteleop.setStartingPose(startingPose);
+    followerteleop.update();
+    followerteleop.startTeleopDrive();
     }
 
     @Override
     public void loop() {
         Ciclo.reset();
+
+
        tagalign.setValues(Limelight.tpixel, aptag.LeituraPixels, Limelight.tagdetected, aptag.tagdetected, 2592, 720);
 
 
@@ -150,8 +236,11 @@ public class TeleOperado extends OpMode{
        drivetrain.setCoefficientsfirt(Firstkp,Firstki,Firstkd,Firstkf);
        drivetrain.setCoefficientssecond(Secondkp,Secondki,Secondkd,Secondkf);
 
+       servolime.updateDesiredReference(LimeServo.Mode.OBELISK);
+       servolime.setCurrentPosition(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X), poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y), poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.YAW));
 
-       servolime.setPosition(limepos);
+
+
         double d = poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.DISTANCE);
 
         servoIdeal = servoA * d * d - servoB * d + servoC;
@@ -167,6 +256,8 @@ public class TeleOperado extends OpMode{
             Shooter.teleop(gamepad2, velIdeal, isGamepad1, velB);
 
             Intake.teleop(gamepad1);
+
+            servolime.update();
         }
 
 //===LANÇAMENTO==================================================================================
@@ -237,6 +328,13 @@ public class TeleOperado extends OpMode{
     }
 
     public void telemetry(){
+
+        telemetry.addLine();
+        telemetry.addData("ang ideal", servolime.IdealYaw);
+        telemetry.addData("current yaw", servolime.currentYaw);
+        telemetry.addData("current yaw", servolime.currentYaw);
+
+        telemetry.addData("limeservo", servolime.ServoLime.getPosition());
         telemetry.addLine();
         telemetry.addData("Alliace_blue", seletores.Alliance_B.getState());
         telemetry.addData("Alliace_red", seletores.Alliance_R.getState());

@@ -16,7 +16,7 @@ public class Shooter implements InterfaceSimple {
     public boolean shooting = false, right_vel = false;
     boolean servo_lift;
 
-    public boolean pre_shoot;
+    public boolean pre_shoot = false;
 
 
     PIDFController controllerHeading = new PIDFController(new PIDFCoefficients(0, 0, 0, 0));
@@ -90,7 +90,7 @@ public class Shooter implements InterfaceSimple {
             Atirador_1.setPower(power);
             Atirador_2.setPower(power);
         } else{
-            if(erro>20) {
+            if(erro>40) {
                 Atirador_1.setPower(1);
                 Atirador_2.setPower(1);
             }
