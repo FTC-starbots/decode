@@ -76,20 +76,22 @@ public boolean right_pos;
              aptag = true;
          }else{
              targetHeading = IdealAngle + Math.toRadians(corrreserv) * -6;
-             error_hor = targetHeading - followerdrive.getHeading();
-             error_anti_hor = followerdrive.getHeading() - targetHeading;
              aptag = false;
 
-             if (Math.abs(error_hor) < Math.abs(error_anti_hor)) error_final = error_hor;
-             else error_final = -error_anti_hor;
+
+             error_final = targetHeading - followerdrive.getHeading();
+
+             if (error_final > 180) error_final -= 360;
+             if (error_final < -180) error_final += 360;
          }
      } else{
-         error_hor = targetHeading - followerdrive.getHeading();
-         error_anti_hor = followerdrive.getHeading() - targetHeading;
          aptag = false;
 
-         if (Math.abs(error_hor) < Math.abs(error_anti_hor)) error_final = error_hor;
-         else error_final = -error_anti_hor;
+
+         error_final = targetHeading - followerdrive.getHeading();
+
+         if (error_final > 180) error_final -= 360;
+         if (error_final < -180) error_final += 360;
      }
 
 

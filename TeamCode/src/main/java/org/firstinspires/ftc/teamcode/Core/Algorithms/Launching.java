@@ -54,17 +54,14 @@ public class Launching {
 }
     public void teleop(Gamepad gamepad, double timer){
         isTeleop = true;
-        if (gamepad.leftBumperWasPressed()){
+        if (gamepad.left_bumper){
 
-            last_shoot_type = 1;
+            last_shoot_type = 3;
         }
-        else if (gamepad.rightBumperWasPressed()){
+        else if (gamepad.right_bumper){
 
             last_shoot_type = 2;
 
-        } else if (gamepad.aWasPressed()){
-
-            last_shoot_type = 3;
         }
 
         if (right_vel) {

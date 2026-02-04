@@ -9,9 +9,11 @@ import org.firstinspires.ftc.teamcode.Core.Algorithms.PoseIdentifier;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.Selectors;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.TagAlign;
 import org.firstinspires.ftc.teamcode.Core.Hardware.AprilTagCam;
+import org.firstinspires.ftc.teamcode.Core.Hardware.Leds;
 import org.firstinspires.ftc.teamcode.Core.Hardware.Lime;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
@@ -40,7 +42,7 @@ public class TeleOperado extends OpMode{
 
     Follower followerteleop;
 
-    boolean isGamepad1 = false, isManual = false;
+    boolean isGamepad1 = false, isManual = false, isValidArea = false;
     Robot robot = new Robot();
 
     Drivetrain drivetrain = robot.drivetrain;
@@ -82,6 +84,10 @@ public class TeleOperado extends OpMode{
 
     LimeServo servolime = new LimeServo();
 
+    Leds LED = new Leds();
+
+
+
     public static double servoA = 0.000022, servoB = 0.0079, servoC = 1.55;
 
     public static double velA = 2.1;
@@ -114,7 +120,7 @@ public class TeleOperado extends OpMode{
 
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
-
+        LED.start(hardwareMap);
 
         reservatorio.start(hardwareMap);
 
@@ -172,6 +178,9 @@ public class TeleOperado extends OpMode{
         else if (gamepad2.xWasPressed() || gamepad2.squareWasPressed()) {
             manualSelectAuto = true;
             auto = 4;
+        } else if (gamepad2.dpadUpWasPressed()) {
+            manualSelectAuto = true;
+            auto = 5;
         }
 
 
@@ -199,27 +208,27 @@ public class TeleOperado extends OpMode{
 @Override
     public void start(){
         Ciclo = new ElapsedTime();
-        Ciclo.reset();
-
-//
-//    if (auto == 1 || auto == 2){
-//        if (isBlue) {
-//            follower.setStartingPose(new Pose(32.29906542056075, 134.5794392523364, Math.toRadians(-90)));
-//        }else {
-//            follower.setStartingPose(new Pose(111.70093457943925, 134.5794392523364, Math.toRadians(270)));
-//        }
-//    }
-//    else if (auto == 3 || auto == 4){
-//        if (isBlue) {
-//            follower.setStartingPose(new Pose(55.55140186915888, 8.448598130841138, Math.toRadians(-90)));
-//        }else {
-//            follower.setStartingPose(new Pose(88.44859813084112, 8.448598130841138, Math.toRadians(270)));
-//        }
-//    }
+       Ciclo.reset();
 
 
-    Pose startingPose = new Pose(105.19626168224299,32.971962616822424, Math.toRadians(90));
-    followerteleop.setStartingPose(startingPose);
+    if (auto == 1 || auto == 2){
+        if (isBlue) {
+            followerteleop.setStartingPose(new Pose(57.421, 100.037, Math.toRadians(323)));
+        }else {
+            followerteleop.setStartingPose(new Pose(86.579, 100.037, Math.toRadians(-143)));
+        }
+    }
+    else if (auto == 3 || auto == 4){
+        if (isBlue) {
+            followerteleop.setStartingPose(new Pose(35.888, 7.981, Math.toRadians(180)));
+        }else {
+            followerteleop.setStartingPose(new Pose(108.112, 7.981, Math.toRadians(0)));
+        }
+    }
+    if (auto == 5){
+        followerteleop.setStartingPose(new Pose(105.19626168224299,32.971962616822424, Math.toRadians(90)));
+    }
+
     followerteleop.update();
     followerteleop.startTeleopDrive();
     }
@@ -244,16 +253,29 @@ public class TeleOperado extends OpMode{
         double d = poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.DISTANCE);
 
         servoIdeal = servoA * d * d - servoB * d + servoC;
+        if (d > 100){
+            velIdeal = (int) (Math.round((velA * d + velB + 40) / 20.0) * 20);
+        }else{
+            velIdeal = (int) (Math.round((velA * d + velB) / 20.0) * 20);
+        }
 
-        velIdeal = (int) (Math.round((velA * d + velB) / 20.0) * 20);
 
         double angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 138, poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 12);
+
+        if ( poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) < Math.abs(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 72) + 68.5
+                ||
+                poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) < - Math.abs(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 72) + 35.5){
+            isValidArea = true;
+        }else{
+            isValidArea = false;
+        }
+
 
 //===FUNÇÕES VITAIS==============================================================================
         {
             launching.teleop(gamepad2,timer);
 
-            Shooter.teleop(gamepad2, velIdeal, isGamepad1, velB);
+            Shooter.teleop(gamepad2, velIdeal, isGamepad1, velIdeal-60);
 
             Intake.teleop(gamepad1);
 
@@ -310,12 +332,28 @@ public class TeleOperado extends OpMode{
 
 //===UPDATE DE POSIÇÃO===========================================================================
         {
+
+        if (gamepad1.startWasPressed()){
+            if (isBlue){
+            followerteleop.setPose(new Pose(134,8, Math.toRadians(180)));
+            }else {
+                followerteleop.setPose(new Pose(9,8, Math.toRadians(0)));
+            }
+        }
+
+
             poseidentifier.infoLIME(Limelight.x, Limelight.y, Limelight.angle, Limelight.distance);
             poseidentifier.infoCAM(aptag.LeituraX, aptag.LeituraY, aptag.LeituraYaw);
             poseidentifier.infoPINPOINT(followerteleop.getPose().getX(), followerteleop.getPose().getY(), followerteleop.getPose().getHeading());
 
         }
 
+
+//===LEDS========================================================================================
+        {
+            if(isValidArea) LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+            else  LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+        }
         robot.update();
         telemetry();
         tempoCiclo = Ciclo.milliseconds();
