@@ -28,7 +28,7 @@ public class Drivetrain implements InterfaceSimple {
     public double widht_divididopor2menospixel;
     PIDFController controllerHeading = new PIDFController(new PIDFCoefficients(2, 0, 0.01, 0));
 
-   public double targetHeading = Math.toRadians(90);
+   public double targetHeading;
     boolean headingLock, aptag;
 
     double kpa, kia, kda, kfa;
@@ -37,7 +37,7 @@ public class Drivetrain implements InterfaceSimple {
 
     double kps, kis, kds, kfs;
 
-
+    double vectorx, vectory;
 public boolean right_pos;
 
 
@@ -62,8 +62,13 @@ public boolean right_pos;
         kfs = kf;
     }
 
+    public void setTargetHeading(double target){targetHeading = target;}
 
-  public void Drive(Gamepad gamepad, Follower followerdrive, boolean AptagLock, double pixel, double width, boolean validation, double offsetpercent, double IdealAngle,double corrreserv){
+    public void setVectorX(double x){vectorx = x;}
+    public void setVectorY(double y){vectory = y;}
+
+
+  public void Drive(boolean isBlue, Gamepad gamepad, Follower followerdrive, boolean AptagLock, double pixel, double width, boolean validation, double offsetpercent, double IdealAngle,double corrreserv){
 
       rotation = (gamepad.left_trigger - gamepad.right_trigger);
 
@@ -75,7 +80,7 @@ public boolean right_pos;
              error_final = (((width / 2) - (width * offsetpercent)) - pixel) / (((width / 2) - (width * offsetpercent)) * 0.03);
              aptag = true;
          }else{
-             targetHeading = IdealAngle + Math.toRadians(corrreserv) * -6;
+             targetHeading = IdealAngle + Math.toRadians(corrreserv) * -10;
              aptag = false;
 
 
@@ -128,10 +133,14 @@ public boolean right_pos;
           targetHeading = followerdrive.getHeading();
       }
 
+if (isBlue) {
+    if (headingLock) followerdrive.setTeleOpDrive(gamepad.left_stick_y + vectorx, gamepad.left_stick_x+ vectory, controllerHeading.run(), false);
+    else followerdrive.setTeleOpDrive(gamepad.left_stick_y * 1.2+ vectorx, gamepad.left_stick_x * 1.2+ vectory, rotation * 0.7, false);
+}else{
+    if (headingLock) followerdrive.setTeleOpDrive(-gamepad.left_stick_y+ vectorx, -gamepad.left_stick_x+ vectory, controllerHeading.run(), false);
+    else followerdrive.setTeleOpDrive(-gamepad.left_stick_y * 1.2+ vectorx, -gamepad.left_stick_x * 1.2+ vectory, rotation * 0.7, false);
 
-      if (headingLock) followerdrive.setTeleOpDrive(gamepad.left_stick_y, gamepad.left_stick_x, controllerHeading.run(), false);
-      else followerdrive.setTeleOpDrive(gamepad.left_stick_y * 1.2, gamepad.left_stick_x * 1.2, rotation * 0.7, false);
-
+}
 
 
 

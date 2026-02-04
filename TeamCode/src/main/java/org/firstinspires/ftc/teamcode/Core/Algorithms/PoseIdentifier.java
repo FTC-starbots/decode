@@ -27,6 +27,7 @@ public class PoseIdentifier implements  InterfaceSimple{
     double PINPposeX, PINPposeY, PINPposeYaw, PINPdistance;
 
     Pose LimePose, CamPose;
+    boolean isBlue;
 
     public double getInfo(Source source, DataInfo dataInfo) {
             switch (source) {
@@ -72,6 +73,8 @@ public class PoseIdentifier implements  InterfaceSimple{
                     return returninfo;
             }
 
+            public void isblue(boolean isblue){isBlue = isblue;}
+
     public void infoLIME(double limex,double limey, double limeyaw,double limedist){
 
         LimePose = new Pose(limex, limey, limeyaw, FTCCoordinates.INSTANCE).getAsCoordinateSystem(PedroCoordinates.INSTANCE);
@@ -99,8 +102,11 @@ public class PoseIdentifier implements  InterfaceSimple{
         PINPposeX = pinx;
         PINPposeY = piny;
         PINPposeYaw =  Math.toDegrees(pinyaw);
-
-        PINPdistance = Math.sqrt((PINPposeX - 10)*(PINPposeX - 10) + (PINPposeY - 138)*(PINPposeY - 138));
+if (isBlue) {
+    PINPdistance = Math.sqrt((PINPposeX - 10) * (PINPposeX - 10) + (PINPposeY - 138) * (PINPposeY - 138));
+}else {
+    PINPdistance = Math.sqrt((PINPposeX - 134) * (PINPposeX - 134) + (PINPposeY - 138) * (PINPposeY - 138));
+}
     }
 
     @Override

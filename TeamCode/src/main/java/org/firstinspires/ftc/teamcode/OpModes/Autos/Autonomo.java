@@ -22,7 +22,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.Drawing;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.Launching;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.PoseIdentifier;
-import org.firstinspires.ftc.teamcode.Core.Algorithms.Selectors;
+import org.firstinspires.ftc.teamcode.Core.Hardware.ColorSensor;
 import org.firstinspires.ftc.teamcode.Core.Hardware.Lime;
 import org.firstinspires.ftc.teamcode.Core.Parts.AimAssisters;
 import org.firstinspires.ftc.teamcode.Core.Parts.Intake;
@@ -30,7 +30,7 @@ import org.firstinspires.ftc.teamcode.Core.Parts.LimeServo;
 import org.firstinspires.ftc.teamcode.Core.Parts.Shooter;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous
+@Autonomous(preselectTeleOp = "TeleOperado")
 @Configurable // Panels
 public class Autonomo extends OpMode {
 
@@ -66,9 +66,10 @@ public class Autonomo extends OpMode {
 
      Lime limelight = new Lime();
 
-    Selectors seletores = new Selectors();
 
     LimeServo servolime = new LimeServo();
+
+    ColorSensor colorSensor = new ColorSensor();
 
 boolean toShoot = false;
 int sequence = 1;
@@ -80,7 +81,11 @@ public double id = 21;
 boolean timerReset;
 
 int timesReset;
-    boolean manualSelectAuto = false, manualSelectAlliance = false,isBlue;
+    boolean manualSelectAuto = false, manualSelectAlliance = false;
+
+    public static boolean isBlue;
+
+    public static Pose finalPose = new Pose(0, 0, 0);
 
     int auto;
     @SuppressLint("SuspiciousIndentation")
@@ -90,13 +95,13 @@ int timesReset;
 
         follower = Constants.createFollower(hardwareMap);
 
-
+        colorSensor.start(hardwareMap);
         shooter.start(hardwareMap);
         intake.start(hardwareMap);
         Capota.start(hardwareMap);
         launching.start(hardwareMap);
         limelight.setup(hardwareMap);
-        seletores.start(hardwareMap);
+
 
         limelight.start();
 
@@ -122,7 +127,7 @@ int timesReset;
 
 
         if (!manualSelectAuto){
-            auto = seletores.getAuto();
+            auto = 1;
         }
 
         if (gamepad2.aWasPressed() || gamepad2.crossWasPressed()) {
@@ -145,7 +150,7 @@ int timesReset;
 
 
         if (!manualSelectAlliance){
-            isBlue = seletores.isBlueAlliance();
+            isBlue = true;
         }
 
         if (gamepad2.dpadLeftWasPressed()) {
@@ -219,6 +224,7 @@ int timesReset;
     @Override
     public void loop() {
         {
+            colorSensor.setCor(ColorSensor.COLOR.NONE);
             poseidentifier.infoPINPOINT(follower.getPose().getX(), follower.getPose().getY(), follower.getPose().getHeading());
 
             servolime.setCurrentPosition(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X), poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y), poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.YAW));
@@ -312,6 +318,10 @@ int timesReset;
         }
     }
 
+    @Override
+    public void stop(){
+        finalPose = follower.getPose();
+    }
     public void sequenceAnalyzer(double id){
        if ((auto == 1 && isBlue|| auto == 2 && isBlue) || (auto == 3 && !isBlue || auto == 4 && !isBlue)) {
 

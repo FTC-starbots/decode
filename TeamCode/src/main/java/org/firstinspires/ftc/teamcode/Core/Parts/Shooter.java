@@ -32,7 +32,7 @@ public class Shooter implements InterfaceSimple {
 
     public void teleop(Gamepad gamepad, int vel, boolean gamepad1, int minvel){
 
-        if (gamepad.left_bumper || gamepad.right_bumper){
+        if (gamepad.left_bumper || gamepad.right_bumper ||gamepad.dpad_left || gamepad.dpad_up || gamepad.dpad_right){
             pre_shoot = false;
             shooting = true;
             setVelDesejada(vel);

@@ -63,12 +63,34 @@ public class Launching {
             last_shoot_type = 2;
 
         }
+        else if (gamepad.dpad_left){
+            last_shoot_type = 4;
+        }else if (gamepad.dpad_up){
+            last_shoot_type = 5;
+        }else if (gamepad.dpad_right){
+            last_shoot_type = 6;
+        }
 
         if (right_vel) {
 
             if (last_shoot_type == 1) shoot_all = true;
             if (last_shoot_type == 2) shoot_sequence = true;
             if (last_shoot_type == 3) shoot_split = true;
+            if (last_shoot_type == 4){
+                reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
+                corretor = 1;
+                post_shoot = true;
+            }
+            if (last_shoot_type == 5){
+                reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
+                corretor = 0;
+                post_shoot = true;
+            }
+            if (last_shoot_type == 6){
+                reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
+                corretor = -1;
+                post_shoot = true;
+            }
 
             pressed_button.reset();
             timer_all.reset();

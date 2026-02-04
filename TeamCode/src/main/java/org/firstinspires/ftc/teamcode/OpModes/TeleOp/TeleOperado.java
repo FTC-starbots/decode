@@ -6,9 +6,9 @@ package org.firstinspires.ftc.teamcode.OpModes.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Core.Algorithms.Launching;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.PoseIdentifier;
-import org.firstinspires.ftc.teamcode.Core.Algorithms.Selectors;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.TagAlign;
 import org.firstinspires.ftc.teamcode.Core.Hardware.AprilTagCam;
+import org.firstinspires.ftc.teamcode.Core.Hardware.ColorSensor;
 import org.firstinspires.ftc.teamcode.Core.Hardware.Leds;
 import org.firstinspires.ftc.teamcode.Core.Hardware.Lime;
 
@@ -30,6 +30,7 @@ import org.firstinspires.ftc.teamcode.Core.Parts.Reservoirs;
 import org.firstinspires.ftc.teamcode.Core.Parts.Shooter;
 import org.firstinspires.ftc.teamcode.Core.Parts.Intake;
 import org.firstinspires.ftc.teamcode.Core.Robot;
+import org.firstinspires.ftc.teamcode.OpModes.Autos.Autonomo;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.Drawing;
 
@@ -37,7 +38,7 @@ import org.firstinspires.ftc.teamcode.Core.Algorithms.Drawing;
 @Configurable
 
 @TeleOp
-public class TeleOperado extends OpMode{
+public class TeleOperado extends Autonomo {
 
 
     Follower followerteleop;
@@ -76,10 +77,13 @@ public class TeleOperado extends OpMode{
     TagAlign tagalign = new TagAlign();
     AimAssisters Capota = launching.Capota;
     public Reservoirs reservatorio = new Reservoirs();
+
+    ColorSensor colorSensor = new ColorSensor();
+
     public static double  limepos = 0;
 
 
-    Selectors seletores = new Selectors();
+
     PoseIdentifier poseidentifier = new PoseIdentifier();
 
     LimeServo servolime = new LimeServo();
@@ -105,9 +109,9 @@ public class TeleOperado extends OpMode{
  public static double  corr;
 
  public int auto;
-
- public boolean isBlue, manualSelectAlliance, manualSelectAuto;
-
+public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
+ public boolean isitBlue, manualSelectAlliance, manualSelectAuto, Movimento_robo;
+    double angleIdeal;
 
 
 
@@ -119,6 +123,8 @@ public class TeleOperado extends OpMode{
 
 
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
+
+        colorSensor.start(hardwareMap);
 
         LED.start(hardwareMap);
 
@@ -138,7 +144,7 @@ public class TeleOperado extends OpMode{
 
         servolime.start(hardwareMap);
 
-        seletores.start(hardwareMap);
+
 
 
         Limelight.setup(hardwareMap);
@@ -154,80 +160,13 @@ public class TeleOperado extends OpMode{
 
     }
 
-    @Override
-    public void init_loop(){
-
-
-
-        if (!manualSelectAuto){
-            auto = seletores.getAuto();
-        }
-
-        if (gamepad2.aWasPressed() || gamepad2.crossWasPressed()) {
-            manualSelectAuto = true;
-            auto =1;
-        }
-        else if (gamepad2.bWasPressed() || gamepad2.circleWasPressed()){
-            manualSelectAuto = true;
-            auto =2;
-        }
-        else if (gamepad2.yWasPressed() || gamepad2.triangleWasPressed()){
-            manualSelectAuto = true;
-            auto =3;
-        }
-        else if (gamepad2.xWasPressed() || gamepad2.squareWasPressed()) {
-            manualSelectAuto = true;
-            auto = 4;
-        } else if (gamepad2.dpadUpWasPressed()) {
-            manualSelectAuto = true;
-            auto = 5;
-        }
-
-
-
-        if (!manualSelectAlliance){
-            isBlue = seletores.isBlueAlliance();
-        }
-
-        if (gamepad2.dpadLeftWasPressed()) {
-            manualSelectAlliance = true;
-            isBlue = true;
-        }
-        else if (gamepad2.dpadRightWasPressed()){
-            manualSelectAlliance = true;
-            isBlue = false;
-        }
-
-        telemetry.addData("auto", auto);
-        telemetry.addData("isBlue", isBlue);
-        telemetry.update();
-
-    }
-
 
 @Override
     public void start(){
         Ciclo = new ElapsedTime();
        Ciclo.reset();
 
-
-    if (auto == 1 || auto == 2){
-        if (isBlue) {
-            followerteleop.setStartingPose(new Pose(57.421, 100.037, Math.toRadians(323)));
-        }else {
-            followerteleop.setStartingPose(new Pose(86.579, 100.037, Math.toRadians(-143)));
-        }
-    }
-    else if (auto == 3 || auto == 4){
-        if (isBlue) {
-            followerteleop.setStartingPose(new Pose(35.888, 7.981, Math.toRadians(180)));
-        }else {
-            followerteleop.setStartingPose(new Pose(108.112, 7.981, Math.toRadians(0)));
-        }
-    }
-    if (auto == 5){
-        followerteleop.setStartingPose(new Pose(105.19626168224299,32.971962616822424, Math.toRadians(90)));
-    }
+    followerteleop.setPose(finalPose);
 
     followerteleop.update();
     followerteleop.startTeleopDrive();
@@ -235,42 +174,49 @@ public class TeleOperado extends OpMode{
 
     @Override
     public void loop() {
+        poseidentifier.isblue(isBlue);
+        colorSensor.setCor(ColorSensor.COLOR.NONE);
+
+
         Ciclo.reset();
 
 
-       tagalign.setValues(Limelight.tpixel, aptag.LeituraPixels, Limelight.tagdetected, aptag.tagdetected, 2592, 720);
+        tagalign.setValues(Limelight.tpixel, aptag.LeituraPixels, Limelight.tagdetected, aptag.tagdetected, 2592, 720);
 
 
-       drivetrain.setCoefficientsAptag(kpAlign,kiAlign,kdAlign,kfAlign);
-       drivetrain.setCoefficientsfirt(Firstkp,Firstki,Firstkd,Firstkf);
-       drivetrain.setCoefficientssecond(Secondkp,Secondki,Secondkd,Secondkf);
+        drivetrain.setCoefficientsAptag(kpAlign, kiAlign, kdAlign, kfAlign);
+        drivetrain.setCoefficientsfirt(Firstkp, Firstki, Firstkd, Firstkf);
+        drivetrain.setCoefficientssecond(Secondkp, Secondki, Secondkd, Secondkf);
 
-       servolime.updateDesiredReference(LimeServo.Mode.OBELISK);
-       servolime.setCurrentPosition(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X), poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y), poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.YAW));
-
+        servolime.updateDesiredReference(LimeServo.Mode.OBELISK);
+        servolime.setCurrentPosition(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X), poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y), poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.YAW));
 
 
         double d = poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.DISTANCE);
 
         servoIdeal = servoA * d * d - servoB * d + servoC;
-        if (d > 100){
+        if (d > 100) {
             velIdeal = (int) (Math.round((velA * d + velB + 40) / 20.0) * 20);
-        }else{
+        } else {
             velIdeal = (int) (Math.round((velA * d + velB) / 20.0) * 20);
         }
 
-
-        double angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 138, poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 12);
-
-        if ( poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) < Math.abs(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 72) + 68.5
+    if (isBlue) {
+        angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 136, poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 12);
+    }else{
+        angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 136, poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 132);
+    }
+        if (poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) < Math.abs(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 72) + 68.5
                 ||
-                poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) < - Math.abs(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 72) + 35.5){
+                poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) < -Math.abs(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 72) + 35.5) {
             isValidArea = true;
-        }else{
+        } else {
             isValidArea = false;
         }
 
-
+//===CONTROLE DE POSIÇÃO=========================================================================
+       drivetrain.setVectorX(0);
+        drivetrain.setVectorY(0);
 //===FUNÇÕES VITAIS==============================================================================
         {
             launching.teleop(gamepad2,timer);
@@ -302,20 +248,20 @@ public class TeleOperado extends OpMode{
 //===FUNÇÕES DE MOVIMENTO========================================================================
         {
             if (isGamepad1) {
-                if (isManual) drivetrain.Drive(gamepad1, followerteleop, Shooter.shooting, 0, 100, false, offset, angleIdeal, launching.corretor);
-                else drivetrain.Drive(gamepad1, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, tagalign.validation, offset, angleIdeal,launching.corretor);
+                if (isManual) drivetrain.Drive(isBlue, gamepad1, followerteleop, Shooter.shooting, 0, 100, false, offset, angleIdeal, launching.corretor);
+                else drivetrain.Drive(isBlue, gamepad1, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, false, offset, angleIdeal,launching.corretor);
 
 
             } else {
-                if (isManual) drivetrain.Drive(gamepad2, followerteleop, Shooter.shooting, 0, 100, false, offset, angleIdeal, launching.corretor);
-                else drivetrain.Drive(gamepad2, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, tagalign.validation, offset, angleIdeal,launching.corretor);
+                if (isManual) drivetrain.Drive(isBlue, gamepad2, followerteleop, Shooter.shooting, 0, 100, false, offset, angleIdeal, launching.corretor);
+                else drivetrain.Drive(isBlue, gamepad2, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, false, offset, angleIdeal,launching.corretor);
 
             }
         }
 
 //===FUNÇÕES DE CONTROLE=========================================================================
         {
-            if (gamepad2.back) isManual = !isManual;
+            if (gamepad2.backWasPressed()) isManual = !isManual;
 
 
             if (gamepad1.square || gamepad1.x) {
@@ -336,8 +282,10 @@ public class TeleOperado extends OpMode{
         if (gamepad1.startWasPressed()){
             if (isBlue){
             followerteleop.setPose(new Pose(134,8, Math.toRadians(180)));
+                drivetrain.setTargetHeading(Math.toRadians(180));
             }else {
                 followerteleop.setPose(new Pose(9,8, Math.toRadians(0)));
+                drivetrain.setTargetHeading(Math.toRadians(0));
             }
         }
 
@@ -372,14 +320,17 @@ public class TeleOperado extends OpMode{
         telemetry.addData("current yaw", servolime.currentYaw);
         telemetry.addData("current yaw", servolime.currentYaw);
 
+        telemetry.addLine();
+        telemetry.addData("S1", colorSensor.getLeitura(colorSensor.S1));
+        telemetry.addData("S2", colorSensor.getLeitura(colorSensor.S2));
+        telemetry.addData("S3", colorSensor.getLeitura(colorSensor.S3));
+        telemetry.addData("S4", colorSensor.getLeitura(colorSensor.S4));
+        telemetry.addLine();
+
+
+
         telemetry.addData("limeservo", servolime.ServoLime.getPosition());
         telemetry.addLine();
-        telemetry.addData("Alliace_blue", seletores.Alliance_B.getState());
-        telemetry.addData("Alliace_red", seletores.Alliance_R.getState());
-        telemetry.addData("Auto1", seletores.Auto1.getState());
-        telemetry.addData("Auto2", seletores.Auto2.getState());
-        telemetry.addData("Auto3", seletores.Auto3.getState());
-        telemetry.addData("Auto4", seletores.Auto4.getState());
 
         telemetry.addLine();
         telemetry.addData("Capota " , Capota.getPosition());
