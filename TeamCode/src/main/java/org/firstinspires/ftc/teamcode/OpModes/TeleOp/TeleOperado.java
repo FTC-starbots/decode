@@ -108,7 +108,6 @@ public class TeleOperado extends Autonomo {
 
  public static double  corr;
 
- public int auto;
 public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
  public boolean isitBlue, manualSelectAlliance, manualSelectAuto, Movimento_robo;
     double angleIdeal;
@@ -160,6 +159,13 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
 
     }
 
+@Override
+public void init_loop(){
+    telemetry.addData("auto", auto);
+    telemetry.addData("isBlue", isBlue);
+    telemetry.update();
+}
+
 
 @Override
     public void start(){
@@ -188,8 +194,8 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
         drivetrain.setCoefficientsfirt(Firstkp, Firstki, Firstkd, Firstkf);
         drivetrain.setCoefficientssecond(Secondkp, Secondki, Secondkd, Secondkf);
 
-        servolime.updateDesiredReference(LimeServo.Mode.OBELISK);
-        servolime.setCurrentPosition(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X), poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y), poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.YAW));
+       // servolime.updateDesiredReference(LimeServo.Mode.OBELISK);
+        //servolime.setCurrentPosition(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X), poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y), poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.YAW));
 
 
         double d = poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.DISTANCE);
@@ -215,8 +221,6 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
         }
 
 //===CONTROLE DE POSIÇÃO=========================================================================
-       drivetrain.setVectorX(0);
-        drivetrain.setVectorY(0);
 //===FUNÇÕES VITAIS==============================================================================
         {
             launching.teleop(gamepad2,timer);
@@ -225,7 +229,7 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
 
             Intake.teleop(gamepad1);
 
-            servolime.update();
+            //servolime.update();
         }
 
 //===LANÇAMENTO==================================================================================
@@ -314,8 +318,13 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
     }
 
     public void telemetry(){
+
+
         telemetry.addData("auto", auto);
         telemetry.addData("isBlue", isBlue);
+        telemetry.addLine();
+        telemetry.addData("FinalPose/StartPose", finalPose);
+
         telemetry.addLine();
         telemetry.addData("ang ideal", servolime.IdealYaw);
         telemetry.addData("current yaw", servolime.currentYaw);

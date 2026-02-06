@@ -134,11 +134,11 @@ public boolean right_pos;
       }
 
 if (isBlue) {
-    if (headingLock) followerdrive.setTeleOpDrive(gamepad.left_stick_y + vectorx, gamepad.left_stick_x+ vectory, controllerHeading.run(), false);
-    else followerdrive.setTeleOpDrive(gamepad.left_stick_y * 1.2+ vectorx, gamepad.left_stick_x * 1.2+ vectory, rotation * 0.7, false);
+    if (headingLock) followerdrive.setTeleOpDrive(gamepad.left_stick_y , gamepad.left_stick_x, controllerHeading.run(), false);
+    else followerdrive.setTeleOpDrive(gamepad.left_stick_y * 1.2, gamepad.left_stick_x * 1.2, rotation * 0.7, false);
 }else{
-    if (headingLock) followerdrive.setTeleOpDrive(-gamepad.left_stick_y+ vectorx, -gamepad.left_stick_x+ vectory, controllerHeading.run(), false);
-    else followerdrive.setTeleOpDrive(-gamepad.left_stick_y * 1.2+ vectorx, -gamepad.left_stick_x * 1.2+ vectory, rotation * 0.7, false);
+    if (headingLock) followerdrive.setTeleOpDrive(-gamepad.left_stick_y, -gamepad.left_stick_x, controllerHeading.run(), false);
+    else followerdrive.setTeleOpDrive(-gamepad.left_stick_y * 1.2, -gamepad.left_stick_x * 1.2, rotation * 0.7, false);
 
 }
 

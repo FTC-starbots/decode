@@ -87,7 +87,7 @@ int timesReset;
 
     public static Pose finalPose = new Pose(0, 0, 0);
 
-    int auto;
+    public static int auto;
     @SuppressLint("SuspiciousIndentation")
     @Override
     public void init() {
@@ -175,7 +175,7 @@ int timesReset;
 
     @Override
     public void start(){
-        servolime.updateDesiredReference(LimeServo.Mode.OBELISK);
+        //servolime.updateDesiredReference(LimeServo.Mode.OBELISK);
         if (auto == 1 || auto == 2){
             if (isBlue) {
                 follower.setStartingPose(new Pose(32.29906542056075, 134.5794392523364, Math.toRadians(-90)));
@@ -272,7 +272,7 @@ int timesReset;
             sequenceAnalyzer(id);
             launching.auto(0.5, sequence, toShoot);
 
-            servolime.update();
+          //  servolime.update();
             shooter.update();
             limelight.update();
         }
@@ -863,6 +863,12 @@ int timesReset;
                 follower.followPath(Path1,0.8, true);
                 pathState = 1;
                 timesShoot = 0;
+                if (isBlue) {
+                    servolime.setPosition(0.4);
+                }else{
+                    servolime.setPosition(0.65);
+                }
+
                 break;
             case 1:
 
@@ -873,11 +879,11 @@ int timesReset;
                         id = limelight.id;
                     }
                     if (launching.post_shoot) {
-                        if(isBlue){
-                            servolime.updateDesiredReference(LimeServo.Mode.BLUE_TAG);
-                        }else{
-                            servolime.updateDesiredReference(LimeServo.Mode.RED_TAG);
-                        }
+//                        if(isBlue){
+//                            servolime.updateDesiredReference(LimeServo.Mode.BLUE_TAG);
+//                        }else{
+//                            servolime.updateDesiredReference(LimeServo.Mode.RED_TAG);
+//                        }
 
                         timerReset = false;
                         toShoot = false;
@@ -994,7 +1000,11 @@ int timesReset;
                 follower.followPath(Path1,0.8, true);
                 pathState = 1;
                 timesShoot = 0;
-                break;
+                if (isBlue) {
+                    servolime.setPosition(0.4);
+                }else{
+                    servolime.setPosition(0.65);
+                }                break;
             case 1:
 
                 if(!follower.isBusy()){
@@ -1005,11 +1015,11 @@ int timesReset;
                     }
 
                     if (launching.post_shoot) {
-                        if(isBlue){
-                            servolime.updateDesiredReference(LimeServo.Mode.BLUE_TAG);
-                        }else{
-                            servolime.updateDesiredReference(LimeServo.Mode.RED_TAG);
-                        }
+//                        if(isBlue){
+//                            servolime.updateDesiredReference(LimeServo.Mode.BLUE_TAG);
+//                        }else{
+//                            servolime.updateDesiredReference(LimeServo.Mode.RED_TAG);
+//                        }
                         timerReset = false;
                         toShoot = false;
                         launching.ispost_shoot(false);
@@ -1101,6 +1111,11 @@ int timesReset;
                 follower.followPath(Path1,0.75, true);
                 pathState = 1;
                 timesShoot = 0;
+                if (isBlue) {
+                    servolime.setPosition(0.45);
+                }else{
+                    servolime.setPosition(0.55);
+                }
                 break;
             case 1:
 
@@ -1113,11 +1128,11 @@ int timesReset;
                     }
 
                     if (launching.post_shoot) {
-                        if(isBlue){
-                            servolime.updateDesiredReference(LimeServo.Mode.BLUE_TAG);
-                        }else{
-                            servolime.updateDesiredReference(LimeServo.Mode.RED_TAG);
-                        }
+//                        if(isBlue){
+//                            servolime.updateDesiredReference(LimeServo.Mode.BLUE_TAG);
+//                        }else{
+//                            servolime.updateDesiredReference(LimeServo.Mode.RED_TAG);
+//                        }
                         timerReset = false;
                         toShoot = false;
                         launching.ispost_shoot(false);
@@ -1222,6 +1237,11 @@ int timesReset;
                 follower.followPath(Path1,0.75, true);
                 pathState = 1;
                 timesShoot = 0;
+                if (isBlue) {
+                    servolime.setPosition(0.45);
+                }else{
+                    servolime.setPosition(0.55);
+                }
                 break;
             case 1:
 
@@ -1234,11 +1254,11 @@ int timesReset;
                     }
 
                     if (launching.post_shoot) {
-                        if(isBlue){
-                            servolime.updateDesiredReference(LimeServo.Mode.BLUE_TAG);
-                        }else{
-                            servolime.updateDesiredReference(LimeServo.Mode.RED_TAG);
-                        }
+//                        if(isBlue){
+//                            servolime.updateDesiredReference(LimeServo.Mode.BLUE_TAG);
+//                        }else{
+//                            servolime.updateDesiredReference(LimeServo.Mode.RED_TAG);
+//                        }
                         timerReset = false;
                         toShoot = false;
                         launching.ispost_shoot(false);
