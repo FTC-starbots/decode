@@ -145,6 +145,9 @@ int timesReset;
         else if (gamepad2.xWasPressed() || gamepad2.squareWasPressed()) {
             manualSelectAuto = true;
             auto = 4;
+        }else if (gamepad2.leftBumperWasPressed()) {
+            manualSelectAuto = true;
+            auto = 5;
         }
 
 

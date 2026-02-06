@@ -314,7 +314,8 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
     }
 
     public void telemetry(){
-
+        telemetry.addData("auto", auto);
+        telemetry.addData("isBlue", isBlue);
         telemetry.addLine();
         telemetry.addData("ang ideal", servolime.IdealYaw);
         telemetry.addData("current yaw", servolime.currentYaw);
