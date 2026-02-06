@@ -28,43 +28,94 @@ public class Drivetrain implements InterfaceSimple {
     public double widht_divididopor2menospixel;
     PIDFController controllerHeading = new PIDFController(new PIDFCoefficients(2, 0, 0.01, 0));
 
-   public double targetHeading = Math.toRadians(90);
+   public double targetHeading;
     boolean headingLock, aptag;
 
-  public void Drive(Gamepad gamepad, Follower followerdrive, boolean AptagLock, double pixel, double width, boolean validation){
+    double kpa, kia, kda, kfa;
+
+    double kpf, kif, kdf, kff;
+
+    double kps, kis, kds, kfs;
+
+    double vectorx, vectory;
+public boolean right_pos;
+
+
+    public void setCoefficientsAptag(double kp, double ki, double kd, double kf)  {
+      kpa = kp;
+      kia = ki;
+      kda = kd;
+      kfa = kf;
+  }
+
+    public void setCoefficientsfirt(double kp, double ki, double kd, double kf)  {
+        kpf = kp;
+        kif = ki;
+        kdf = kd;
+        kff = kf;
+    }
+
+    public void setCoefficientssecond(double kp, double ki, double kd, double kf)  {
+        kps = kp;
+        kis = ki;
+        kds = kd;
+        kfs = kf;
+    }
+
+    public void setTargetHeading(double target){targetHeading = target;}
+
+    public void setVectorX(double x){vectorx = x;}
+    public void setVectorY(double y){vectory = y;}
+
+
+  public void Drive(boolean isBlue, Gamepad gamepad, Follower followerdrive, boolean AptagLock, double pixel, double width, boolean validation, double offsetpercent, double IdealAngle,double corrreserv){
 
       rotation = (gamepad.left_trigger - gamepad.right_trigger);
 
 
 
-     if (AptagLock && validation){
-         error_final = (((width/2)- (width* 0.035)) - pixel )/(((width/2)-(width* 0.035))* 0.03);
-         aptag = true;
+     if (AptagLock){
 
+         if (validation) {
+             error_final = (((width / 2) - (width * offsetpercent)) - pixel) / (((width / 2) - (width * offsetpercent)) * 0.03);
+             aptag = true;
+         }else{
+             targetHeading = IdealAngle + Math.toRadians(corrreserv) * -10;
+             aptag = false;
+
+
+             error_final = targetHeading - followerdrive.getHeading();
+
+             if (error_final > 180) error_final -= 360;
+             if (error_final < -180) error_final += 360;
+         }
      } else{
-         error_hor = targetHeading - followerdrive.getHeading();
-         error_anti_hor = followerdrive.getHeading() - targetHeading;
          aptag = false;
 
-         if (Math.abs(error_hor) < Math.abs(error_anti_hor)) error_final = error_hor;
-         else error_final = -error_anti_hor;
+
+         error_final = targetHeading - followerdrive.getHeading();
+
+         if (error_final > 180) error_final -= 360;
+         if (error_final < -180) error_final += 360;
      }
 
 
 
      if(AptagLock && validation){
-         controllerHeading.setCoefficients(new PIDFCoefficients(0.02, 0.00005, 0, 0));
-
+         controllerHeading.setCoefficients(new PIDFCoefficients(kpa, kia, kda, kfa));
+         timer.reset();
 
      }else{
-         if(Math.abs(error_final) > 15) controllerHeading.setCoefficients(new PIDFCoefficients(2, 0, 0.01, 0));
-         else controllerHeading.setCoefficients(new PIDFCoefficients(1, 0, 0.01, 0));
+         if(Math.abs(error_final) > 15) controllerHeading.setCoefficients(new PIDFCoefficients(kpf, kif, kdf, kff));
+         else controllerHeading.setCoefficients(new PIDFCoefficients(kps, kis, kds, kfs));
 
 
 
      }
 
-
+    if(Math.abs(error_final) < 5) {
+        right_pos = true;
+    }
 
       controllerHeading.updateError(error_final);
 
@@ -82,10 +133,14 @@ public class Drivetrain implements InterfaceSimple {
           targetHeading = followerdrive.getHeading();
       }
 
+if (isBlue) {
+    if (headingLock) followerdrive.setTeleOpDrive(gamepad.left_stick_y + vectorx, gamepad.left_stick_x+ vectory, controllerHeading.run(), false);
+    else followerdrive.setTeleOpDrive(gamepad.left_stick_y * 1.2+ vectorx, gamepad.left_stick_x * 1.2+ vectory, rotation * 0.7, false);
+}else{
+    if (headingLock) followerdrive.setTeleOpDrive(-gamepad.left_stick_y+ vectorx, -gamepad.left_stick_x+ vectory, controllerHeading.run(), false);
+    else followerdrive.setTeleOpDrive(-gamepad.left_stick_y * 1.2+ vectorx, -gamepad.left_stick_x * 1.2+ vectory, rotation * 0.7, false);
 
-      if (headingLock) followerdrive.setTeleOpDrive(gamepad.left_stick_y, gamepad.left_stick_x, controllerHeading.run(), false);
-      else followerdrive.setTeleOpDrive(gamepad.left_stick_y * 1.2, gamepad.left_stick_x * 1.2, rotation * 0.7, false);
-
+}
 
 
 
