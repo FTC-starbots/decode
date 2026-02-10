@@ -64,10 +64,12 @@ public enum Mode{
         );
 
         // Erro angular normalizado (-180 a 180)
-        double erro = (IdealYaw - currentYaw);
+        double erro = normalize(IdealYaw - currentYaw);
 
         // Converte erro em posição do servo
-        double servo = (erro + 180.0) / 360.0;
+        double servo = Math.max(0.0, Math.min(1.0,
+                0.00163 * erro + 0.20
+        ));
 
         ServoLime.setPosition(servo);
 

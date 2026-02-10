@@ -42,9 +42,9 @@ public class Shooter implements InterfaceSimple {
             pre_shoot = true;
             setVelDesejada(minvel);
         } else{
-            pre_shoot = false;
+            pre_shoot = true;
             shooting = false;
-            setVelDesejada(0);
+            setVelDesejada(1000);
         }
     }
 
