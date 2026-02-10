@@ -103,7 +103,7 @@ public class PoseIdentifier implements  InterfaceSimple{
         PINPposeY = piny;
         PINPposeYaw =  Math.toDegrees(pinyaw);
 if (isBlue) {
-    PINPdistance = Math.sqrt((PINPposeX - 10) * (PINPposeX - 10) + (PINPposeY - 138) * (PINPposeY - 138));
+    PINPdistance = Math.sqrt((PINPposeX - 12) * (PINPposeX - 12) + (PINPposeY - 138) * (PINPposeY - 138));
 }else {
     PINPdistance = Math.sqrt((PINPposeX - 134) * (PINPposeX - 134) + (PINPposeY - 138) * (PINPposeY - 138));
 }

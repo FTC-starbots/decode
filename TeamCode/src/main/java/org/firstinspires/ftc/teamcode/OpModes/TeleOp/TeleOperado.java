@@ -108,7 +108,6 @@ public class TeleOperado extends Autonomo {
 
  public static double  corr;
 
- public int auto;
 public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
  public boolean isitBlue, manualSelectAlliance, manualSelectAuto, Movimento_robo;
     double angleIdeal;
@@ -160,6 +159,13 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
 
     }
 
+@Override
+public void init_loop(){
+    telemetry.addData("auto", auto);
+    telemetry.addData("isBlue", isBlue);
+    telemetry.update();
+}
+
 
 @Override
     public void start(){
@@ -187,8 +193,11 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
         drivetrain.setCoefficientsAptag(kpAlign, kiAlign, kdAlign, kfAlign);
         drivetrain.setCoefficientsfirt(Firstkp, Firstki, Firstkd, Firstkf);
         drivetrain.setCoefficientssecond(Secondkp, Secondki, Secondkd, Secondkf);
-
-        servolime.updateDesiredReference(LimeServo.Mode.OBELISK);
+        if (isBlue) {
+            servolime.updateDesiredReference(LimeServo.Mode.BLUE_TAG);
+        }else{
+            servolime.updateDesiredReference(LimeServo.Mode.RED_TAG);
+        }
         servolime.setCurrentPosition(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X), poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y), poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.YAW));
 
 
@@ -196,13 +205,21 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
 
         servoIdeal = servoA * d * d - servoB * d + servoC;
         if (d > 100) {
+
             velIdeal = (int) (Math.round((velA * d + velB + 40) / 20.0) * 20);
         } else {
-            velIdeal = (int) (Math.round((velA * d + velB) / 20.0) * 20);
+            if (isBlue) {
+                velIdeal = (int) (Math.round((velA * d + velB-20) / 20.0) * 20);
+            }else{
+                if ( launching.corretor == 1 || launching.corretor == 0) velIdeal = (int) (Math.round((2.1 * d + 1105) / 20.0) * 20);
+                else velIdeal = (int) (Math.round((2.1 * d + 1080) / 20.0) * 20);
+                velIdeal = (int) (Math.round((velA * d + velB) / 20.0) * 20);
+            }
+
         }
 
     if (isBlue) {
-        angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 136, poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 12);
+        angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 138, poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 12);
     }else{
         angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 136, poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 132);
     }
@@ -214,14 +231,15 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
             isValidArea = false;
         }
 
+
+
+
 //===CONTROLE DE POSIÇÃO=========================================================================
-       drivetrain.setVectorX(0);
-        drivetrain.setVectorY(0);
 //===FUNÇÕES VITAIS==============================================================================
         {
             launching.teleop(gamepad2,timer);
 
-            Shooter.teleop(gamepad2, velIdeal, isGamepad1, velIdeal-60);
+            Shooter.teleop(gamepad2, velIdeal, isGamepad1, velIdeal);
 
             Intake.teleop(gamepad1);
 
@@ -241,7 +259,15 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
             Shooter.isServoLifted(launching.servo_lifted);
             launching.isAtRightVel(Shooter.right_vel);
             launching.isShooting(Shooter.shooting);
-            Capota.setValue(servoIdeal);
+
+
+            if (gamepad1.dpad_up){
+                Capota.setValue(0);
+            } else if (gamepad1.dpad_down) {
+                Capota.setValue(1);
+            }else {
+                Capota.setValue(servoIdeal);
+            }
             launching.isAtRightPos(drivetrain.right_pos);
         }
 
@@ -314,8 +340,13 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
     }
 
     public void telemetry(){
+
+
         telemetry.addData("auto", auto);
         telemetry.addData("isBlue", isBlue);
+        telemetry.addLine();
+        telemetry.addData("FinalPose/StartPose", finalPose);
+
         telemetry.addLine();
         telemetry.addData("ang ideal", servolime.IdealYaw);
         telemetry.addData("current yaw", servolime.currentYaw);
