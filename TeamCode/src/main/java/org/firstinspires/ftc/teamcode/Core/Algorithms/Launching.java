@@ -71,7 +71,7 @@ public class Launching {
             last_shoot_type = 6;
         }
 
-        if (right_vel) {
+        if (right_vel && right_pos) {
 
             if (last_shoot_type == 1) shoot_all = true;
             if (last_shoot_type == 2) shoot_sequence = true;

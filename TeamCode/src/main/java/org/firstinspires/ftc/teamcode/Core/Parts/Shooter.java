@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.Core.Algorithms.InterfaceSimple;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.Launching;
+import org.firstinspires.ftc.teamcode.Core.Algorithms.PIDFOController;
 
 public class Shooter implements InterfaceSimple {
     public int velocidade_desejada;
@@ -19,7 +20,7 @@ public class Shooter implements InterfaceSimple {
     public boolean pre_shoot = false;
 
 
-    PIDFController controllerHeading = new PIDFController(new PIDFCoefficients(0, 0, 0, 0));
+    PIDFOController controllerHeading = new PIDFOController(new PIDFCoefficients(0, 0, 0, 0));
 
     public void setVelDesejada(int vel){
         velocidade_desejada = vel;
@@ -37,14 +38,10 @@ public class Shooter implements InterfaceSimple {
             shooting = true;
             setVelDesejada(vel);
         }
-        else if(!gamepad1){
-            shooting = false;
-            pre_shoot = true;
-            setVelDesejada(minvel);
-        } else{
+        else{
             pre_shoot = true;
             shooting = false;
-            setVelDesejada(1000);
+            setVelDesejada(vel-60);
         }
     }
 
@@ -75,7 +72,9 @@ public class Shooter implements InterfaceSimple {
 
     @Override
     public void update() {
+
         erro = velocidade_desejada - Atirador_1.getVelocity();
+
         controllerHeading.updateError(erro);
         double power = controllerHeading.run();
 

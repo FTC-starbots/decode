@@ -4,8 +4,11 @@ package org.firstinspires.ftc.teamcode.OpModes.TeleOp;
 
 
 
+import android.service.controls.Control;
+
 import org.firstinspires.ftc.teamcode.Core.Algorithms.Launching;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.PoseIdentifier;
+import org.firstinspires.ftc.teamcode.Core.Algorithms.ShooterControl;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.TagAlign;
 import org.firstinspires.ftc.teamcode.Core.Hardware.AprilTagCam;
 import org.firstinspires.ftc.teamcode.Core.Hardware.ColorSensor;
@@ -51,12 +54,12 @@ public class TeleOperado extends Autonomo {
 
 
     Launching launching = new Launching();
-    public static double kpShooter = 0.0002, kiShooter = 0.00009, kdShooter = 0, kfShooter = 0.05;
+    public static double kpShooter = 0.0017, kiShooter = 0.000125, kdShooter = 0, kfShooter = 0.05;
     public static double kpAlign = 0.02, kiAlign = 0.00005, kdAlign = 0, kfAlign = 0;
 
 
-    public static double Firstkp = 2, Firstki = 0, Firstkd = 0.01, Firstkf = 0;
-    public static double Secondkp = 0.5, Secondki= 0.00005, Secondkd = 0.01, Secondkf = 0;
+    public static double Firstkp = 1, Firstki = 1, Firstkd = 0.05, Firstkf = 0;
+    public static double Secondkp = 0.35, Secondki= 0, Secondkd = 0.037, Secondkf = 0;
 
     ElapsedTime Ciclo;
 
@@ -80,15 +83,14 @@ public class TeleOperado extends Autonomo {
 
     ColorSensor colorSensor = new ColorSensor();
 
-    public static double  limepos = 0;
-
-
 
     PoseIdentifier poseidentifier = new PoseIdentifier();
 
     LimeServo servolime = new LimeServo();
 
     Leds LED = new Leds();
+
+    ShooterControl ControleShooter = new ShooterControl();
 
 
 
@@ -134,7 +136,7 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
         Intake.start(hardwareMap);
 
         Shooter.start(hardwareMap);
-        Shooter.setCoefficients(kpShooter,kiShooter, kdShooter, kfShooter);
+
 
         launching.start(hardwareMap);
 
@@ -176,23 +178,30 @@ public void init_loop(){
 
     followerteleop.update();
     followerteleop.startTeleopDrive();
+
+    poseidentifier.isblue(isBlue);
+    ControleShooter.isBlue(isBlue);
+    drivetrain.setCoefficientsAptag(kpAlign, kiAlign, kdAlign, kfAlign);
+
     }
 
     @Override
     public void loop() {
-        poseidentifier.isblue(isBlue);
+        Shooter.setCoefficients(kpShooter,kiShooter, kdShooter, kfShooter);
+        drivetrain.setCoefficientsfirt(Firstkp, Firstki, Firstkd, Firstkf);
+        drivetrain.setCoefficientssecond(Secondkp, Secondki, Secondkd, Secondkf);
         colorSensor.setCor(ColorSensor.COLOR.NONE);
 
 
         Ciclo.reset();
 
 
-        tagalign.setValues(Limelight.tpixel, aptag.LeituraPixels, Limelight.tagdetected, aptag.tagdetected, 2592, 720);
+        tagalign.setValues(aptag.LeituraPixels, aptag.tagdetected, 1280);
 
 
-        drivetrain.setCoefficientsAptag(kpAlign, kiAlign, kdAlign, kfAlign);
-        drivetrain.setCoefficientsfirt(Firstkp, Firstki, Firstkd, Firstkf);
-        drivetrain.setCoefficientssecond(Secondkp, Secondki, Secondkd, Secondkf);
+
+
+
         if (isBlue) {
             servolime.updateDesiredReference(LimeServo.Mode.BLUE_TAG);
         }else{
@@ -203,29 +212,26 @@ public void init_loop(){
 
         double d = poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.DISTANCE);
 
-        servoIdeal = servoA * d * d - servoB * d + servoC;
-        if (d > 100) {
+        ControleShooter.setDistance(d);
 
-            velIdeal = (int) (Math.round((velA * d + velB + 40) / 20.0) * 20);
-        } else {
-            if (isBlue) {
-                velIdeal = (int) (Math.round((velA * d + velB-20) / 20.0) * 20);
-            }else{
-                if ( launching.corretor == 1 || launching.corretor == 0) velIdeal = (int) (Math.round((2.1 * d + 1105) / 20.0) * 20);
-                else velIdeal = (int) (Math.round((2.1 * d + 1080) / 20.0) * 20);
-                velIdeal = (int) (Math.round((velA * d + velB) / 20.0) * 20);
-            }
+        ControleShooter.setServo(servoA,servoB,servoC);
 
+        ControleShooter.setVel(velA,velB);
+
+        velIdeal = ControleShooter.getVel();
+
+        servoIdeal = ControleShooter.getServo();
+
+        if (isBlue) {
+            angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 138, poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 12);
+        }else{
+            angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 136, poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 132);
         }
 
-    if (isBlue) {
-        angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 138, poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 12);
-    }else{
-        angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 136, poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 132);
-    }
+
         if (poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) < Math.abs(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 72) + 68.5
                 ||
-                poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) < -Math.abs(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 72) + 35.5) {
+                poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) < -Math.abs(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) + 72) + 35.5) {
             isValidArea = true;
         } else {
             isValidArea = false;
@@ -244,6 +250,8 @@ public void init_loop(){
             Intake.teleop(gamepad1);
 
             servolime.update();
+
+            ControleShooter.update();
         }
 
 //===LANÇAMENTO==================================================================================
@@ -274,13 +282,12 @@ public void init_loop(){
 //===FUNÇÕES DE MOVIMENTO========================================================================
         {
             if (isGamepad1) {
-                if (isManual) drivetrain.Drive(isBlue, gamepad1, followerteleop, Shooter.shooting, 0, 100, false, offset, angleIdeal, launching.corretor);
-                else drivetrain.Drive(isBlue, gamepad1, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, false, offset, angleIdeal,launching.corretor);
-
+                if (isManual) drivetrain.Drive(true,isBlue, gamepad1, followerteleop, Shooter.shooting, 0, 100, false, offset, angleIdeal, launching.corretor);
+                else drivetrain.Drive(true,isBlue, gamepad1, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, tagalign.validation, offset, angleIdeal,launching.corretor);
 
             } else {
-                if (isManual) drivetrain.Drive(isBlue, gamepad2, followerteleop, Shooter.shooting, 0, 100, false, offset, angleIdeal, launching.corretor);
-                else drivetrain.Drive(isBlue, gamepad2, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, false, offset, angleIdeal,launching.corretor);
+                if (isManual) drivetrain.Drive(false,isBlue, gamepad2, followerteleop, Shooter.shooting, 0, 100, false, offset, angleIdeal, launching.corretor);
+                else drivetrain.Drive(false,isBlue, gamepad2, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, tagalign.validation, offset, angleIdeal,launching.corretor);
 
             }
         }
@@ -325,8 +332,10 @@ public void init_loop(){
 
 //===LEDS========================================================================================
         {
-            if(isValidArea) LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-            else  LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+
+
+            if(drivetrain.aptag) LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+            else  LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
         }
         robot.update();
         telemetry();
@@ -350,8 +359,7 @@ public void init_loop(){
         telemetry.addLine();
         telemetry.addData("ang ideal", servolime.IdealYaw);
         telemetry.addData("current yaw", servolime.currentYaw);
-        telemetry.addData("current yaw", servolime.currentYaw);
-
+        telemetry.addData("limeservo", servolime.ServoLime.getPosition());
         telemetry.addLine();
         telemetry.addData("S1", colorSensor.getLeitura(colorSensor.S1));
         telemetry.addData("S2", colorSensor.getLeitura(colorSensor.S2));
@@ -361,7 +369,7 @@ public void init_loop(){
 
 
 
-        telemetry.addData("limeservo", servolime.ServoLime.getPosition());
+
         telemetry.addLine();
 
         telemetry.addLine();
@@ -400,11 +408,12 @@ public void init_loop(){
         telemetry.addLine();
         telemetryM.addData("Target Heading", drivetrain.targetHeading);
         telemetryM.addData("Heading", followerteleop.getHeading());
+        telemetryM.addData("erooororreading", drivetrain.error_final);
         telemetry.addLine();
 
-        telemetry.addData("Target Heading", followerteleop.getPose());
         telemetry.addData("Target Heading", drivetrain.targetHeading);
         telemetry.addData("Heading", followerteleop.getHeading());
+        telemetry.addData("erooororreading", drivetrain.error_final);
         telemetry.addLine();
 
 

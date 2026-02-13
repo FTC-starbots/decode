@@ -9,7 +9,6 @@ import org.firstinspires.ftc.teamcode.Core.Parts.Shooter;
 
 public class Robot implements InterfaceSimple {
 public Lime limelight = new Lime();
-   public PIDFOController PID = new PIDFOController();
    public Shooter shooter = new Shooter();
     public Drivetrain drivetrain = new Drivetrain();
 

@@ -22,6 +22,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.Drawing;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.Launching;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.PoseIdentifier;
+import org.firstinspires.ftc.teamcode.Core.Algorithms.ShooterControl;
 import org.firstinspires.ftc.teamcode.Core.Hardware.ColorSensor;
 import org.firstinspires.ftc.teamcode.Core.Hardware.Lime;
 import org.firstinspires.ftc.teamcode.Core.Parts.AimAssisters;
@@ -71,8 +72,11 @@ public class Autonomo extends OpMode {
     LimeServo servolime = new LimeServo();
 
     ColorSensor colorSensor = new ColorSensor();
+    ShooterControl ControleShooter = new ShooterControl();
 
-boolean toShoot = false;
+     double kpShootera = 0.0017, kiShootera = 0.000125, kdShootera = 0, kfShootera = 0.05;
+
+    boolean toShoot = false;
 int sequence = 1;
 
 int timesShoot = 0;
@@ -112,7 +116,7 @@ int timesReset;
 
 
         servolime.start(hardwareMap);
-        shooter.setCoefficients(0.0004, 0, 0, 0.05);
+        shooter.setCoefficients(kpShootera, kiShootera, kdShootera, kfShootera);
 
         id = 0;
 
@@ -192,6 +196,12 @@ int timesReset;
             }else {
                 follower.setStartingPose(new Pose(88.44859813084112, 8.448598130841138, Math.toRadians(270)));
             }
+        }else{
+            if (isBlue) {
+                follower.setStartingPose(new Pose(55.55140186915888, 8.448598130841138, Math.toRadians(-90)));
+            }else {
+                follower.setStartingPose(new Pose(88.44859813084112, 8.448598130841138, Math.toRadians(270)));
+            }
         }
 
 
@@ -230,24 +240,27 @@ int timesReset;
     @Override
     public void loop() {
         {
+            ControleShooter.isBlue(isBlue);
             colorSensor.setCor(ColorSensor.COLOR.NONE);
             poseidentifier.infoPINPOINT(follower.getPose().getX(), follower.getPose().getY(), follower.getPose().getHeading());
 
             servolime.setCurrentPosition(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X), poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y), poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.YAW));
 
 
+
             double d = poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.DISTANCE);
 
-            servoIdeal = 0.000022 * d * d - 0.0079 * d + 1.55;
+            ControleShooter.setDistance(d);
 
+            ControleShooter.setServo(0.000022,0.0079,1.55);
 
-            if (auto == 1 || auto == 2){
-                velIdeal = (int) (Math.round((2.1 * d + 1020) / 20.0) * 20);
-            }
-            else if (auto == 3 || auto == 4){
-                if (shoot ==1 && launching.corretor == 1 || launching.corretor == 0) velIdeal = (int) (Math.round((2.1 * d + 1100) / 20.0) * 20);
-                else velIdeal = (int) (Math.round((2.1 * d + 1080) / 20.0) * 20);
-            }
+            ControleShooter.setVel(2.1,940);
+
+            velIdeal = ControleShooter.getVel();
+
+            servoIdeal = ControleShooter.getServo();
+
+            ControleShooter.update();
 
 
             Capota.setValue(servoIdeal);

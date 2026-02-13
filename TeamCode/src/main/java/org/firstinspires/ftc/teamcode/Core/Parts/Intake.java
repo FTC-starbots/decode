@@ -36,12 +36,12 @@ public class Intake implements InterfaceSimple {
     public void setMode(Mode mode){
         switch (mode){
             case INTAKE:
-                Intake_1.setPower(1);
-                Intake_2.setPower(1);
-                break;
-            case EJECT:
                 Intake_1.setPower(-1);
                 Intake_2.setPower(-1);
+                break;
+            case EJECT:
+                Intake_1.setPower(1);
+                Intake_2.setPower(1);
                 break;
             case STOP:
                 Intake_1.setPower(0);
