@@ -69,6 +69,9 @@ public class AimAssisters implements InterfaceSimple {
         return Capota1.getPosition();
     }
 
+    public void IntakeMode(){
+
+    }
         public void capota_propor () {
             Capota1.setPosition(0);
             Capota2.setPosition(0);

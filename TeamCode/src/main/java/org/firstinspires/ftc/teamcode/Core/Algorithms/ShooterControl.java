@@ -4,7 +4,7 @@ public class ShooterControl implements InterfaceSimple {
 
      double servoIdeal;
 
-    public double servoA, servoB,servoC;
+    public double servoA, servoB;
 
     public double velA, velB;
      int velIdeal;
@@ -21,7 +21,7 @@ public class ShooterControl implements InterfaceSimple {
     public void isBlue(boolean blue){isBlue = blue;}
 
 
-    public void setServo(double A,double B,double C){servoA = A; servoB = B; servoC = C;}
+    public void setServo(double A,double B){servoA = A; servoB = B;}
 
     public void setVel(double A,double B){velA = A; velB = B;}
 
@@ -33,14 +33,13 @@ public class ShooterControl implements InterfaceSimple {
 
     @Override
     public void update() {
-        servoIdeal = servoA * d * d - servoB * d + servoC;
-
-
 
         if (d > 100) {
-            velIdeal = (int) (Math.round((velA * d + velB + 40) / 20.0) * 20);
+            servoIdeal = -(servoA - 0.0011) * d + servoB;
+            velIdeal = (int) (Math.round((velA * d + velB ) / 20.0) * 20);
         } else {
-            velIdeal = (int) (Math.round((velA * d + velB-20) / 20.0) * 20);
+            servoIdeal = -(servoA) * d + servoB;
+            velIdeal = (int) (Math.round((velA * d + velB) / 20.0) * 20);
         }
 
 

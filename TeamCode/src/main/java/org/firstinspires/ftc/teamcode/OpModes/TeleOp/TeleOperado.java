@@ -4,8 +4,6 @@ package org.firstinspires.ftc.teamcode.OpModes.TeleOp;
 
 
 
-import android.service.controls.Control;
-
 import org.firstinspires.ftc.teamcode.Core.Algorithms.Launching;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.PoseIdentifier;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.ShooterControl;
@@ -17,7 +15,6 @@ import org.firstinspires.ftc.teamcode.Core.Hardware.Lime;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
@@ -58,8 +55,8 @@ public class TeleOperado extends Autonomo {
     public static double kpAlign = 0.02, kiAlign = 0.00005, kdAlign = 0, kfAlign = 0;
 
 
-    public static double Firstkp = 1, Firstki = 1, Firstkd = 0.05, Firstkf = 0;
-    public static double Secondkp = 0.35, Secondki= 0, Secondkd = 0.037, Secondkf = 0;
+    public static double Firstkp = 0.9, Firstki = 1, Firstkd = 0.05, Firstkf = 0;
+    public static double Secondkp = 0.23, Secondki= 0, Secondkd = 0.037, Secondkf = 0;
 
     ElapsedTime Ciclo;
 
@@ -75,18 +72,18 @@ public class TeleOperado extends Autonomo {
 
      Lime Limelight = robot.limelight;
 
-    AprilTagCam aptag = robot.aptag;
+   // AprilTagCam aptag = robot.aptag;
 
     TagAlign tagalign = new TagAlign();
     AimAssisters Capota = launching.Capota;
     public Reservoirs reservatorio = new Reservoirs();
 
-    ColorSensor colorSensor = new ColorSensor();
+   // ColorSensor colorSensor = new ColorSensor();
 
 
     PoseIdentifier poseidentifier = new PoseIdentifier();
 
-    LimeServo servolime = new LimeServo();
+    LimeServo servolime = robot.servoLime;
 
     Leds LED = new Leds();
 
@@ -94,10 +91,10 @@ public class TeleOperado extends Autonomo {
 
 
 
-    public static double servoA = 0.000022, servoB = 0.0079, servoC = 1.55;
+    public static double servoA = 0.009, servoB = 1.55;
 
-    public static double velA = 2.1;
-    public static int velB = 940;
+    public static double velA = 3.35;
+    public static int velB = 850;
 
     public static double offset = 0.0000001;
 
@@ -125,13 +122,13 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
 
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
-        colorSensor.start(hardwareMap);
+      //  colorSensor.start(hardwareMap);
 
         LED.start(hardwareMap);
 
         reservatorio.start(hardwareMap);
 
-        aptag.setup(hardwareMap);
+        Limelight.setup(hardwareMap);
 
         Intake.start(hardwareMap);
 
@@ -147,9 +144,6 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
 
 
 
-
-        Limelight.setup(hardwareMap);
-        Limelight.setPipeline(5);
 
 
 
@@ -187,34 +181,40 @@ public void init_loop(){
 
     @Override
     public void loop() {
+
         Shooter.setCoefficients(kpShooter,kiShooter, kdShooter, kfShooter);
         drivetrain.setCoefficientsfirt(Firstkp, Firstki, Firstkd, Firstkf);
         drivetrain.setCoefficientssecond(Secondkp, Secondki, Secondkd, Secondkf);
-        colorSensor.setCor(ColorSensor.COLOR.NONE);
+       // colorSensor.setCor(ColorSensor.COLOR.NONE);
 
 
         Ciclo.reset();
 
 
-        tagalign.setValues(aptag.LeituraPixels, aptag.tagdetected, 1280);
+        tagalign.setValues(Limelight.tx, Limelight.tagdetected, 1280);
 
 
 
 
-
-        if (isBlue) {
-            servolime.updateDesiredReference(LimeServo.Mode.BLUE_TAG);
-        }else{
-            servolime.updateDesiredReference(LimeServo.Mode.RED_TAG);
-        }
         servolime.setCurrentPosition(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X), poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y), poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.YAW));
+
+
+        if (gamepad1.dpadUpWasPressed()) {
+            servolime.updateDesiredReference(LimeServo.Mode.BLUE_TAG);
+        }
+
+        if(gamepad1.dpadDownWasPressed()){
+            servolime.updateDesiredReference(LimeServo.Mode.BLUE_GATE);
+        }
+
+
 
 
         double d = poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.DISTANCE);
 
         ControleShooter.setDistance(d);
 
-        ControleShooter.setServo(servoA,servoB,servoC);
+        ControleShooter.setServo(servoA, servoB);
 
         ControleShooter.setVel(velA,velB);
 
@@ -249,7 +249,6 @@ public void init_loop(){
 
             Intake.teleop(gamepad1);
 
-            servolime.update();
 
             ControleShooter.update();
         }
@@ -269,10 +268,8 @@ public void init_loop(){
             launching.isShooting(Shooter.shooting);
 
 
-            if (gamepad1.dpad_up){
-                Capota.setValue(0);
-            } else if (gamepad1.dpad_down) {
-                Capota.setValue(1);
+            if (gamepad1.cross || gamepad1.a || gamepad1.circle || gamepad1.b){
+                Capota.setValue(0.5);
             }else {
                 Capota.setValue(servoIdeal);
             }
@@ -283,11 +280,11 @@ public void init_loop(){
         {
             if (isGamepad1) {
                 if (isManual) drivetrain.Drive(true,isBlue, gamepad1, followerteleop, Shooter.shooting, 0, 100, false, offset, angleIdeal, launching.corretor);
-                else drivetrain.Drive(true,isBlue, gamepad1, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, tagalign.validation, offset, angleIdeal,launching.corretor);
+                else drivetrain.Drive(true,isBlue, gamepad1, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, false, offset, angleIdeal,launching.corretor);
 
             } else {
                 if (isManual) drivetrain.Drive(false,isBlue, gamepad2, followerteleop, Shooter.shooting, 0, 100, false, offset, angleIdeal, launching.corretor);
-                else drivetrain.Drive(false,isBlue, gamepad2, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, tagalign.validation, offset, angleIdeal,launching.corretor);
+                else drivetrain.Drive(false,isBlue, gamepad2, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, false, offset, angleIdeal,launching.corretor);
 
             }
         }
@@ -324,7 +321,7 @@ public void init_loop(){
 
 
             poseidentifier.infoLIME(Limelight.x, Limelight.y, Limelight.angle, Limelight.distance);
-            poseidentifier.infoCAM(aptag.LeituraX, aptag.LeituraY, aptag.LeituraYaw);
+           // poseidentifier.infoCAM(aptag.LeituraX, aptag.LeituraY, aptag.LeituraYaw);
             poseidentifier.infoPINPOINT(followerteleop.getPose().getX(), followerteleop.getPose().getY(), followerteleop.getPose().getHeading());
 
         }
@@ -338,6 +335,7 @@ public void init_loop(){
             else  LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
         }
         robot.update();
+        if (gamepad2.a) servolime.setPosition(0.5);
         telemetry();
         tempoCiclo = Ciclo.milliseconds();
         Drawing.draw(followerteleop);
@@ -345,7 +343,7 @@ public void init_loop(){
 
 
     public void stop(){
-        aptag.stop();
+      //  aptag.stop();
     }
 
     public void telemetry(){
@@ -361,10 +359,10 @@ public void init_loop(){
         telemetry.addData("current yaw", servolime.currentYaw);
         telemetry.addData("limeservo", servolime.ServoLime.getPosition());
         telemetry.addLine();
-        telemetry.addData("S1", colorSensor.getLeitura(colorSensor.S1));
-        telemetry.addData("S2", colorSensor.getLeitura(colorSensor.S2));
-        telemetry.addData("S3", colorSensor.getLeitura(colorSensor.S3));
-        telemetry.addData("S4", colorSensor.getLeitura(colorSensor.S4));
+        //telemetry.addData("S1", colorSensor.getLeitura(colorSensor.S1));
+        //telemetry.addData("S2", colorSensor.getLeitura(colorSensor.S2));
+        //telemetry.addData("S3", colorSensor.getLeitura(colorSensor.S3));
+        //telemetry.addData("S4", colorSensor.getLeitura(colorSensor.S4));
         telemetry.addLine();
 
 
@@ -376,20 +374,21 @@ public void init_loop(){
         telemetry.addData("Capota " , Capota.getPosition());
         telemetry.addLine();
         telemetry.addLine("POSIÇÕES");
-        telemetry.addData("CamX", poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.X));
-        telemetry.addData("CamY",  poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.Y));
-        telemetry.addData("CamYaw",  poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.YAW));
-        telemetry.addData("CamDist",  poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.DISTANCE));
-        telemetry.addLine();
-        telemetry.addData("CamX", poseidentifier.getInfo(PoseIdentifier.Source.CAMERA, PoseIdentifier.DataInfo.X));
-        telemetry.addData("CamY",  poseidentifier.getInfo(PoseIdentifier.Source.CAMERA, PoseIdentifier.DataInfo.Y));
-        telemetry.addData("CamYaw",  poseidentifier.getInfo(PoseIdentifier.Source.CAMERA, PoseIdentifier.DataInfo.YAW));
-        telemetry.addData("CamDist",  poseidentifier.getInfo(PoseIdentifier.Source.CAMERA, PoseIdentifier.DataInfo.DISTANCE));
+        telemetry.addData("LimeX", poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.X));
+        telemetry.addData("LimeY",  poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.Y));
+        telemetry.addData("LimeYaw",  poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.YAW));
+        telemetry.addData("LimeDist",  poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.DISTANCE));
         telemetry.addLine();
         telemetry.addData("PinX", poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X));
         telemetry.addData("PinY",  poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y));
         telemetry.addData("PinYaw",  poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.YAW));
         telemetry.addData("PinDist",  poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.DISTANCE));
+        telemetry.addLine();
+
+        telemetry.addData("ErrorX", poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.X));
+        telemetry.addData("ErrorY",  poseidentifier.getInfo(PoseIdentifier.Source.CAMERA, PoseIdentifier.DataInfo.Y) - poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.Y));
+        telemetry.addData("ErrorYaw",  poseidentifier.getInfo(PoseIdentifier.Source.CAMERA, PoseIdentifier.DataInfo.YAW) - poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.YAW));
+        telemetry.addData("ErrorDist",  poseidentifier.getInfo(PoseIdentifier.Source.CAMERA, PoseIdentifier.DataInfo.DISTANCE) - poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.DISTANCE));
         telemetry.addLine();
 
         telemetry.addLine("ATIRADOR");
@@ -418,11 +417,12 @@ public void init_loop(){
 
 
 
+        telemetry.addData("ID", Limelight.id);
+        telemetry.addData("TagPixels LIME", Limelight.tpixel);
+        telemetry.addData("Balls", Limelight.TotalBalls);
+        telemetry.addData("Pipeline", Limelight.pipeline);
+        telemetry.addData("ModeLime", Limelight.OperationMode);
 
-    //telemetry.addData("TagPixels LIME", Limelight.tpixel);
-        telemetry.addData("TagPixels CAM", aptag.LeituraPixels);
-        telemetry.addData("CAM ERROR", drivetrain.error_final);
-        telemetry.addData("calculo de erro", drivetrain.widht_divididopor2menospixel);
 
         telemetry.addLine();
 
@@ -431,9 +431,6 @@ public void init_loop(){
         telemetry.addLine();
 
         telemetry.addLine();
-        telemetry.addData("RobotPoseX", aptag.LeituraX);
-        telemetry.addData("RobotPoseY", aptag.LeituraY);
-        telemetry.addData("RobotPoseYAW", aptag.LeituraYaw);
 
 
         telemetryM.update(telemetry);

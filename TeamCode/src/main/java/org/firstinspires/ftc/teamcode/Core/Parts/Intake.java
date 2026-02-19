@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.Core.Algorithms.InterfaceSimple;
 public class Intake implements InterfaceSimple {
    public DcMotor Intake_1, Intake_2;
 
+   public Mode IntakeMode;
 
     public enum Mode{
         INTAKE,
@@ -34,6 +35,7 @@ public class Intake implements InterfaceSimple {
     }
 
     public void setMode(Mode mode){
+        IntakeMode = mode;
         switch (mode){
             case INTAKE:
                 Intake_1.setPower(-1);

@@ -65,9 +65,9 @@ public class PIT extends OpMode{
 
      Intake Intake = new Intake();
 
-     Lime Limelight = robot.limelight;
+     Lime Limelight = new Lime();
 
-    AprilTagCam aptag = robot.aptag;
+   // AprilTagCam aptag = robot.aptag;
 
     TagAlign tagalign = new TagAlign();
     AimAssisters Capota = launching.Capota;
@@ -125,7 +125,7 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
 
         reservatorio.start(hardwareMap);
 
-        aptag.setup(hardwareMap);
+        //aptag.setup(hardwareMap);
 
         Intake.start(hardwareMap);
 
@@ -248,7 +248,7 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
         Ciclo.reset();
 
 
-        tagalign.setValues( aptag.LeituraPixels,  aptag.tagdetected,  720);
+        //tagalign.setValues( aptag.LeituraPixels,  aptag.tagdetected,  720);
 
 
         drivetrain.setCoefficientsAptag(kpAlign, kiAlign, kdAlign, kfAlign);
@@ -407,7 +407,7 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
 
 
             poseidentifier.infoLIME(Limelight.x, Limelight.y, Limelight.angle, Limelight.distance);
-            poseidentifier.infoCAM(aptag.LeituraX, aptag.LeituraY, aptag.LeituraYaw);
+            //poseidentifier.infoCAM(aptag.LeituraX, aptag.LeituraY, aptag.LeituraYaw);
             poseidentifier.infoPINPOINT(followerteleop.getPose().getX(), followerteleop.getPose().getY(), followerteleop.getPose().getHeading());
 
         }
@@ -426,7 +426,7 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
 
 
     public void stop(){
-        aptag.stop();
+        //aptag.stop();
     }
 
     public void telemetry(){
@@ -495,7 +495,7 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
 
 
     //telemetry.addData("TagPixels LIME", Limelight.tpixel);
-        telemetry.addData("TagPixels CAM", aptag.LeituraPixels);
+//        telemetry.addData("TagPixels CAM", aptag.LeituraPixels);
         telemetry.addData("CAM ERROR", drivetrain.error_final);
         telemetry.addData("calculo de erro", drivetrain.widht_divididopor2menospixel);
 
@@ -506,9 +506,9 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
         telemetry.addLine();
 
         telemetry.addLine();
-        telemetry.addData("RobotPoseX", aptag.LeituraX);
-        telemetry.addData("RobotPoseY", aptag.LeituraY);
-        telemetry.addData("RobotPoseYAW", aptag.LeituraYaw);
+    //    telemetry.addData("RobotPoseX", aptag.LeituraX);
+  //      telemetry.addData("RobotPoseY", aptag.LeituraY);
+//        telemetry.addData("RobotPoseYAW", aptag.LeituraYaw);
 
 
         telemetryM.update(telemetry);

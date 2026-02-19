@@ -71,7 +71,7 @@ public class Autonomo extends OpMode {
 
     LimeServo servolime = new LimeServo();
 
-    ColorSensor colorSensor = new ColorSensor();
+   // ColorSensor colorSensor = new ColorSensor();
     ShooterControl ControleShooter = new ShooterControl();
 
      double kpShootera = 0.0017, kiShootera = 0.000125, kdShootera = 0, kfShootera = 0.05;
@@ -102,7 +102,7 @@ int timesReset;
 
         follower = Constants.createFollower(hardwareMap);
 
-        colorSensor.start(hardwareMap);
+       // colorSensor.start(hardwareMap);
         shooter.start(hardwareMap);
         intake.start(hardwareMap);
         Capota.start(hardwareMap);
@@ -241,7 +241,7 @@ int timesReset;
     public void loop() {
         {
             ControleShooter.isBlue(isBlue);
-            colorSensor.setCor(ColorSensor.COLOR.NONE);
+         //   colorSensor.setCor(ColorSensor.COLOR.NONE);
             poseidentifier.infoPINPOINT(follower.getPose().getX(), follower.getPose().getY(), follower.getPose().getHeading());
 
             servolime.setCurrentPosition(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X), poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y), poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.YAW));
@@ -252,7 +252,7 @@ int timesReset;
 
             ControleShooter.setDistance(d);
 
-            ControleShooter.setServo(0.000022,0.0079,1.55);
+            ControleShooter.setServo(0.0079,1.55);
 
             ControleShooter.setVel(2.1,940);
 

@@ -23,7 +23,7 @@ public class Drivetrain implements InterfaceSimple {
     ElapsedTime rightpos = new ElapsedTime();
 
      public double error_hor;
-    public double error_anti_hor;
+    public double error_tag;
     public double error_final;
 
     public double widht_divididopor2menospixel;
@@ -84,46 +84,24 @@ public boolean right_pos;
      if (isShooting || !gamepad1){
 
          if (validation) {
-             error_final = (((width / 2) - (width * offsetpercent)) - pixel) / (((width / 2) - (width * offsetpercent)) * 0.03);
-             aptag = true;
-
+             error_tag = 0;
+             //error_tag = (pixel - 640)/640;
          }else{
-             targetHeading = IdealAngle/* + Math.toRadians(corrreserv) * -10*/;
-             aptag = false;
+             targetHeading = IdealAngle + error_tag;
 
              error_final = angleWrap(targetHeading - followerdrive.getHeading());
 
-
-//
-//             error_final = targetHeading - followerdrive.getHeading();
-//
-//             if (error_final > 180) error_final -= 360;
-//             if (error_final < -180) error_final += 360;
          }
      } else{
-         aptag = false;
 
          error_final = angleWrap(targetHeading - followerdrive.getHeading());
 
-//         error_final = targetHeading - followerdrive.getHeading();
-//
-//         if (error_final > 180) error_final -= 360;
-//         if (error_final < -180) error_final += 360;
      }
 
-
-
-     if(isShooting && validation){
-         controllerHeading.setCoefficients(new PIDFCoefficients(kpa, kia, kda, kfa));
-         timer.reset();
-
-     }else{
-//         if(Math.abs(Math.toDegrees(error_final)) > 30) controllerHeading.setCoefficients(new PIDFCoefficients(kpf, kif, kdf, kff));
-//         else controllerHeading.setCoefficients(new PIDFCoefficients(kps, kis, kds, kfs));
         if (!gamepad1)controllerHeading.setCoefficients(new PIDFCoefficients(kpf, kif, kdf, kff));
          else controllerHeading.setCoefficients(new PIDFCoefficients(kps, kis, kds, kfs));
 
-     }
+
 
       if(Math.abs(Math.toDegrees(error_final)) > 5) {
           controllerHeading.errorIntegral = 0;
@@ -149,10 +127,6 @@ public boolean right_pos;
           else targetHeading = followerdrive.getHeading();
       }
 
-      if (aptag){
-          headingLock = true;
-          targetHeading = followerdrive.getHeading();
-      }
 
       if (isBlue) {
           if (headingLock) followerdrive.setTeleOpDrive(gamepad.left_stick_y , gamepad.left_stick_x, controllerHeading.run(), false);

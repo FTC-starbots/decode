@@ -18,9 +18,9 @@ public class TagAlign {
                 pixel = CAMpix;
                 // servo.isLimeAllianceTag(false);
             }else {
-                validation = false;
-                width = 0;
-                pixel = 0;
+         validation = false;
+         width = 0;
+         pixel = 0;
 
 
             }
