@@ -19,6 +19,8 @@ public class Shooter implements InterfaceSimple {
 
     public boolean pre_shoot = false;
 
+    int shoottype;
+
 
     PIDFOController controllerHeading = new PIDFOController(new PIDFCoefficients(0, 0, 0, 0));
 
@@ -33,7 +35,7 @@ public class Shooter implements InterfaceSimple {
 
     public void teleop(Gamepad gamepad, int vel, boolean gamepad1, int minvel){
 
-        if (gamepad.left_bumper || gamepad.right_bumper ||gamepad.dpad_left || gamepad.dpad_up || gamepad.dpad_right){
+        if (gamepad.left_bumper || gamepad.right_bumper ||gamepad.dpad_left || gamepad.dpad_up || gamepad.dpad_right || gamepad.y || gamepad.triangle){
             pre_shoot = false;
             shooting = true;
             setVelDesejada(vel);
@@ -70,6 +72,8 @@ public class Shooter implements InterfaceSimple {
 
     public void isServoLifted(boolean lift){servo_lift = lift;}
 
+    public void ShootType(int shoot){shoottype = shoot;}
+
     @Override
     public void update() {
 
@@ -89,7 +93,10 @@ public class Shooter implements InterfaceSimple {
             Atirador_1.setPower(power);
             Atirador_2.setPower(power);
         } else{
-            if(erro>40) {
+            /*if (shoottype == 1 && right_vel){
+                Atirador_1.setPower(1);
+                Atirador_2.setPower(1);
+            } else*/ if(erro>40) {
                 Atirador_1.setPower(1);
                 Atirador_2.setPower(1);
             }

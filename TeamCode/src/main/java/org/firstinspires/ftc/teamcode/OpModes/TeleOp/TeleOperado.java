@@ -94,7 +94,7 @@ public class TeleOperado extends Autonomo {
     public static double servoA = 0.009, servoB = 1.55;
 
     public static double velA = 3.35;
-    public static int velB = 850;
+    public static int velB = 850,AllBallsConst = 100;
 
     public static double offset = 0.0000001;
 
@@ -216,7 +216,7 @@ public void init_loop(){
 
         ControleShooter.setServo(servoA, servoB);
 
-        ControleShooter.setVel(velA,velB);
+        ControleShooter.setVel(velA,velB,AllBallsConst);
 
         velIdeal = ControleShooter.getVel();
 
@@ -231,7 +231,7 @@ public void init_loop(){
 
         if (poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) < Math.abs(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 72) + 68.5
                 ||
-                poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) < -Math.abs(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) + 72) + 35.5) {
+                poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) < -Math.abs(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 72) + 35.5) {
             isValidArea = true;
         } else {
             isValidArea = false;
@@ -264,8 +264,10 @@ public void init_loop(){
 
 
             Shooter.isServoLifted(launching.servo_lifted);
+            Shooter.ShootType(launching.shoot_type);
             launching.isAtRightVel(Shooter.right_vel);
             launching.isShooting(Shooter.shooting);
+            ControleShooter.setShootType(launching.shoot_type);
 
 
             if (gamepad1.cross || gamepad1.a || gamepad1.circle || gamepad1.b){

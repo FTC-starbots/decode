@@ -252,9 +252,9 @@ int timesReset;
 
             ControleShooter.setDistance(d);
 
-            ControleShooter.setServo(0.0079,1.55);
+            ControleShooter.setServo(0.009,1.55);
 
-            ControleShooter.setVel(2.1,940);
+            ControleShooter.setVel(3.35,850, 100);
 
             velIdeal = ControleShooter.getVel();
 

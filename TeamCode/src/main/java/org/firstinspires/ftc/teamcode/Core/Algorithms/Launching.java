@@ -23,7 +23,7 @@ public class Launching {
     public boolean servo_lifted = false;
     public boolean post_shoot;
 
-    public int last_shoot_type;
+    public int shoot_type;
     boolean shoot_split;
 
     public int corretor;
@@ -56,37 +56,38 @@ public class Launching {
         isTeleop = true;
         if (gamepad.left_bumper){
 
-            last_shoot_type = 3;
+            shoot_type = 3;
         }
         else if (gamepad.right_bumper){
 
-            last_shoot_type = 2;
+            shoot_type = 2;
 
-        }
-        else if (gamepad.dpad_left){
-            last_shoot_type = 4;
+        } else if (gamepad.y || gamepad.triangle) {
+            shoot_type = 1;
+        } else if (gamepad.dpad_left){
+            shoot_type = 4;
         }else if (gamepad.dpad_up){
-            last_shoot_type = 5;
+            shoot_type = 5;
         }else if (gamepad.dpad_right){
-            last_shoot_type = 6;
+            shoot_type = 6;
         }
 
         if (right_vel && right_pos) {
 
-            if (last_shoot_type == 1) shoot_all = true;
-            if (last_shoot_type == 2) shoot_sequence = true;
-            if (last_shoot_type == 3) shoot_split = true;
-            if (last_shoot_type == 4){
+            if (shoot_type == 1) shoot_all = true;
+            if (shoot_type == 2) shoot_sequence = true;
+            if (shoot_type == 3) shoot_split = true;
+            if (shoot_type == 4){
                 reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
                 corretor = 1;
                 post_shoot = true;
             }
-            if (last_shoot_type == 5){
+            if (shoot_type == 5){
                 reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
                 corretor = 0;
                 post_shoot = true;
             }
-            if (last_shoot_type == 6){
+            if (shoot_type == 6){
                 reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
                 corretor = -1;
                 post_shoot = true;
@@ -158,25 +159,16 @@ public class Launching {
 
     public void launch_all_togheter(){
 
-        if(timer_all.seconds() < 0.15){
-
+        if(times_atRightVel == 0 && right_vel && right_pos){
+            timer_all.reset();
             reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
             reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
             reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
-            servo_lifted = true;
-
-        }
-
-        else if (timer_all.seconds() > 0.8 && timer_all.seconds() < 1.5) {
-            reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.DOWN);
-            reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.DOWN);
-            reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.DOWN);
-            servo_lifted = false;
-        }else if (timer_all.seconds() > 1.5 && timer_all.seconds() < 1.6) {
+            corretor = 0;
+            times_atRightVel = 1;
+        } else if (times_atRightVel == 1 && timer_all.seconds() > 0.8) {
             shoot_all = false;
             post_shoot = true;
-
-
 
         }
 
@@ -184,7 +176,7 @@ public class Launching {
 
     public void launch_sequence(){
         reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.DOWN);
-        reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
+        reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.DOWN);
         reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.DOWN);
         if(timer_all.seconds() > 0 && timer_all.seconds() < 1){
 
