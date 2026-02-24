@@ -34,9 +34,9 @@ public class ColorSensor {
 
 
     public void start(HardwareMap hardware){
-        S_LED_R = hardware.get(DigitalChannel.class, "s_led_r");
-        S_LED_G = hardware.get(DigitalChannel.class, "s_led_g");
-        S_LED_B = hardware.get(DigitalChannel.class, "s_led_b");
+        S_LED_R = hardware.get(DigitalChannel.class, "S_LED_R");
+        S_LED_G = hardware.get(DigitalChannel.class, "S_LED_G");
+        S_LED_B = hardware.get(DigitalChannel.class, "S_LED_B");
         S1 = hardware.get(AnalogInput.class, "S1");
         S2 = hardware.get(AnalogInput.class, "S2");
         S3 = hardware.get(AnalogInput.class, "S3");

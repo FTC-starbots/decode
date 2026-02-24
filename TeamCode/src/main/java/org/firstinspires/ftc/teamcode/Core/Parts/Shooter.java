@@ -82,9 +82,8 @@ public class Shooter implements InterfaceSimple {
         controllerHeading.updateError(erro);
         double power = controllerHeading.run();
 
-        if(velocidade_desejada == Atirador_1.getVelocity() && velocidade_desejada != 0 && !pre_shoot) right_vel = true;
+        if((erro > -60 && erro < 40) && velocidade_desejada != 0 && !pre_shoot) right_vel = true;
         else right_vel = false;
-
 
         if (velocidade_desejada == 0){
             Atirador_1.setPower(0);
@@ -96,7 +95,7 @@ public class Shooter implements InterfaceSimple {
             /*if (shoottype == 1 && right_vel){
                 Atirador_1.setPower(1);
                 Atirador_2.setPower(1);
-            } else*/ if(erro>40) {
+            } else*/ if(erro>60) {
                 Atirador_1.setPower(1);
                 Atirador_2.setPower(1);
             }

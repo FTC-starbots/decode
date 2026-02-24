@@ -46,12 +46,14 @@ public class Launching {
             launch_auto(sequence,timer);
             pressed_button.reset();
             timer_all.reset();
+            shoot_type = 3;
         }
 
         if (!toShootauto && !isTeleop) times_atRightVel = 0;
 
 
 }
+
     public void teleop(Gamepad gamepad, double timer){
         isTeleop = true;
         if (gamepad.left_bumper){
@@ -190,7 +192,7 @@ public class Launching {
     public void launch_auto(int sequence, double timer){
         if (sequence == 1){
             if(times_atRightVel < 4) {
-                if (times_atRightVel == 0 && right_vel) {
+                if (times_atRightVel == 0 && right_vel && timer_split.seconds() > 0.1) {
                     timer_split.reset();
                     reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
                     times_atRightVel = 1;

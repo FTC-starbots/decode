@@ -43,7 +43,7 @@ public class TeleOperado extends Autonomo {
 
     Follower followerteleop;
 
-    boolean isGamepad1 = false, isManual = false, isValidArea = false;
+    boolean isGamepad1 = true, isManual = false, isValidArea = false;
     Robot robot = new Robot();
 
     Drivetrain drivetrain = robot.drivetrain;
@@ -56,7 +56,7 @@ public class TeleOperado extends Autonomo {
 
 
     public static double Firstkp = 0.9, Firstki = 1, Firstkd = 0.05, Firstkf = 0;
-    public static double Secondkp = 0.23, Secondki= 0, Secondkd = 0.037, Secondkf = 0;
+    public static double Secondkp = 0.35, Secondki= 0, Secondkd = 0.037, Secondkf = 0;
 
     ElapsedTime Ciclo;
 
@@ -78,7 +78,7 @@ public class TeleOperado extends Autonomo {
     AimAssisters Capota = launching.Capota;
     public Reservoirs reservatorio = new Reservoirs();
 
-   // ColorSensor colorSensor = new ColorSensor();
+    ColorSensor colorSensor = new ColorSensor();
 
 
     PoseIdentifier poseidentifier = new PoseIdentifier();
@@ -94,7 +94,7 @@ public class TeleOperado extends Autonomo {
     public static double servoA = 0.009, servoB = 1.55;
 
     public static double velA = 3.35;
-    public static int velB = 850,AllBallsConst = 100;
+    public static int velB = 870,AllBallsConst = 160;
 
     public static double offset = 0.0000001;
 
@@ -103,7 +103,7 @@ public class TeleOperado extends Autonomo {
 
  public int  velIdeal;
 
- public static double timer = 0.2;
+ public static double timer = 0.175;
 
  public static double  corr;
 
@@ -122,7 +122,7 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
 
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
-      //  colorSensor.start(hardwareMap);
+       colorSensor.start(hardwareMap);
 
         LED.start(hardwareMap);
 
@@ -185,8 +185,18 @@ public void init_loop(){
         Shooter.setCoefficients(kpShooter,kiShooter, kdShooter, kfShooter);
         drivetrain.setCoefficientsfirt(Firstkp, Firstki, Firstkd, Firstkf);
         drivetrain.setCoefficientssecond(Secondkp, Secondki, Secondkd, Secondkf);
-       // colorSensor.setCor(ColorSensor.COLOR.NONE);
 
+          if (gamepad1.dpad_up) {
+              colorSensor.setCor(ColorSensor.COLOR.GREEN);
+          } else if (gamepad1.dpad_left) {
+              colorSensor.setCor(ColorSensor.COLOR.RED);
+          }else if (gamepad1.dpad_right) {
+              colorSensor.setCor(ColorSensor.COLOR.BLUE);
+          }else if (gamepad1.dpad_down) {
+              colorSensor.setCor(ColorSensor.COLOR.PURPLE);
+          }else{
+              colorSensor.setCor(ColorSensor.COLOR.NONE);
+          }
 
         Ciclo.reset();
 
@@ -199,13 +209,19 @@ public void init_loop(){
         servolime.setCurrentPosition(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X), poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y), poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.YAW));
 
 
-        if (gamepad1.dpadUpWasPressed()) {
-            servolime.updateDesiredReference(LimeServo.Mode.BLUE_TAG);
+        if (isBlue){
+            servolime.updateDesiredReference(LimeServo.Mode.BLUE_GATE);
+        }else{
+            servolime.updateDesiredReference(LimeServo.Mode.RED_GATE);
         }
 
-        if(gamepad1.dpadDownWasPressed()){
-            servolime.updateDesiredReference(LimeServo.Mode.BLUE_GATE);
-        }
+//        if (gamepad1.dpadUpWasPressed()) {
+//            servolime.updateDesiredReference(LimeServo.Mode.BLUE_TAG);
+//        }
+//
+//        if(gamepad1.dpadDownWasPressed()){
+//            servolime.updateDesiredReference(LimeServo.Mode.BLUE_GATE);
+//        }
 
 
 
@@ -223,7 +239,7 @@ public void init_loop(){
         servoIdeal = ControleShooter.getServo();
 
         if (isBlue) {
-            angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 138, poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 12);
+            angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 136 , poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 12);
         }else{
             angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 136, poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 132);
         }
@@ -332,9 +348,10 @@ public void init_loop(){
 //===LEDS========================================================================================
         {
 
+            LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.VIOLET);
 
-            if(drivetrain.aptag) LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
-            else  LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+//            if(drivetrain.aptag) LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+//            else  LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
         }
         robot.update();
         if (gamepad2.a) servolime.setPosition(0.5);
@@ -361,10 +378,10 @@ public void init_loop(){
         telemetry.addData("current yaw", servolime.currentYaw);
         telemetry.addData("limeservo", servolime.ServoLime.getPosition());
         telemetry.addLine();
-        //telemetry.addData("S1", colorSensor.getLeitura(colorSensor.S1));
-        //telemetry.addData("S2", colorSensor.getLeitura(colorSensor.S2));
-        //telemetry.addData("S3", colorSensor.getLeitura(colorSensor.S3));
-        //telemetry.addData("S4", colorSensor.getLeitura(colorSensor.S4));
+        telemetry.addData("S1", colorSensor.getLeitura(colorSensor.S1));
+        telemetry.addData("S2", colorSensor.getLeitura(colorSensor.S2));
+        telemetry.addData("S3", colorSensor.getLeitura(colorSensor.S3));
+        telemetry.addData("S4", colorSensor.getLeitura(colorSensor.S4));
         telemetry.addLine();
 
 

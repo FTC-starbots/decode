@@ -9,6 +9,8 @@ import org.firstinspires.ftc.teamcode.Core.Algorithms.InterfaceSimple;
 public class AimAssisters implements InterfaceSimple {
     public Servo Capota1, Capota2;
 
+    Intake.Mode MODO;
+
     boolean Propocional = false;
 
     public enum Mode {
@@ -61,15 +63,21 @@ public class AimAssisters implements InterfaceSimple {
     }
 
     public void setValue(double value) {
-        Capota1.setPosition(value);
-        Capota2.setPosition(value);
+        if (MODO == Intake.Mode.INTAKE || MODO == Intake.Mode.EJECT){
+            Capota1.setPosition(0.5);
+            Capota2.setPosition(0.5);
+        }else {
+            Capota1.setPosition(value);
+            Capota2.setPosition(value);
+        }
     }
 
     public double getPosition(){
         return Capota1.getPosition();
     }
 
-    public void IntakeMode(){
+    public void IntakeMode(Intake.Mode mode){
+        MODO = mode;
 
     }
         public void capota_propor () {
