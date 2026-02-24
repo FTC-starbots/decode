@@ -85,25 +85,28 @@ public class Shooter implements InterfaceSimple {
         if((erro > -60 && erro < 40) && velocidade_desejada != 0 && !pre_shoot) right_vel = true;
         else right_vel = false;
 
-        if (velocidade_desejada == 0){
-            Atirador_1.setPower(0);
-            Atirador_2.setPower(0);
-        }else if(pre_shoot){
-            Atirador_1.setPower(power);
-            Atirador_2.setPower(power);
-        } else{
-            /*if (shoottype == 1 && right_vel){
-                Atirador_1.setPower(1);
-                Atirador_2.setPower(1);
-            } else*/ if(erro>60) {
-                Atirador_1.setPower(1);
-                Atirador_2.setPower(1);
-            }
-            else{
-                Atirador_1.setPower(power);
-                Atirador_2.setPower(power);
-            }
-        }
+        Atirador_1.setPower(0);
+        Atirador_2.setPower(0);
+
+//        if (velocidade_desejada == 0){
+//            Atirador_1.setPower(0);
+//            Atirador_2.setPower(0);
+//        }else if(pre_shoot){
+//            Atirador_1.setPower(power);
+//            Atirador_2.setPower(power);
+//        } else{
+//            /*if (shoottype == 1 && right_vel){
+//                Atirador_1.setPower(1);
+//                Atirador_2.setPower(1);
+//            } else*/ if(erro>60) {
+//                Atirador_1.setPower(1);
+//                Atirador_2.setPower(1);
+//            }
+//            else{
+//                Atirador_1.setPower(power);
+//                Atirador_2.setPower(power);
+//            }
+//        }
 
 
     }

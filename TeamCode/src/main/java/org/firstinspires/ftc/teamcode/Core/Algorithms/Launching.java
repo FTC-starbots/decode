@@ -74,31 +74,41 @@ public class Launching {
             shoot_type = 6;
         }
 
-        if (right_vel && right_pos) {
-
             if (shoot_type == 1) shoot_all = true;
             if (shoot_type == 2) shoot_sequence = true;
             if (shoot_type == 3) shoot_split = true;
             if (shoot_type == 4){
-                reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
-                corretor = 1;
-                post_shoot = true;
+                if (right_vel) {
+                    reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
+                    corretor = 1;
+                    post_shoot = true;
+                    pressed_button.reset();
+                    timer_all.reset();
+                }
             }
-            if (shoot_type == 5){
-                reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
-                corretor = 0;
-                post_shoot = true;
+            if (shoot_type == 5) {
+                if (right_vel) {
+                    reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
+                    corretor = 0;
+                    post_shoot = true;
+                    pressed_button.reset();
+                    timer_all.reset();
+                }
             }
             if (shoot_type == 6){
+                if (right_vel){
                 reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
                 corretor = -1;
                 post_shoot = true;
+
+                    pressed_button.reset();
+                    timer_all.reset();
+                }
             }
 
-            pressed_button.reset();
-            timer_all.reset();
 
-        }
+
+
 
 
         if (shoot_all) launch_all_togheter();
@@ -133,7 +143,7 @@ public class Launching {
         if(times_atRightVel < 3) {
             if (times_atRightVel == 0 && right_vel && right_pos) {
                 timer_split.reset();
-                reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
+                reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
                 times_atRightVel = 1;
                 corretor = 1;
 
@@ -141,14 +151,15 @@ public class Launching {
 
             if (times_atRightVel == 1 && right_vel && timer_split.seconds() > timer) {
                 timer_split.reset();
-                reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
+                reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
+                reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
                 times_atRightVel = 2;
                 corretor = 0;
             }
 
             if (times_atRightVel == 2 && right_vel && timer_split.seconds() > timer) {
                 timer_split.reset();
-                reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
+
                 times_atRightVel = 3;
                 corretor = -1;
                 post_shoot = true;

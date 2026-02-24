@@ -94,7 +94,7 @@ public class TeleOperado extends Autonomo {
     public static double servoA = 0.009, servoB = 1.55;
 
     public static double velA = 3.35;
-    public static int velB = 870,AllBallsConst = 160;
+    public static int velB = 905, AllBallsConst = 160;
 
     public static double offset = 0.0000001;
 
