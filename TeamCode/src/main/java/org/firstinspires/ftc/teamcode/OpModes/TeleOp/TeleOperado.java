@@ -276,7 +276,7 @@ public void init_loop(){
             }
 
 
-
+//teste
             Shooter.isServoLifted(launching.servo_lifted);
             Shooter.ShootType(launching.shoot_type);
             launching.isAtRightVel(Shooter.right_vel);
