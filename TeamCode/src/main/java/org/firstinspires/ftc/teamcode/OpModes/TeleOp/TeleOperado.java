@@ -189,9 +189,7 @@ public void init_loop(){
           if (gamepad1.dpad_up) {
               colorSensor.setCor(ColorSensor.COLOR.GREEN);
           } else if (gamepad1.dpad_left) {
-              colorSensor.setCor(ColorSensor.COLOR.RED);
-          }else if (gamepad1.dpad_right) {
-              colorSensor.setCor(ColorSensor.COLOR.BLUE);
+              colorSensor.setCor(ColorSensor.COLOR.WHITE);
           }else if (gamepad1.dpad_down) {
               colorSensor.setCor(ColorSensor.COLOR.PURPLE);
           }else{

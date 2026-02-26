@@ -23,6 +23,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.Drawing;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.Launching;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.PoseIdentifier;
+import org.firstinspires.ftc.teamcode.Core.Algorithms.SequenceAlgorithm;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.ShooterControl;
 import org.firstinspires.ftc.teamcode.Core.Hardware.ColorSensor;
 import org.firstinspires.ftc.teamcode.Core.Hardware.Leds;
@@ -60,7 +61,7 @@ public class Autonomo extends OpMode {
     public double servoIdeal;
     public int velIdeal;
 
-
+int setGateOrder = 0;
     Shooter shooter = new Shooter();
     Intake intake = new Intake();
     PoseIdentifier poseidentifier = new PoseIdentifier();
@@ -75,6 +76,7 @@ public class Autonomo extends OpMode {
 
    // ColorSensor colorSensor = new ColorSensor();
     ShooterControl ControleShooter = new ShooterControl();
+    SequenceAlgorithm algoritmoSequencia = new SequenceAlgorithm();
 
      double kpShootera = 0.0017, kiShootera = 0.000125, kdShootera = 0, kfShootera = 0.05;
 
@@ -307,7 +309,14 @@ int timesReset;
             launching.isShooting(shooter.shooting);
             launching.isAtRightVel(shooter.right_vel);
             sequenceAnalyzer(id);
+            algoritmoSequencia.setMOTIF(id);
             launching.auto(0.45, sequence, toShoot);
+
+            if ((id == 21 || id ==22 || id==23) && setGateOrder < 3 ){
+                algoritmoSequencia.gateOrder();
+                setGateOrder++;
+            }
+
 
             servolime.update();
             shooter.update();

@@ -12,6 +12,7 @@ public class ColorSensor {
         GREEN,
         BLUE,
         PURPLE,
+        WHITE,
         NONE
 
     }
@@ -29,6 +30,7 @@ public class ColorSensor {
     ElapsedTime timer = new ElapsedTime();
 
     BALL color;
+    public BALL ball1, ball2, ball3;
 
     double leituraVerde1, leituraRoxo1, leituraVerde2, leituraRoxo2, leituraVerde3, leituraRoxo3;
 
@@ -37,10 +39,10 @@ public class ColorSensor {
         S_LED_R = hardware.get(DigitalChannel.class, "S_LED_R");
         S_LED_G = hardware.get(DigitalChannel.class, "S_LED_G");
         S_LED_B = hardware.get(DigitalChannel.class, "S_LED_B");
-        S1 = hardware.get(AnalogInput.class, "S1");
-        S2 = hardware.get(AnalogInput.class, "S2");
-        S3 = hardware.get(AnalogInput.class, "S3");
-        S4 = hardware.get(AnalogInput.class, "S4");
+        S1 = hardware.get(AnalogInput.class, "S4");
+        S2 = hardware.get(AnalogInput.class, "S1");
+        S3 = hardware.get(AnalogInput.class, "S2");
+        S4 = hardware.get(AnalogInput.class, "S3");
 
 
         S_LED_R.setMode(DigitalChannel.Mode.OUTPUT);
@@ -70,6 +72,11 @@ public class ColorSensor {
             case PURPLE:
                 S_LED_R.setState(true);
                 S_LED_G.setState(false);
+                S_LED_B.setState(true);
+                break;
+            case WHITE:
+                S_LED_R.setState(true);
+                S_LED_G.setState(true);
                 S_LED_B.setState(true);
                 break;
             case NONE:
@@ -113,7 +120,7 @@ public class ColorSensor {
             }
 
 
-
+            ball1 = color;
         }else if (sensor == S2) {
             timer.reset();
             if (timer.seconds() < 0.05){
@@ -135,7 +142,7 @@ public class ColorSensor {
             }
 
 
-
+            ball2 = color;
         }else if (sensor == S3) {
             timer.reset();
             if (timer.seconds() < 0.05){
@@ -157,15 +164,10 @@ public class ColorSensor {
             }
 
 
-
+        ball3 = color;
         } else color = BALL.ERROR;
+
         return color;
-    }
-
-
-
-    public double getCor(){
-        return 0;
     }
 
 
