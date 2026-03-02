@@ -21,15 +21,15 @@ public class Launching {
     ColorSensor.BALL bola1, bola2, bola3;
     public AimAssisters Capota = new AimAssisters();
 
-    boolean shoot_all;
-    boolean shoot_sequence;
-    boolean shoot_split_sen;
+    boolean shoot_all = false;
+    boolean shoot_sequence= false;
+    boolean shoot_split_sen= false;
     boolean right_vel, right_pos;
     public boolean servo_lifted = false;
-    public boolean post_shoot;
+    public boolean post_shoot= false;
 
-    public int shoot_type;
-    boolean shoot_split;
+    public int shoot_type = 0;
+    boolean shoot_split= false;
 
     public int corretor;
     boolean toShootauto, isTeleop;
@@ -315,10 +315,17 @@ public class Launching {
 
         if(times_atRightVel < 3) {
             if (times_atRightVel == 0 && right_vel && right_pos) {
-                shootOrder[0] = gateOrder[Balls];
-                shootOrder[1] = gateOrder[Balls + 1];
-                shootOrder[2] = gateOrder[Balls + 2];
-                timer_split.reset();
+                if (Balls <7) {
+                    shootOrder[0] = gateOrder[Balls];
+                    shootOrder[1] = gateOrder[Balls + 1];
+                    shootOrder[2] = gateOrder[Balls + 2];
+                    timer_split.reset();
+                }else {
+                    shootOrder[0] = gateOrder[8];
+                    shootOrder[1] = gateOrder[8];
+                    shootOrder[2] = gateOrder[8];
+                    timer_split.reset();
+                }
 
                 if (bola1 == ColorSensor.BALL.NONE && bola2 == ColorSensor.BALL.NONE && bola3 == ColorSensor.BALL.NONE) {
                     post_shoot = true;

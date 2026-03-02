@@ -47,6 +47,8 @@ public class ShooterControl implements InterfaceSimple {
 
         }
 
+        servoIdeal = Math.min(1, servoIdeal);
+
 
 
     }

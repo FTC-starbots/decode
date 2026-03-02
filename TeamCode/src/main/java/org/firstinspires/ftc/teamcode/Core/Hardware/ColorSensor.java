@@ -117,11 +117,11 @@ public boolean post_reading;
             leituraPresece3 = getLeitura(S3);
 
 
-            if (1.35 > leituraPresece1) color1 = BALL.PURPLE;
+            if (1.47 > leituraPresece1) color1 = BALL.PURPLE;
 
-            if (1.45 > leituraPresece2) color2 = BALL.PURPLE;
+            if (1.47 > leituraPresece2) color2 = BALL.PURPLE;
 
-            if (1.45 > leituraPresece3) color3 = BALL.PURPLE;
+            if (1.47 > leituraPresece3) color3 = BALL.PURPLE;
 
             ball1 = color1;
             ball2 = color2;
@@ -130,18 +130,18 @@ public boolean post_reading;
     }
     public void readColor(ElapsedTime timer) {
 
-            if (timer.seconds() < 0.5){
+            if (timer.seconds() < 0.05){
                 setCor(COLOR.GREEN);
-            } else if (timer.seconds() > 0.5 && timer.seconds() < 1){
+            } else if (timer.seconds() > 0.1 && timer.seconds() < 0.3){
                  leituraVerde1 = getLeitura(S1);
 
                  leituraVerde2 = getLeitura(S2);
 
                  leituraVerde3 = getLeitura(S3);
 
-            } else if (timer.seconds() > 1.5 && timer.seconds() < 2) {
+            } else if (timer.seconds() > 0.3 && timer.seconds() < 0.35) {
                 setCor(COLOR.PURPLE);
-            }else if (timer.seconds() > 2 && timer.seconds() < 2.5){
+            }else if (timer.seconds() > 0.4 && timer.seconds() < 0.6){
 
                  leituraRoxo1 = getLeitura(S1);
 
@@ -149,7 +149,7 @@ public boolean post_reading;
 
                  leituraRoxo3 = getLeitura(S3);
 
-            }else if (timer.seconds() > 2.5 && timer.seconds() < 3){
+            }else if (timer.seconds() > 0.6 && timer.seconds() < 1){
                 if (ball1 != BALL.NONE) {
                     if (leituraVerde1 < 1.5) color1 = BALL.GREEN;
 

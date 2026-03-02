@@ -39,19 +39,31 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 public class Autonomo extends OpMode {
 
     public PathChain Path1;
+    public PathChain Path1a;
     public PathChain Path2;
+    public PathChain Path2a;
     public PathChain Path3;
+    public PathChain Path3a;
     public PathChain Path11;
+    public PathChain Path11a;
     public PathChain Path4;
+    public PathChain Path4a;
     public PathChain Path5;
     public PathChain Path5a;
     public PathChain Path6;
+    public PathChain Path6a;
     public PathChain Path7;
+    public PathChain Path7a;
     public PathChain Path8;
+    public PathChain Path8a;
     public PathChain Path9;
+    public PathChain Path9a;
     public PathChain Path10;
+    public PathChain Path10a;
     public PathChain Path12;
+    public PathChain Path12a;
     public PathChain Path13;
+    public PathChain Path13a;
 
     private TelemetryManager panelsTelemetry; // Panels Telemetry instance
     public Follower follower; // Pedro Pathing follower instance
@@ -83,7 +95,7 @@ public class Autonomo extends OpMode {
 
     boolean toShoot = false;
 int sequence = 1;
-
+int angleCor;
 int timesShoot = 0;
 
 public static double id = 21;
@@ -271,15 +283,17 @@ int timesReset;
             ControleShooter.setDistance(d);
 
             if (d < 95){
-                shooter.setMargin(40,-60);
-                ControleShooter.setVel(3.35,890, 160);
+                shooter.setMargin(40,40);
+                ControleShooter.setVel(3.9,790, 160);
+                ControleShooter.setServo(0.0098,1.55);
             }
             else{
-                shooter.setMargin(40,-40);
+                shooter.setMargin(40,40);
                 ControleShooter.setVel(3.35,910, 160);
+                ControleShooter.setServo(0.01,1.55);
             }
 
-            ControleShooter.setServo(0.009,1.55);
+
 
 
             //ControleShooter.setServo(0.007,1.55);
@@ -290,14 +304,14 @@ int timesReset;
             if (auto == 3 || auto ==4){
                 velIdeal = ControleShooter.getVel();
             }else{
-                velIdeal = Math.min(1100, ControleShooter.getVel());
+                velIdeal = Math.min(1020, ControleShooter.getVel());
             }
             servoIdeal = ControleShooter.getServo();
 
             ControleShooter.update();
 
             Capota.IntakeMode(intake.IntakeMode);
-            Capota.setValue(servoIdeal);
+            Capota.setValue(servoIdeal+ shooter.compensation);
 
             if (toShoot) {
                 shooter.isShooting(true);
@@ -436,28 +450,28 @@ int timesReset;
         Path1 = follower.pathBuilder().addPath(
                         new BezierCurve(
                                 new Pose(32.748, 135.476),
-                                new Pose(31.776, 117.663),
-                                new Pose(37.907, 109.944)
+                                new Pose(31.401, 127.981),
+                                new Pose(36.859, 117.350)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(315))
+                ).setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(340))
 
                 .build();
 
         Path2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(37.907, 109.944),
+                                new Pose(36.859, 117.350),
 
-                                new Pose(25.121, 104.748)
+                                new Pose(22.224, 105.645)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(315), Math.toRadians(-90))
+                ).setLinearHeadingInterpolation(Math.toRadians(340), Math.toRadians(-90))
 
                 .build();
 
         Path3 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(25.121, 104.748),
+                                new Pose(22.224, 105.645),
 
-                                new Pose(24.906, 85.215)
+                                new Pose(22.233, 83.756)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(-90))
 
@@ -465,9 +479,9 @@ int timesReset;
 
         Path4 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(24.906, 85.215),
+                                new Pose(22.233, 83.756),
 
-                                new Pose(15.252, 76.935)
+                                new Pose(16.803, 77.692)
                         )
                 ).setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-90))
 
@@ -475,29 +489,29 @@ int timesReset;
 
         Path5 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(15.252, 76.935),
+                                new Pose(14.803, 74.692),
 
-                                new Pose(38.729, 109.243)
+                                new Pose(37.308, 118.068)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(317))
+                ).setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(339))
 
                 .build();
 
         Path6 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(38.729, 109.243),
+                                new Pose(37.308, 118.068),
 
-                                new Pose(21.691, 105.000)
+                                new Pose(22.121, 105.672)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(317), Math.toRadians(-90))
+                ).setLinearHeadingInterpolation(Math.toRadians(340), Math.toRadians(-90))
 
                 .build();
 
         Path7 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(21.691, 105.000),
+                                new Pose(22.121, 105.672),
 
-                                new Pose(21.775, 63.355)
+                                new Pose(22.302, 61.233)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(-90))
 
@@ -505,29 +519,29 @@ int timesReset;
 
         Path8 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(21.775, 63.355),
+                                new Pose(22.302, 61.233),
 
-                                new Pose(38.103, 109.832)
+                                new Pose(37.305, 118.034)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(317))
+                ).setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(340))
 
                 .build();
 
         Path9 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(38.103, 109.832),
+                                new Pose(37.305, 118.034),
 
-                                new Pose(21.122, 105.421)
+                                new Pose(22.449, 105.421)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(317), Math.toRadians(-90))
+                ).setLinearHeadingInterpolation(Math.toRadians(340), Math.toRadians(-90))
 
                 .build();
 
         Path10 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(21.122, 105.421),
+                                new Pose(22.449, 105.421),
 
-                                new Pose(21.477, 38.598)
+                                new Pose(23.880, 37.796)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(-90))
 
@@ -535,11 +549,11 @@ int timesReset;
 
         Path11 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(21.477, 38.598),
+                                new Pose(23.880, 37.796),
 
-                                new Pose(48.000, 108.560)
+                                new Pose(39.276, 118.356)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(323))
+                ).setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(340))
 
                 .build();
 
@@ -549,12 +563,11 @@ int timesReset;
 
                                 new Pose(57.421, 100.037)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(323))
+                ).setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(340))
 
                 .build();
         }
     public void build12GateRED() {
-        // ========== PATH 1 ==========
         Path1 = follower.pathBuilder().addPath(
                         new BezierCurve(
                                 new Pose(111.252, 135.476),
@@ -575,15 +588,15 @@ int timesReset;
         Path3 = follower.pathBuilder().addPath(
                         new BezierLine(
                                 new Pose(118.879, 104.748),
-                                new Pose(119.094, 83.215)
+                                new Pose(119.094, 77.215)
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(-90))
                 .build();
 
         Path4 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(119.094, 83.215),
-                                new Pose(128.748, 76.935)
+                                new Pose(119.094, 77.215),
+                                new Pose(129.748, 77.215)
                         )
                 ).setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-90))
                 .build();
@@ -593,7 +606,7 @@ int timesReset;
                                 new Pose(128.748, 76.935),
                                 new Pose(105.271, 109.243)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-137))
+                ).setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-135))
                 .build();
 
         Path6 = follower.pathBuilder().addPath(
@@ -601,7 +614,7 @@ int timesReset;
                                 new Pose(105.271, 109.243),
                                 new Pose(122.309, 105.000)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(-137), Math.toRadians(-90))
+                ).setLinearHeadingInterpolation(Math.toRadians(-135), Math.toRadians(-90))
                 .build();
 
         Path7 = follower.pathBuilder().addPath(
@@ -617,7 +630,7 @@ int timesReset;
                                 new Pose(122.225, 63.355),
                                 new Pose(105.897, 109.832)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-137))
+                ).setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-135))
                 .build();
 
         Path9 = follower.pathBuilder().addPath(
@@ -625,7 +638,7 @@ int timesReset;
                                 new Pose(105.897, 109.832),
                                 new Pose(122.878, 105.421)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(-137), Math.toRadians(-90))
+                ).setLinearHeadingInterpolation(Math.toRadians(-135), Math.toRadians(-90))
                 .build();
 
         Path10 = follower.pathBuilder().addPath(
@@ -663,17 +676,17 @@ int timesReset;
                                 new Pose(57.009, 13.972),
                                 new Pose(56.299, 17.944)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(287))
+                ).setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(290))
 
                 .build();
 
         Path2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(56.299, 17.944),
+                                new Pose(56.299, 20.944),
 
                                 new Pose(25.346, 19.290)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(287), Math.toRadians(90))
+                ).setLinearHeadingInterpolation(Math.toRadians(288), Math.toRadians(90))
 
                 .build();
 
@@ -683,7 +696,7 @@ int timesReset;
 
                                 new Pose(25.486, 33.776)
                         )
-                ).setTangentHeadingInterpolation()
+                ).setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(90))
 
                 .build();
 
@@ -691,15 +704,15 @@ int timesReset;
                         new BezierLine(
                                 new Pose(25.486, 33.776),
 
-                                new Pose(55.897, 18.308)
+                                new Pose(56.299, 17.944)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(292))
+                ).setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(290))
 
                 .build();
 
         Path5 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(55.897, 18.308),
+                                new Pose(56.299, 20.944),
 
                                 new Pose(34.963, 9.467)
                         )
@@ -721,19 +734,19 @@ int timesReset;
                         new BezierLine(
                                 new Pose(13.066, 6.785),
 
-                                new Pose(55.972, 18.486)
+                                new Pose(56.299, 17.944)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(285))
+                ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(290))
 
                 .build();
 
         Path8 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(55.972, 18.486),
+                                new Pose(56.299, 20.944),
 
                                 new Pose(34.944, 9.150)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(285), Math.toRadians(180))
+                ).setLinearHeadingInterpolation(Math.toRadians(289), Math.toRadians(180))
 
                 .build();
 
@@ -751,19 +764,19 @@ int timesReset;
                         new BezierLine(
                                 new Pose(12.785, 7.233),
 
-                                new Pose(55.972, 18.486)
+                                new Pose(56.299, 17.944)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(285))
+                ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(290))
 
                 .build();
 
         Path11 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(55.972, 18.486),
+                                new Pose(56.299, 20.944),
 
                                 new Pose(34.925, 8.963)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(285), Math.toRadians(180))
+                ).setLinearHeadingInterpolation(Math.toRadians(290), Math.toRadians(180))
 
                 .build();
 
@@ -781,9 +794,47 @@ int timesReset;
                         new BezierLine(
                                 new Pose(13.009, 7.196),
 
-                                new Pose(56.271, 17.953)
+                                new Pose(56.299, 17.944)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(285))
+                ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(290))
+
+                .build();
+
+        Path1a = follower.pathBuilder().addPath(
+                        new BezierLine(
+                                new Pose(56.299, 17.944),
+
+                                new Pose(56.299, 20.944)
+                        )
+                    ).setLinearHeadingInterpolation(Math.toRadians(290), Math.toRadians(288))
+
+                .build();
+
+        Path4a = follower.pathBuilder().addPath(
+                        new BezierLine(
+                                new Pose(56.299, 17.944),
+
+                                new Pose(56.299, 20.944)
+                        )
+                ).setLinearHeadingInterpolation(Math.toRadians(290), Math.toRadians(292))
+
+                .build();
+        Path7a = follower.pathBuilder().addPath(
+                        new BezierLine(
+                                new Pose(56.299, 17.944),
+
+                                new Pose(56.299, 20.944)
+                        )
+                ).setLinearHeadingInterpolation(Math.toRadians(290), Math.toRadians(289))
+
+                .build();
+        Path10a = follower.pathBuilder().addPath(
+                        new BezierLine(
+                                new Pose(56.299, 17.944),
+
+                                new Pose(56.299, 20.944)
+                        )
+                ).setLinearHeadingInterpolation(Math.toRadians(290), Math.toRadians(290))
 
                 .build();
 
@@ -918,7 +969,7 @@ int timesReset;
     public void Update12GatePath() {
         switch (pathState) {
             case 0:
-                follower.followPath(Path1,0.5, true);
+                follower.followPath(Path1,0.65, true);
                 pathState = 1;
                 timesShoot = 0;
 
@@ -926,13 +977,14 @@ int timesReset;
             case 1:
 
                 if(!follower.isBusy()){
+                    if (!toShoot) sleep(200);
 
-                    if (id != 21  && id != 22 && id != 23){
-                        id = limelight.id;
-                    }
                     if (!follower.isTurning()) {
+
                         toShoot = true;
                     }
+
+
                         if (launching.post_shoot) {
 
                             timerReset = false;
@@ -948,22 +1000,28 @@ int timesReset;
 
             case 2:
                 if(!follower.isBusy()) {
+
                     intake.setMode(Intake.Mode.INTAKE);
-                    follower.followPath(Path3,0.85, true);
+                    follower.followPath(Path3,0.55, true);
                     pathState = 3;
                 }
                 break;
             case 3:
                 if(!follower.isBusy()) {
 
+                    sleep(200);
+                    intake.setMode(Intake.Mode.EJECT);
                     follower.followPath(Path4,0.75, true);
                     pathState = 4;
                 }
                 break;
             case 4:
                 if(!follower.isBusy()) {
+                    if (id != 21  && id != 22 && id != 23){
+                        id = limelight.id;
+                    }
                     intake.setMode(Intake.Mode.STOP);
-                    sleep(150);
+                    sleep(200);
                     follower.followPath(Path5,0.9, true);
                     pathState = 5;
                     timesShoot = 0;
@@ -981,7 +1039,7 @@ int timesReset;
                         toShoot = false;
                         launching.ispost_shoot(false);
                         follower.followPath(Path6,0.9, true);
-                        intake.setMode(Intake.Mode.INTAKE);
+
                         timesShoot = 2;
                         pathState = 6;
 
@@ -992,13 +1050,14 @@ int timesReset;
 
             case 6:
                 if(!follower.isBusy()) {
-
-                    follower.followPath(Path7,0.85, true);
+                    intake.setMode(Intake.Mode.INTAKE);
+                    follower.followPath(Path7,0.55, true);
                     pathState = 7;
                 }
             case 7:
                 if(!follower.isBusy()) {
-
+                    sleep(200);
+                    intake.setMode(Intake.Mode.EJECT);
                     follower.followPath(Path8,0.9, true);
                     pathState = 8;
                 }
@@ -1023,12 +1082,13 @@ int timesReset;
             case 9:
                 if(!follower.isBusy()) {
                     intake.setMode(Intake.Mode.INTAKE);
-                    follower.followPath(Path10,0.85, true);
+                    follower.followPath(Path10,0.55, true);
                     pathState = 10;
                 }
             case 10:
                 if(!follower.isBusy()) {
-
+                    sleep(200);
+                    intake.setMode(Intake.Mode.EJECT);
                     follower.followPath(Path11,0.9, true);
                     pathState = 11;
                 }
@@ -1158,16 +1218,22 @@ int timesReset;
     public void UpdateSmall_Human_Player() {
         switch (pathState) {
             case 0:
-                follower.followPath(Path1,0.75, true);
-                pathState = 1;
-                timesShoot = 0;
+                if(angleCor == 0){
+                    follower.followPath(Path1,0.85, true);
+                    angleCor = 1;
+                }
+                else {
+                    follower.followPath(Path1a,0.75, true);
+                    pathState = 1;
+                    timesShoot = 0;
+                }
                 break;
             case 1:
 
                 if(!follower.isBusy()){
                     shoot = 1;
                     toShoot = true;
-
+                    angleCor = 0;
                     if (id != 21  && id != 22 && id != 23){
                         id = limelight.id;
                     }
@@ -1193,9 +1259,16 @@ int timesReset;
                 break;
             case 3:
                 if(!follower.isBusy()) {
+                    if(angleCor == 0){
+                        follower.followPath(Path4,0.85, true);
+                        angleCor = 1;
+                    }
+                    else {
+                        follower.followPath(Path4a,0.75, true);
+                        pathState = 4;
+                        timesShoot = 0;
+                    }
 
-                    follower.followPath(Path4,0.75, true);
-                    pathState = 4;
                 }
                 break;
             case 4:
@@ -1203,7 +1276,7 @@ int timesReset;
                     shoot = 1;
                     intake.setMode(Intake.Mode.EJECT);
                     toShoot = true;
-
+                    angleCor = 0;
                     if (launching.post_shoot) {
                         shoot = 0;
                         timerReset = false;
@@ -1229,14 +1302,20 @@ int timesReset;
             case 6:
                 if(!follower.isBusy()) {
 
-                    follower.followPath(Path7,0.8, true);
-
-                    pathState = 7;
+                    if(angleCor == 0){
+                        follower.followPath(Path7,0.85, true);
+                        angleCor = 1;
+                    }
+                    else {
+                        follower.followPath(Path7a,0.75, true);
+                        pathState = 7;
+                        timesShoot = 0;
+                    }
                 }
                 break;
             case 7:
                 if(!follower.isBusy()) {
-
+                    angleCor = 0;
                     toShoot = true;
                     intake.setMode(Intake.Mode.EJECT);
                     if (launching.post_shoot) {
@@ -1261,16 +1340,21 @@ int timesReset;
 
             case 9:
                 if(!follower.isBusy()) {
-
-                    follower.followPath(Path10,0.8, true);
-
-                    pathState = 10;
+                    if(angleCor == 0){
+                        follower.followPath(Path10,0.85, true);
+                        angleCor = 1;
+                    }
+                    else {
+                        follower.followPath(Path10a,0.75, true);
+                        pathState = 10;
+                        timesShoot = 0;
+                    }
                 }
                 break;
 
             case 10:
                 if(!follower.isBusy()) {
-
+                    angleCor = 0;
                     toShoot = true;
                     intake.setMode(Intake.Mode.EJECT);
                     if (launching.post_shoot) {

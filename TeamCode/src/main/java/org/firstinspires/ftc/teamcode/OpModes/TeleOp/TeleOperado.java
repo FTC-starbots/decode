@@ -90,10 +90,10 @@ public class TeleOperado extends Autonomo {
 
     public  VoltageSensor myControlHubVoltageSensor;
 
-    public static double servoA = 0.009, servoB = 1.55;
+    public static double servoA = 0.0093, servoB = 1.55;
 
     public static double velA = 3.35;
-    public static int velB = 905, AllBallsConst = 10;
+    public static int velB = 910, AllBallsConst = 10;
 
     public static double offset = 0.0000001;
 
@@ -234,9 +234,9 @@ public void init_loop(){
         servoIdeal = ControleShooter.getServo();
 
         if (isBlue) {
-            angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 136 , poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 10);
+            angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 140 , poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 10);
         }else{
-            angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 136, poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 140);
+            angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 140, poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 140);
         }
 
 
@@ -319,33 +319,16 @@ public void init_loop(){
 //===LANÇAMENTO==================================================================================
         {
             if (!Shooter.shooting) {
-                if (isGamepad1 || intake.IntakeMode != Intake.Mode.STOP) {
                     reservatorio.setPosition(reservatorio.Reservoir_1, 0.48);
                     reservatorio.setPosition(reservatorio.Reservoir_2, 0.5);
                     reservatorio.setPosition(reservatorio.Reservoir_3, 0.5);
-                } else {
-                    if (timerSwitch.seconds() < 0.1) {
-                        reservatorio.setPosition(reservatorio.Reservoir_1, 0.55);
-                        reservatorio.setPosition(reservatorio.Reservoir_2, 0.55);
-                        reservatorio.setPosition(reservatorio.Reservoir_3, 0.55);
-                    } else if (timerSwitch.seconds() < 0.2 && timerSwitch.seconds() > 0.1) {
-                        reservatorio.setPosition(reservatorio.Reservoir_1, 0.6);
-                        reservatorio.setPosition(reservatorio.Reservoir_2, 0.6);
-                        reservatorio.setPosition(reservatorio.Reservoir_3, 0.6);
-                    }else if (timerSwitch.seconds() < 0.3 && timerSwitch.seconds() > 0.2) {
-                        reservatorio.setPosition(reservatorio.Reservoir_1, 0.65);
-                        reservatorio.setPosition(reservatorio.Reservoir_2, 0.65);
-                        reservatorio.setPosition(reservatorio.Reservoir_3, 0.65);
-                    }else if (timerSwitch.seconds() < 0.4 && timerSwitch.seconds() > 0.3) {
-                        reservatorio.setPosition(reservatorio.Reservoir_1, 0.7);
-                        reservatorio.setPosition(reservatorio.Reservoir_2, 0.7);
-                        reservatorio.setPosition(reservatorio.Reservoir_3, 0.7);
-                    }
-                }
+//
             }
 
 
 //teste
+
+            Shooter.setMargin(60,40);
             Shooter.isServoLifted(launching.servo_lifted);
             Shooter.ShootType(launching.shoot_type);
             launching.isAtRightVel(Shooter.right_vel);
@@ -353,11 +336,9 @@ public void init_loop(){
             ControleShooter.setShootType(launching.shoot_type);
 
 
-            if (intake.IntakeMode != Intake.Mode.STOP){
-                Capota.setValue(0.5);
-            }else {
-                Capota.setValue(servoIdeal);
-            }
+
+            Capota.IntakeMode(intake.IntakeMode);
+            Capota.setValue(servoIdeal + Shooter.compensation);
             launching.isAtRightPos(drivetrain.right_pos);
         }
 //===FUNÇÕES DE MOVIMENTO========================================================================
@@ -396,10 +377,10 @@ public void init_loop(){
 
         if (gamepad1.startWasPressed()){
             if (isBlue){
-            followerteleop.setPose(new Pose(134,8, Math.toRadians(180)));
+            followerteleop.setPose(new Pose(132,10, Math.toRadians(180)));
                 drivetrain.setTargetHeading(Math.toRadians(180));
             }else {
-                followerteleop.setPose(new Pose(9,8, Math.toRadians(0)));
+                followerteleop.setPose(new Pose(11,10, Math.toRadians(0)));
                 drivetrain.setTargetHeading(Math.toRadians(0));
             }
         }
