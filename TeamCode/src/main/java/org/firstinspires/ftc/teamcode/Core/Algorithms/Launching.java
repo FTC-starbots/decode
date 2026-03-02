@@ -23,6 +23,7 @@ public class Launching {
 
     boolean shoot_all;
     boolean shoot_sequence;
+    boolean shoot_split_sen;
     boolean right_vel, right_pos;
     public boolean servo_lifted = false;
     public boolean post_shoot;
@@ -78,11 +79,26 @@ public class Launching {
             shoot_type = 5;
         }else if (gamepad.dpad_right){
             shoot_type = 6;
+        }else if (gamepad.dpad_down){
+            shoot_type = 7;
         }
 
-            if (shoot_type == 1) shoot_all = true;
-            if (shoot_type == 2) shoot_sequence = true;
-            if (shoot_type == 3) shoot_split = true;
+            if (shoot_type == 1) {
+                shoot_all = true;
+                pressed_button.reset();
+            }
+            if (shoot_type == 2){
+                shoot_sequence = true;
+                pressed_button.reset();
+            }
+            if (shoot_type == 3){
+                shoot_split_sen = true;
+                pressed_button.reset();
+            }
+            if (shoot_type == 7){
+                shoot_split = true;
+                pressed_button.reset();
+            }
             if (shoot_type == 4){
                 if (right_vel) {
                     reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
@@ -90,6 +106,7 @@ public class Launching {
                     post_shoot = true;
                     pressed_button.reset();
                     timer_all.reset();
+                    shoot_type = 0;
                 }
             }
             if (shoot_type == 5) {
@@ -99,6 +116,7 @@ public class Launching {
                     post_shoot = true;
                     pressed_button.reset();
                     timer_all.reset();
+                    shoot_type = 0;
                 }
             }
             if (shoot_type == 6){
@@ -106,7 +124,7 @@ public class Launching {
                 reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
                 corretor = -1;
                 post_shoot = true;
-
+                    shoot_type = 0;
                     pressed_button.reset();
                     timer_all.reset();
                 }
@@ -119,12 +137,17 @@ public class Launching {
 
         if (shoot_all) launch_all_togheter();
         else if (shoot_sequence) launch_sequence(timer+0.15);
+        else if (shoot_split_sen) launch_all_split_sensor(timer);
         else if (shoot_split) launch_all_split(timer);
+
 
         if (pressed_button.seconds() > 2 && pressed_button.seconds() < 2.3 && post_shoot) {
             shoot_all = false;
             shoot_sequence = false;
+            shoot_split_sen = false;
+            shoot_split = false;
             post_shoot = false;
+            shoot_type = 0;
         }
 
     }
@@ -142,27 +165,25 @@ public class Launching {
         if (!shoot) times_atRightVel = 0;
     }
 
-    public int getCorretor(){return corretor;}
-
-public void setGateOrder(ColorSensor.BALL[] balls){
-    gateOrder[0] = balls[0];
-    gateOrder[1] = balls[1];
-    gateOrder[2] = balls[2];
-    gateOrder[3] = balls[3];
-    gateOrder[4] = balls[4];
-    gateOrder[5] = balls[5];
-    gateOrder[6] = balls[6];
-    gateOrder[7] = balls[7];
-    gateOrder[8] = balls[8];
-}
-    public void setBallsNumber(int ball){Balls = ball;}
+    public void setGateOrder(ColorSensor.BALL[] balls){
+        gateOrder[0] = balls[0];
+        gateOrder[1] = balls[1];
+        gateOrder[2] = balls[2];
+        gateOrder[3] = balls[3];
+        gateOrder[4] = balls[4];
+        gateOrder[5] = balls[5];
+        gateOrder[6] = balls[6];
+        gateOrder[7] = balls[7];
+        gateOrder[8] = balls[8];
+    }
+    public void setBallsNumber(double ball){Balls = (int)ball;}
 
     public void SensorReadings(ColorSensor.BALL b1, ColorSensor.BALL b2, ColorSensor.BALL b3){
         bola1 = b1;
         bola2 = b2;
         bola3 = b3;
     }
-    public void launch_all_split(double timer){
+    public void launch_all_split_sensor(double timer){
 
         if(times_atRightVel < 3) {
             if (times_atRightVel == 0 && right_vel && right_pos) {
@@ -180,10 +201,10 @@ public void setGateOrder(ColorSensor.BALL[] balls){
                     times_atRightVel = 3;
                     corretor = -1;
                      post_shoot = true;
-                     shoot_split = false;
+                     shoot_split_sen = false;
                 }else{
                      post_shoot = true;
-                     shoot_split = false;
+                     shoot_split_sen = false;
                      times_atRightVel = 3;
                  }
             }
@@ -199,10 +220,10 @@ public void setGateOrder(ColorSensor.BALL[] balls){
                     times_atRightVel = 3;
                     corretor = -1;
                     post_shoot = true;
-                    shoot_split = false;
+                    shoot_split_sen = false;
                 }else{
                     post_shoot = true;
-                    shoot_split = false;
+                    shoot_split_sen = false;
                     times_atRightVel = 3;
                 }
             }
@@ -214,32 +235,79 @@ public void setGateOrder(ColorSensor.BALL[] balls){
                     times_atRightVel = 3;
                     corretor = -1;
                     post_shoot = true;
-                    shoot_split = false;
+                    shoot_split_sen = false;
                 }else{
                     post_shoot = true;
-                    shoot_split = false;
+                    shoot_split_sen = false;
                     times_atRightVel = 3;
                 }
 
             }
 
-        }
+        }else shoot_type = 0;
     }
+
+    public void launch_all_split(double timer){
+
+        if(times_atRightVel < 3) {
+            if (times_atRightVel == 0 && right_vel && right_pos) {
+                timer_split.reset();
+
+                    reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
+                    times_atRightVel = 1;
+                    corretor = 1;
+
+            }
+
+            if (times_atRightVel == 1 && right_vel && timer_split.seconds() > timer) {
+                timer_split.reset();
+                    reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
+                    times_atRightVel = 2;
+                    corretor = 0;
+
+            }
+
+            if (times_atRightVel == 2 && right_vel && timer_split.seconds() > timer) {
+                timer_split.reset();
+
+                    reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
+                    times_atRightVel = 3;
+                    corretor = -1;
+                    post_shoot = true;
+                    shoot_split = false;
+
+
+            }
+
+        }else shoot_type = 0;
+    }
+
 
     public void launch_all_togheter(){
 
-        if(times_atRightVel == 0 && right_vel && right_pos){
-            timer_all.reset();
-            reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
-            reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
-            reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
-            corretor = 0;
-            times_atRightVel = 1;
-        } else if (times_atRightVel == 1 && timer_all.seconds() > 0.8) {
-            shoot_all = false;
-            post_shoot = true;
+        if(times_atRightVel < 3) {
+            if (times_atRightVel == 0 && right_vel && right_pos) {
+                timer_split.reset();
 
-        }
+                reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
+                reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
+                times_atRightVel = 1;
+
+
+            }
+
+            if (times_atRightVel == 1 && right_vel && timer_split.seconds() > 0.008) {
+                timer_split.reset();
+                reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
+                times_atRightVel = 3;
+
+                post_shoot = true;
+                shoot_all = false;
+
+            }
+
+
+        }else shoot_type = 0;
 
     }
 
@@ -327,7 +395,7 @@ public void setGateOrder(ColorSensor.BALL[] balls){
 
             }
 
-        }
+        }else shoot_type = 0;
     }
 
     public void launch_auto(int sequence, double timer){

@@ -12,6 +12,7 @@ public class Intake implements InterfaceSimple {
    public DcMotor Intake_1, Intake_2;
 
    public Mode IntakeMode;
+   boolean automaticIntake;
 
     public enum Mode{
         INTAKE,
@@ -52,10 +53,14 @@ public class Intake implements InterfaceSimple {
         }
     }
 
-public void teleop(Gamepad gamepad){
+    public void automaticIntake(boolean is){automaticIntake = is;}
+
+public void teleop(Gamepad gamepad) {
+    if (!automaticIntake){
         if (gamepad.cross || gamepad.a) setMode(Mode.INTAKE);
         else if (gamepad.circle || gamepad.b) setMode(Mode.EJECT);
         else setMode(Mode.STOP);
+    }
 }
 
     @Override

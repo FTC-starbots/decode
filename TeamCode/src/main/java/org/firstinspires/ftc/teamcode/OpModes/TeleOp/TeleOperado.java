@@ -40,10 +40,11 @@ import org.firstinspires.ftc.teamcode.Core.Algorithms.Drawing;
 @TeleOp
 public class TeleOperado extends Autonomo {
 
-
+    int intakeControl;
+    ElapsedTime timerIntake = new ElapsedTime();
     Follower followerteleop;
 
-    boolean isGamepad1 = true, isManual = false, isValidArea = false;
+    boolean isGamepad1 = true, isManual = false, isValidArea = false, isReservoirsFull;
     Robot robot = new Robot();
 
     Drivetrain drivetrain = robot.drivetrain;
@@ -58,21 +59,17 @@ public class TeleOperado extends Autonomo {
     public static double Firstkp = 0.9, Firstki = 1, Firstkd = 0.05, Firstkf = 0;
     public static double Secondkp = 0.35, Secondki= 0, Secondkd = 0.037, Secondkf = 0;
 
-    ElapsedTime Ciclo;
+    ElapsedTime Ciclo = new ElapsedTime();
+    ElapsedTime timerLeitura = new ElapsedTime();
+    int leituraSens;
+    ElapsedTime timerPresence = new ElapsedTime();
+    ElapsedTime timerSwitch = new ElapsedTime();
 
-     double tempoCiclo;
-
-
-
-    public  VoltageSensor myControlHubVoltageSensor;
 
      Shooter Shooter = robot.shooter;
 
-     Intake Intake = new Intake();
 
      Lime Limelight = robot.limelight;
-
-   // AprilTagCam aptag = robot.aptag;
 
     TagAlign tagalign = new TagAlign();
     AimAssisters Capota = launching.Capota;
@@ -89,12 +86,14 @@ public class TeleOperado extends Autonomo {
 
     ShooterControl ControleShooter = new ShooterControl();
 
+    double tempoCiclo;
 
+    public  VoltageSensor myControlHubVoltageSensor;
 
     public static double servoA = 0.009, servoB = 1.55;
 
     public static double velA = 3.35;
-    public static int velB = 905, AllBallsConst = 160;
+    public static int velB = 905, AllBallsConst = 10;
 
     public static double offset = 0.0000001;
 
@@ -110,7 +109,8 @@ public class TeleOperado extends Autonomo {
 public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
  public boolean isitBlue, manualSelectAlliance, manualSelectAuto, Movimento_robo;
     double angleIdeal;
-
+    ElapsedTime timerColor = new ElapsedTime();
+    ElapsedTime timerVerify = new ElapsedTime();
 
 
     @Override
@@ -130,7 +130,7 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
 
         Limelight.setup(hardwareMap);
 
-        Intake.start(hardwareMap);
+        intake.start(hardwareMap);
 
         Shooter.start(hardwareMap);
 
@@ -143,7 +143,7 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
         servolime.start(hardwareMap);
 
 
-
+        colorSensor.resetBalls();
 
 
 
@@ -165,16 +165,20 @@ public void init_loop(){
 
 @Override
     public void start(){
-        Ciclo = new ElapsedTime();
-       Ciclo.reset();
+
+    Ciclo.reset();
+
+    timerLeitura.reset();
 
     followerteleop.setPose(finalPose);
-
     followerteleop.update();
     followerteleop.startTeleopDrive();
 
     poseidentifier.isblue(isBlue);
     ControleShooter.isBlue(isBlue);
+
+    launching.setGateOrder(gateOrder);
+
     drivetrain.setCoefficientsAptag(kpAlign, kiAlign, kdAlign, kfAlign);
 
     }
@@ -186,15 +190,17 @@ public void init_loop(){
         drivetrain.setCoefficientsfirt(Firstkp, Firstki, Firstkd, Firstkf);
         drivetrain.setCoefficientssecond(Secondkp, Secondki, Secondkd, Secondkf);
 
-          if (gamepad1.dpad_up) {
-              colorSensor.setCor(ColorSensor.COLOR.GREEN);
-          } else if (gamepad1.dpad_left) {
-              colorSensor.setCor(ColorSensor.COLOR.WHITE);
-          }else if (gamepad1.dpad_down) {
-              colorSensor.setCor(ColorSensor.COLOR.PURPLE);
-          }else{
-              colorSensor.setCor(ColorSensor.COLOR.NONE);
-          }
+
+
+//          if (gamepad1.dpad_up) {
+//              colorSensor.setCor(ColorSensor.COLOR.GREEN);
+//          } else if (gamepad1.dpad_left) {
+//              colorSensor.setCor(ColorSensor.COLOR.WHITE);
+//          }else if (gamepad1.dpad_down) {
+//              colorSensor.setCor(ColorSensor.COLOR.PURPLE);
+//          }else{
+//              colorSensor.setCor(ColorSensor.COLOR.NONE);
+//          }
 
         Ciclo.reset();
 
@@ -213,15 +219,6 @@ public void init_loop(){
             servolime.updateDesiredReference(LimeServo.Mode.RED_GATE);
         }
 
-//        if (gamepad1.dpadUpWasPressed()) {
-//            servolime.updateDesiredReference(LimeServo.Mode.BLUE_TAG);
-//        }
-//
-//        if(gamepad1.dpadDownWasPressed()){
-//            servolime.updateDesiredReference(LimeServo.Mode.BLUE_GATE);
-//        }
-
-
 
 
         double d = poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.DISTANCE);
@@ -237,9 +234,9 @@ public void init_loop(){
         servoIdeal = ControleShooter.getServo();
 
         if (isBlue) {
-            angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 136 , poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 12);
+            angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 136 , poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 10);
         }else{
-            angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 136, poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 132);
+            angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 136, poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 140);
         }
 
 
@@ -251,28 +248,100 @@ public void init_loop(){
             isValidArea = false;
         }
 
+//===SENSOR DE COR===============================================================================
+        {
+            if (intake.IntakeMode != Intake.Mode.STOP) {
+                if (gamepad1.aWasPressed() || gamepad1.bWasPressed()) {
+                    timerPresence.reset();
+                }
+
+                if (timerPresence.seconds() < 0.1) {
+                    timerVerify.reset();
+                    colorSensor.readPresence(timerVerify);
+                } else if (timerPresence.seconds() > 0.4) timerPresence.reset();
+
+            }
+
+            if (!isGamepad1) {
+                if (leituraSens == 0) {
+                    colorSensor.isPosReading(false);
+                    timerColor.reset();
+                    leituraSens = 5;
+                }
+
+                if (colorSensor.post_reading) {
+                    leituraSens--;
+                }
+
+                colorSensor.readColor(timerColor);
+            }
+
+            if (launching.post_shoot) colorSensor.resetBalls();
+
+            // LED.setBallsState(colorSensor.ball1, colorSensor.ball2, colorSensor.ball3);
+
+            launching.setBallsNumber(Limelight.TotalBalls);
+            launching.SensorReadings(colorSensor.ball1, colorSensor.ball2, colorSensor.ball3);
 
 
+            if (colorSensor.ball1 != ColorSensor.BALL.NONE && colorSensor.ball2 != ColorSensor.BALL.NONE && colorSensor.ball3!= ColorSensor.BALL.NONE){
+                isReservoirsFull =true;
+                intakeControl ++;
+                if (intakeControl < 3) timerIntake.reset();
+            }
+            else{
+                isReservoirsFull =false;
+                intakeControl = 0;
+            }
 
-//===CONTROLE DE POSIÇÃO=========================================================================
+            if (isReservoirsFull){
+                intake.automaticIntake(true);
+                if (timerIntake.seconds() > 0.5 && timerIntake.seconds() < 1.5) {
+                    intake.setMode(Intake.Mode.EJECT);
+                } else if (timerIntake.seconds() > 1.5) {
+                    intake.automaticIntake(false);
+                }
+            }else {
+                intake.automaticIntake(false);
+            }
+        }
 //===FUNÇÕES VITAIS==============================================================================
         {
             launching.teleop(gamepad2,timer);
 
             Shooter.teleop(gamepad2, velIdeal, isGamepad1, velIdeal);
 
-            Intake.teleop(gamepad1);
+            intake.teleop(gamepad1);
 
 
             ControleShooter.update();
         }
-
 //===LANÇAMENTO==================================================================================
         {
             if (!Shooter.shooting) {
-               reservatorio.setPosition(reservatorio.Reservoir_1, 0.48);
-               reservatorio.setPosition(reservatorio.Reservoir_2, 0.5);
-               reservatorio.setPosition(reservatorio.Reservoir_3, 0.5);
+                if (isGamepad1 || intake.IntakeMode != Intake.Mode.STOP) {
+                    reservatorio.setPosition(reservatorio.Reservoir_1, 0.48);
+                    reservatorio.setPosition(reservatorio.Reservoir_2, 0.5);
+                    reservatorio.setPosition(reservatorio.Reservoir_3, 0.5);
+                } else {
+                    if (timerSwitch.seconds() < 0.1) {
+                        reservatorio.setPosition(reservatorio.Reservoir_1, 0.55);
+                        reservatorio.setPosition(reservatorio.Reservoir_2, 0.55);
+                        reservatorio.setPosition(reservatorio.Reservoir_3, 0.55);
+                    } else if (timerSwitch.seconds() < 0.2 && timerSwitch.seconds() > 0.1) {
+                        reservatorio.setPosition(reservatorio.Reservoir_1, 0.6);
+                        reservatorio.setPosition(reservatorio.Reservoir_2, 0.6);
+                        reservatorio.setPosition(reservatorio.Reservoir_3, 0.6);
+                    }else if (timerSwitch.seconds() < 0.3 && timerSwitch.seconds() > 0.2) {
+                        reservatorio.setPosition(reservatorio.Reservoir_1, 0.65);
+                        reservatorio.setPosition(reservatorio.Reservoir_2, 0.65);
+                        reservatorio.setPosition(reservatorio.Reservoir_3, 0.65);
+                    }else if (timerSwitch.seconds() < 0.4 && timerSwitch.seconds() > 0.3) {
+                        reservatorio.setPosition(reservatorio.Reservoir_1, 0.7);
+                        reservatorio.setPosition(reservatorio.Reservoir_2, 0.7);
+                        reservatorio.setPosition(reservatorio.Reservoir_3, 0.7);
+                    }
+                }
             }
 
 
@@ -284,14 +353,13 @@ public void init_loop(){
             ControleShooter.setShootType(launching.shoot_type);
 
 
-            if (gamepad1.cross || gamepad1.a || gamepad1.circle || gamepad1.b){
+            if (intake.IntakeMode != Intake.Mode.STOP){
                 Capota.setValue(0.5);
             }else {
                 Capota.setValue(servoIdeal);
             }
             launching.isAtRightPos(drivetrain.right_pos);
         }
-
 //===FUNÇÕES DE MOVIMENTO========================================================================
         {
             if (isGamepad1) {
@@ -304,24 +372,25 @@ public void init_loop(){
 
             }
         }
-
 //===FUNÇÕES DE CONTROLE=========================================================================
         {
             if (gamepad2.backWasPressed()) isManual = !isManual;
 
 
             if (gamepad1.square || gamepad1.x) {
+                timerSwitch.reset();
                 isGamepad1 = true;
             }
 
             else if (gamepad2.square || gamepad2.x){
+                timerLeitura.reset();
+                timerSwitch.reset();
                 isGamepad1 = false;
             }
 
 
 
         }
-
 //===UPDATE DE POSIÇÃO===========================================================================
         {
 
@@ -341,12 +410,15 @@ public void init_loop(){
             poseidentifier.infoPINPOINT(followerteleop.getPose().getX(), followerteleop.getPose().getY(), followerteleop.getPose().getHeading());
 
         }
-
-
 //===LEDS========================================================================================
         {
-
-            LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.VIOLET);
+            if (isGamepad1) {
+                if (isReservoirsFull) LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_BLUE);
+                else LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.ORANGE);
+            } else {
+                if (launching.post_shoot) LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_RED);
+                else LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.VIOLET);
+            }
 
 //            if(drivetrain.aptag) LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
 //            else  LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
@@ -383,7 +455,9 @@ public void init_loop(){
         telemetry.addLine();
 
 
-
+        telemetry.addData("bola1", colorSensor.ball1);
+        telemetry.addData("bola2", colorSensor.ball2);
+        telemetry.addData("bola3", colorSensor.ball3);
 
         telemetry.addLine();
 

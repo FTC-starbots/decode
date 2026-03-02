@@ -8,9 +8,9 @@ public class SequenceAlgorithm implements InterfaceSimple{
 
     public void setMOTIF(double motif){id = motif;}
 
-    public static ColorSensor.BALL[] gateOrder = new ColorSensor.BALL[9];
+     ColorSensor.BALL[] gateOrder = new ColorSensor.BALL[9];
 
-    public void gateOrder(){
+    public ColorSensor.BALL[] gateOrder(){
         if(id == 21){
             gateOrder[0] = ColorSensor.BALL.GREEN;
             gateOrder[1] = ColorSensor.BALL.PURPLE;
@@ -42,6 +42,7 @@ public class SequenceAlgorithm implements InterfaceSimple{
             gateOrder[7] = ColorSensor.BALL.PURPLE;
             gateOrder[8] = ColorSensor.BALL.GREEN;
         }
+        return gateOrder;
     }
 
 

@@ -21,6 +21,7 @@ public class Shooter implements InterfaceSimple {
 
     int shoottype;
 
+    int Upp, Low;
 
     PIDFOController controllerHeading = new PIDFOController(new PIDFCoefficients(0, 0, 0, 0));
 
@@ -74,6 +75,11 @@ public class Shooter implements InterfaceSimple {
 
     public void ShootType(int shoot){shoottype = shoot;}
 
+    public void setMargin(int upper, int lower){
+        Upp = upper;
+        Low = lower;
+    }
+
     @Override
     public void update() {
 
@@ -82,31 +88,31 @@ public class Shooter implements InterfaceSimple {
         controllerHeading.updateError(erro);
         double power = controllerHeading.run();
 
-        if((erro > -60 && erro < 40) && velocidade_desejada != 0 && !pre_shoot) right_vel = true;
+        if((erro > Low && erro < Upp) && velocidade_desejada != 0 && !pre_shoot) right_vel = true;
         else right_vel = false;
 
-        Atirador_1.setPower(0);
-        Atirador_2.setPower(0);
+//        Atirador_1.setPower(0);
+//        Atirador_2.setPower(0);
 
-//        if (velocidade_desejada == 0){
-//            Atirador_1.setPower(0);
-//            Atirador_2.setPower(0);
-//        }else if(pre_shoot){
-//            Atirador_1.setPower(power);
-//            Atirador_2.setPower(power);
-//        } else{
-//            /*if (shoottype == 1 && right_vel){
-//                Atirador_1.setPower(1);
-//                Atirador_2.setPower(1);
-//            } else*/ if(erro>60) {
-//                Atirador_1.setPower(1);
-//                Atirador_2.setPower(1);
-//            }
-//            else{
-//                Atirador_1.setPower(power);
-//                Atirador_2.setPower(power);
-//            }
-//        }
+       if (velocidade_desejada == 0){
+           Atirador_1.setPower(0);
+           Atirador_2.setPower(0);
+       }else if(pre_shoot){
+           Atirador_1.setPower(power);
+           Atirador_2.setPower(power);
+       } else{
+           /*if (shoottype == 1 && right_vel){
+               Atirador_1.setPower(1);
+               Atirador_2.setPower(1);
+           } else*/ if(erro>60) {
+               Atirador_1.setPower(1);
+               Atirador_2.setPower(1);
+           }
+           else{
+               Atirador_1.setPower(power);
+               Atirador_2.setPower(power);
+           }
+       }
 
 
     }
