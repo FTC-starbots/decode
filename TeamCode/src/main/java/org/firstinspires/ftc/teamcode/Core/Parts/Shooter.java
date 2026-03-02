@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Core.Algorithms.PIDFOController;
 
 public class Shooter implements InterfaceSimple {
     public int velocidade_desejada;
-   public  DcMotorEx Atirador_1, Atirador_2;
+   public  DcMotorEx Atirador_1, Atirador_2, rightFront, rightBack, leftFront,leftBack;
     public double erro;
     public boolean shooting = false, right_vel = false;
     boolean servo_lift;
@@ -20,9 +20,14 @@ public class Shooter implements InterfaceSimple {
     public boolean pre_shoot = false;
 
     int shoottype;
+    double corr;
     public double compensation;
+boolean isblue;
+    int Upp, Low,pathstate, auton;
+    double txLime;
+    double idDetecgted;
 
-    int Upp, Low;
+    boolean isAuto, validation;
 
     PIDFOController controllerHeading = new PIDFOController(new PIDFCoefficients(0, 0, 0, 0));
 
@@ -36,7 +41,7 @@ public class Shooter implements InterfaceSimple {
 
 
     public void teleop(Gamepad gamepad, int vel, boolean gamepad1, int minvel){
-
+        isAuto = false;
         if (gamepad.left_bumper || gamepad.right_bumper ||gamepad.dpad_left || gamepad.dpad_up || gamepad.dpad_right || gamepad.y || gamepad.triangle){
             pre_shoot = false;
             shooting = true;
@@ -56,6 +61,11 @@ public class Shooter implements InterfaceSimple {
     public void start(HardwareMap hardware){
         Atirador_1 = hardware.get(DcMotorEx.class, "Atirador_1");
         Atirador_2 = hardware.get(DcMotorEx.class, "Atirador_2");
+        leftBack =hardware.get(DcMotorEx.class,"leftBack");
+        leftFront =hardware.get(DcMotorEx.class,"leftFront");
+        rightBack =hardware.get(DcMotorEx.class,"rightBack");
+        rightFront =hardware.get(DcMotorEx.class,"rightFront");
+
 
         Atirador_1.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         Atirador_2.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -80,10 +90,43 @@ public class Shooter implements InterfaceSimple {
         Upp = upper;
         Low = lower;
     }
+    public void isAuto(boolean auto ,int autono){isAuto = auto; auton = autono;}
+
+    public void pathstate(int paths){pathstate = paths;}
+
+    public void setlimeInfo(double TX, double id ,boolean val){txLime = TX; idDetecgted = id; validation = val;}
+    public void isBlue(boolean isblue){this.isblue = isblue;}
 
     @Override
     public void update() {
+        if (isAuto && (auton == 3 || auton == 4)) {
+            if (shooting) {
+                if (isblue) {
+                    if (validation) {
+                        if (idDetecgted == 20) {
+                            corr = (txLime - (1520 / 2)) / 960;
+                            leftBack.setPower(corr);
+                            leftFront.setPower(corr);
+                            rightBack.setPower(-corr);
+                            rightFront.setPower(-corr);
 
+                        }
+                    } else corr = 0;
+
+                }else{
+
+                    if (idDetecgted == 24) {
+                        corr = (txLime - (1520 / 2)) / 960;
+                        leftBack.setPower(corr);
+                        leftFront.setPower(corr);
+                        rightBack.setPower(-corr);
+                        rightFront.setPower(-corr);
+                    }else corr = 0;
+                }
+
+
+            }
+        }
         erro = velocidade_desejada - Atirador_1.getVelocity();
 
         controllerHeading.updateError(erro);
@@ -94,9 +137,8 @@ public class Shooter implements InterfaceSimple {
 
 //        Atirador_1.setPower(0);
 //        Atirador_2.setPower(0);
-        if(Math.abs(erro)<80) {
-            compensation = erro * (0.001/20);
-        }else compensation = 0;
+
+         compensation = 0;
 
 
        if (velocidade_desejada == 0){
