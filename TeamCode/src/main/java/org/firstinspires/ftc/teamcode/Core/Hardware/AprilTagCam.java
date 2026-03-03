@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Core.Hardware;
 
+import android.util.Size;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -83,10 +85,10 @@ public class AprilTagCam extends LinearOpMode implements InterfaceSimple  {
         }
 
         // Choose a camera resolution. Not all cameras support all resolutions.
-        //builder.setCameraResolution(new Size(640, 480));
+        builder.setCameraResolution(new Size(1280, 720));
 
         // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
-       // builder.enableLiveView(true);
+        builder.enableLiveView(true);
 
        // builder.setAutoStartStreamOnBuild(true);
         // Set the stream format; MJPEG uses less bandwidth than default YUY2.

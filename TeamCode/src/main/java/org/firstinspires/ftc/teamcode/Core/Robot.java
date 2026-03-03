@@ -5,20 +5,24 @@ import org.firstinspires.ftc.teamcode.Core.Algorithms.InterfaceSimple;
 import org.firstinspires.ftc.teamcode.Core.Hardware.AprilTagCam;
 import org.firstinspires.ftc.teamcode.Core.Hardware.Lime;
 import org.firstinspires.ftc.teamcode.Core.Parts.Drivetrain;
+import org.firstinspires.ftc.teamcode.Core.Parts.LimeServo;
 import org.firstinspires.ftc.teamcode.Core.Parts.Shooter;
 
 public class Robot implements InterfaceSimple {
-public Lime limelight = new Lime();
-   public PIDFOController PID = new PIDFOController();
+
+    public LimeServo servoLime = new LimeServo();
+
+    public Lime limelight = servoLime.limelight;
    public Shooter shooter = new Shooter();
     public Drivetrain drivetrain = new Drivetrain();
 
-    public AprilTagCam aptag = new AprilTagCam();
+  //  public AprilTagCam aptag = new AprilTagCam();
 
     @Override
     public void update() {
+        servoLime.update();
         limelight.update();
-        aptag.update();
+        //aptag.update();
         shooter.update();
         drivetrain.update();
     }

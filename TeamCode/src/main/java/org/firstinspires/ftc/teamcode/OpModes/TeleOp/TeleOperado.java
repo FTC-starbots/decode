@@ -6,6 +6,7 @@ package org.firstinspires.ftc.teamcode.OpModes.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Core.Algorithms.Launching;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.PoseIdentifier;
+import org.firstinspires.ftc.teamcode.Core.Algorithms.ShooterControl;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.TagAlign;
 import org.firstinspires.ftc.teamcode.Core.Hardware.AprilTagCam;
 import org.firstinspires.ftc.teamcode.Core.Hardware.ColorSensor;
@@ -14,7 +15,6 @@ import org.firstinspires.ftc.teamcode.Core.Hardware.Lime;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
@@ -40,10 +40,11 @@ import org.firstinspires.ftc.teamcode.Core.Algorithms.Drawing;
 @TeleOp
 public class TeleOperado extends Autonomo {
 
-
+    int intakeControl;
+    ElapsedTime timerIntake = new ElapsedTime();
     Follower followerteleop;
 
-    boolean isGamepad1 = false, isManual = false, isValidArea = false;
+    boolean isGamepad1 = true, isManual = false, isValidArea = false, isReservoirsFull;
     Robot robot = new Robot();
 
     Drivetrain drivetrain = robot.drivetrain;
@@ -51,28 +52,24 @@ public class TeleOperado extends Autonomo {
 
 
     Launching launching = new Launching();
-    public static double kpShooter = 0.0002, kiShooter = 0.00009, kdShooter = 0, kfShooter = 0.05;
+    public static double kpShooter = 0.0017, kiShooter = 0.000125, kdShooter = 0, kfShooter = 0.05;
     public static double kpAlign = 0.02, kiAlign = 0.00005, kdAlign = 0, kfAlign = 0;
 
 
-    public static double Firstkp = 2, Firstki = 0, Firstkd = 0.01, Firstkf = 0;
-    public static double Secondkp = 0.5, Secondki= 0.00005, Secondkd = 0.01, Secondkf = 0;
+    public static double Firstkp = 0.9, Firstki = 1, Firstkd = 0.05, Firstkf = 0;
+    public static double Secondkp = 0.35, Secondki= 0, Secondkd = 0.037, Secondkf = 0;
 
-    ElapsedTime Ciclo;
+    ElapsedTime Ciclo = new ElapsedTime();
+    ElapsedTime timerLeitura = new ElapsedTime();
+    int leituraSens;
+    ElapsedTime timerPresence = new ElapsedTime();
+    ElapsedTime timerSwitch = new ElapsedTime();
 
-     double tempoCiclo;
-
-
-
-    public  VoltageSensor myControlHubVoltageSensor;
 
      Shooter Shooter = robot.shooter;
 
-     Intake Intake = new Intake();
 
      Lime Limelight = robot.limelight;
-
-    AprilTagCam aptag = robot.aptag;
 
     TagAlign tagalign = new TagAlign();
     AimAssisters Capota = launching.Capota;
@@ -80,22 +77,23 @@ public class TeleOperado extends Autonomo {
 
     ColorSensor colorSensor = new ColorSensor();
 
-    public static double  limepos = 0;
-
-
 
     PoseIdentifier poseidentifier = new PoseIdentifier();
 
-    LimeServo servolime = new LimeServo();
+    LimeServo servolime = robot.servoLime;
 
     Leds LED = new Leds();
 
+    ShooterControl ControleShooter = new ShooterControl();
 
+    double tempoCiclo;
 
-    public static double servoA = 0.000022, servoB = 0.0079, servoC = 1.55;
+    public  VoltageSensor myControlHubVoltageSensor;
 
-    public static double velA = 2.1;
-    public static int velB = 940;
+    public static double servoA = 0.0093, servoB = 1.55;
+
+    public static double velA = 3.35;
+    public static int velB = 850, AllBallsConst = 10;
 
     public static double offset = 0.0000001;
 
@@ -104,14 +102,15 @@ public class TeleOperado extends Autonomo {
 
  public int  velIdeal;
 
- public static double timer = 0.2;
+ public static double timer = 0.175;
 
  public static double  corr;
 
 public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
  public boolean isitBlue, manualSelectAlliance, manualSelectAuto, Movimento_robo;
     double angleIdeal;
-
+    ElapsedTime timerColor = new ElapsedTime();
+    ElapsedTime timerVerify = new ElapsedTime();
 
 
     @Override
@@ -123,18 +122,18 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
 
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
-        colorSensor.start(hardwareMap);
+       colorSensor.start(hardwareMap);
 
         LED.start(hardwareMap);
 
         reservatorio.start(hardwareMap);
 
-        aptag.setup(hardwareMap);
+        Limelight.setup(hardwareMap);
 
-        Intake.start(hardwareMap);
+        intake.start(hardwareMap);
 
         Shooter.start(hardwareMap);
-        Shooter.setCoefficients(kpShooter,kiShooter, kdShooter, kfShooter);
+
 
         launching.start(hardwareMap);
 
@@ -144,10 +143,7 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
         servolime.start(hardwareMap);
 
 
-
-
-        Limelight.setup(hardwareMap);
-        Limelight.setPipeline(5);
+        colorSensor.resetBalls();
 
 
 
@@ -169,60 +165,81 @@ public void init_loop(){
 
 @Override
     public void start(){
-        Ciclo = new ElapsedTime();
-       Ciclo.reset();
+
+    Ciclo.reset();
+
+    timerLeitura.reset();
 
     followerteleop.setPose(finalPose);
-
     followerteleop.update();
     followerteleop.startTeleopDrive();
+
+    poseidentifier.isblue(isBlue);
+    ControleShooter.isBlue(isBlue);
+
+    launching.setGateOrder(gateOrder);
+
+    drivetrain.setCoefficientsAptag(kpAlign, kiAlign, kdAlign, kfAlign);
+
     }
 
     @Override
     public void loop() {
-        poseidentifier.isblue(isBlue);
-        colorSensor.setCor(ColorSensor.COLOR.NONE);
 
+        Shooter.setCoefficients(kpShooter,kiShooter, kdShooter, kfShooter);
+        drivetrain.setCoefficientsfirt(Firstkp, Firstki, Firstkd, Firstkf);
+        drivetrain.setCoefficientssecond(Secondkp, Secondki, Secondkd, Secondkf);
+
+
+
+//          if (gamepad1.dpad_up) {
+//              colorSensor.setCor(ColorSensor.COLOR.GREEN);
+//          } else if (gamepad1.dpad_left) {
+//              colorSensor.setCor(ColorSensor.COLOR.WHITE);
+//          }else if (gamepad1.dpad_down) {
+//              colorSensor.setCor(ColorSensor.COLOR.PURPLE);
+//          }else{
+//              colorSensor.setCor(ColorSensor.COLOR.NONE);
+//          }
 
         Ciclo.reset();
 
 
-        tagalign.setValues(Limelight.tpixel, aptag.LeituraPixels, Limelight.tagdetected, aptag.tagdetected, 2592, 720);
+        tagalign.setValues(Limelight.tx, Limelight.tagdetected, 1280);
 
 
-        drivetrain.setCoefficientsAptag(kpAlign, kiAlign, kdAlign, kfAlign);
-        drivetrain.setCoefficientsfirt(Firstkp, Firstki, Firstkd, Firstkf);
-        drivetrain.setCoefficientssecond(Secondkp, Secondki, Secondkd, Secondkf);
-        if (isBlue) {
-            servolime.updateDesiredReference(LimeServo.Mode.BLUE_TAG);
-        }else{
-            servolime.updateDesiredReference(LimeServo.Mode.RED_TAG);
-        }
+
+
         servolime.setCurrentPosition(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X), poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y), poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.YAW));
+
+
+        if (isBlue){
+            servolime.updateDesiredReference(LimeServo.Mode.BLUE_GATE);
+        }else{
+            servolime.updateDesiredReference(LimeServo.Mode.RED_GATE);
+        }
+
 
 
         double d = poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.DISTANCE);
 
-        servoIdeal = servoA * d * d - servoB * d + servoC;
-        if (d > 100) {
+        ControleShooter.setDistance(d);
 
-            velIdeal = (int) (Math.round((velA * d + velB + 40) / 20.0) * 20);
-        } else {
-            if (isBlue) {
-                velIdeal = (int) (Math.round((velA * d + velB-20) / 20.0) * 20);
-            }else{
-                if ( launching.corretor == 1 || launching.corretor == 0) velIdeal = (int) (Math.round((2.1 * d + 1105) / 20.0) * 20);
-                else velIdeal = (int) (Math.round((2.1 * d + 1080) / 20.0) * 20);
-                velIdeal = (int) (Math.round((velA * d + velB) / 20.0) * 20);
-            }
+        ControleShooter.setServo(servoA, servoB);
 
+        ControleShooter.setVel(velA,velB,AllBallsConst);
+
+        velIdeal = ControleShooter.getVel();
+
+        servoIdeal = ControleShooter.getServo();
+
+        if (isBlue) {
+            angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 140 , poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 10);
+        }else{
+            angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 140, poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 140);
         }
 
-    if (isBlue) {
-        angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 138, poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 12);
-    }else{
-        angleIdeal = Math.atan2(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) - 136, poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 132);
-    }
+
         if (poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) < Math.abs(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 72) + 68.5
                 ||
                 poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y) < -Math.abs(poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - 72) + 35.5) {
@@ -231,104 +248,186 @@ public void init_loop(){
             isValidArea = false;
         }
 
+//===SENSOR DE COR===============================================================================
+        {
+            if (intake.IntakeMode != Intake.Mode.STOP) {
+                if (gamepad1.aWasPressed() || gamepad1.bWasPressed()) {
+                    timerPresence.reset();
+                }
+
+                if (timerPresence.seconds() < 0.15) {
+                    timerVerify.reset();
+                    colorSensor.readPresence(timerVerify);
+                } else if (timerPresence.seconds() > 0.25) timerPresence.reset();
+
+            }
+
+            if (!isGamepad1) {
+                if (leituraSens == 0) {
+                    colorSensor.isPosReading(false);
+                    timerColor.reset();
+                    leituraSens = 20;
+                }
+
+                if (colorSensor.post_reading) {
+                    leituraSens--;
+                }
+
+                colorSensor.readColor(timerColor);
+            }
+
+            if (launching.post_shoot) {
+                colorSensor.resetBalls();
+                colorSensor.resetKalman();
+            }
+
+            if (colorSensor.ball1 == ColorSensor.BALL.PURPLE) LED.indicadorLed(Leds.ledColor.RED, 1);
+            else if (colorSensor.ball1 == ColorSensor.BALL.GREEN) LED.indicadorLed(Leds.ledColor.GREEN, 1);
+            else LED.indicadorLed(Leds.ledColor.OFF, 1);
+
+            if (colorSensor.ball2 == ColorSensor.BALL.PURPLE) LED.indicadorLed(Leds.ledColor.RED, 2);
+            else if (colorSensor.ball2 == ColorSensor.BALL.GREEN) LED.indicadorLed(Leds.ledColor.GREEN, 2);
+            else LED.indicadorLed(Leds.ledColor.OFF, 2);
+
+            if (colorSensor.ball3 == ColorSensor.BALL.PURPLE) LED.indicadorLed(Leds.ledColor.RED, 3);
+            else if (colorSensor.ball3 == ColorSensor.BALL.GREEN) LED.indicadorLed(Leds.ledColor.GREEN, 3);
+            else LED.indicadorLed(Leds.ledColor.OFF, 3);
+
+            //LED.setBallsState(colorSensor.ball1, colorSensor.ball2, colorSensor.ball3);
+
+            launching.setBallsNumber(Limelight.TotalBalls);
+            launching.SensorReadings(colorSensor.ball1, colorSensor.ball2, colorSensor.ball3);
 
 
+            if (colorSensor.ball1 != ColorSensor.BALL.NONE && colorSensor.ball2 != ColorSensor.BALL.NONE && colorSensor.ball3!= ColorSensor.BALL.NONE){
+                isReservoirsFull =true;
+                intakeControl ++;
+                if (intakeControl < 3) timerIntake.reset();
+            }
+            else{
+                isReservoirsFull =false;
+                intakeControl = 0;
+            }
 
-//===CONTROLE DE POSIÇÃO=========================================================================
+
+            if (isReservoirsFull){
+                intake.automaticIntake(true);
+                if (timerIntake.seconds() > 0.8 && timerIntake.seconds() < 1.8) {
+                    intake.setMode(Intake.Mode.EJECT);
+                } else if (timerIntake.seconds() > 1.8) {
+                    intake.automaticIntake(false);
+                }
+            }else {
+                intake.automaticIntake(false);
+            }
+        }
 //===FUNÇÕES VITAIS==============================================================================
         {
             launching.teleop(gamepad2,timer);
 
             Shooter.teleop(gamepad2, velIdeal, isGamepad1, velIdeal);
 
-            Intake.teleop(gamepad1);
+            intake.teleop(gamepad1);
 
-            servolime.update();
+
+            ControleShooter.update();
         }
-
 //===LANÇAMENTO==================================================================================
         {
             if (!Shooter.shooting) {
-               reservatorio.setPosition(reservatorio.Reservoir_1, 0.48);
-               reservatorio.setPosition(reservatorio.Reservoir_2, 0.5);
-               reservatorio.setPosition(reservatorio.Reservoir_3, 0.5);
+                if (colorSensor.ball1 != ColorSensor.BALL.NONE) launching.reservatorio.servoPosition(launching.reservatorio.Reservoir_1, Reservoirs.ReservoirsState.MIDDLE);
+                else  launching.reservatorio.servoPosition(launching.reservatorio.Reservoir_1, Reservoirs.ReservoirsState.DOWN);
+                if (colorSensor.ball1 != ColorSensor.BALL.NONE) launching.reservatorio.servoPosition(launching.reservatorio.Reservoir_1, Reservoirs.ReservoirsState.MIDDLE);
+                else  launching.reservatorio.servoPosition(launching.reservatorio.Reservoir_2, Reservoirs.ReservoirsState.DOWN);
+                if (colorSensor.ball1 != ColorSensor.BALL.NONE) launching.reservatorio.servoPosition(launching.reservatorio.Reservoir_1, Reservoirs.ReservoirsState.MIDDLE);
+                else  launching.reservatorio.servoPosition(launching.reservatorio.Reservoir_3, Reservoirs.ReservoirsState.DOWN);
+//
             }
 
 
+//teste
 
+            Shooter.setMargin(60,40);
             Shooter.isServoLifted(launching.servo_lifted);
+            Shooter.ShootType(launching.shoot_type);
             launching.isAtRightVel(Shooter.right_vel);
             launching.isShooting(Shooter.shooting);
+            ControleShooter.setShootType(launching.shoot_type);
 
 
-            if (gamepad1.dpad_up){
-                Capota.setValue(0);
-            } else if (gamepad1.dpad_down) {
-                Capota.setValue(1);
-            }else {
-                Capota.setValue(servoIdeal);
-            }
+
+            Capota.IntakeMode(intake.IntakeMode);
+            Capota.setValue(servoIdeal + Shooter.compensation);
             launching.isAtRightPos(drivetrain.right_pos);
         }
-
 //===FUNÇÕES DE MOVIMENTO========================================================================
         {
             if (isGamepad1) {
-                if (isManual) drivetrain.Drive(isBlue, gamepad1, followerteleop, Shooter.shooting, 0, 100, false, offset, angleIdeal, launching.corretor);
-                else drivetrain.Drive(isBlue, gamepad1, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, false, offset, angleIdeal,launching.corretor);
-
+                if (isManual) drivetrain.Drive(true,isBlue, gamepad1, followerteleop, Shooter.shooting, 0, 100, false, offset, angleIdeal, launching.corretor);
+                else drivetrain.Drive(true,isBlue, gamepad1, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, false, offset, angleIdeal,launching.corretor);
 
             } else {
-                if (isManual) drivetrain.Drive(isBlue, gamepad2, followerteleop, Shooter.shooting, 0, 100, false, offset, angleIdeal, launching.corretor);
-                else drivetrain.Drive(isBlue, gamepad2, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, false, offset, angleIdeal,launching.corretor);
+                if (isManual) drivetrain.Drive(false,isBlue, gamepad2, followerteleop, Shooter.shooting, 0, 100, false, offset, angleIdeal, launching.corretor);
+                else drivetrain.Drive(false,isBlue, gamepad2, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, false, offset, angleIdeal,launching.corretor);
 
             }
         }
-
 //===FUNÇÕES DE CONTROLE=========================================================================
         {
             if (gamepad2.backWasPressed()) isManual = !isManual;
 
 
             if (gamepad1.square || gamepad1.x) {
+                colorSensor.resetKalman();
+                launching.ispost_shoot(false);
+                timerSwitch.reset();
                 isGamepad1 = true;
             }
 
             else if (gamepad2.square || gamepad2.x){
+                colorSensor.resetKalman();
+                timerLeitura.reset();
+                timerSwitch.reset();
                 isGamepad1 = false;
             }
 
 
 
         }
-
 //===UPDATE DE POSIÇÃO===========================================================================
         {
 
         if (gamepad1.startWasPressed()){
             if (isBlue){
-            followerteleop.setPose(new Pose(134,8, Math.toRadians(180)));
+            followerteleop.setPose(new Pose(132,10, Math.toRadians(180)));
                 drivetrain.setTargetHeading(Math.toRadians(180));
             }else {
-                followerteleop.setPose(new Pose(9,8, Math.toRadians(0)));
+                followerteleop.setPose(new Pose(11,10, Math.toRadians(0)));
                 drivetrain.setTargetHeading(Math.toRadians(0));
             }
         }
 
 
             poseidentifier.infoLIME(Limelight.x, Limelight.y, Limelight.angle, Limelight.distance);
-            poseidentifier.infoCAM(aptag.LeituraX, aptag.LeituraY, aptag.LeituraYaw);
+           // poseidentifier.infoCAM(aptag.LeituraX, aptag.LeituraY, aptag.LeituraYaw);
             poseidentifier.infoPINPOINT(followerteleop.getPose().getX(), followerteleop.getPose().getY(), followerteleop.getPose().getHeading());
 
         }
-
-
 //===LEDS========================================================================================
         {
-            if(isValidArea) LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-            else  LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+            if (isGamepad1) {
+                if (isReservoirsFull) LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_BLUE);
+                else LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.ORANGE);
+            } else {
+                if (launching.post_shoot) LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_RED);
+                else LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.VIOLET);
+            }
+
+//            if(drivetrain.aptag) LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+//            else  LED.Led_Strip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
         }
         robot.update();
+        if (gamepad2.a) servolime.setPosition(0.5);
         telemetry();
         tempoCiclo = Ciclo.milliseconds();
         Drawing.draw(followerteleop);
@@ -336,7 +435,7 @@ public void init_loop(){
 
 
     public void stop(){
-        aptag.stop();
+      //  aptag.stop();
     }
 
     public void telemetry(){
@@ -350,8 +449,7 @@ public void init_loop(){
         telemetry.addLine();
         telemetry.addData("ang ideal", servolime.IdealYaw);
         telemetry.addData("current yaw", servolime.currentYaw);
-        telemetry.addData("current yaw", servolime.currentYaw);
-
+        telemetry.addData("limeservo", servolime.ServoLime.getPosition());
         telemetry.addLine();
         telemetry.addData("S1", colorSensor.getLeitura(colorSensor.S1));
         telemetry.addData("S2", colorSensor.getLeitura(colorSensor.S2));
@@ -359,29 +457,43 @@ public void init_loop(){
         telemetry.addData("S4", colorSensor.getLeitura(colorSensor.S4));
         telemetry.addLine();
 
+        telemetry.addData("Presence1", (colorSensor.leituraPresece1));
+        telemetry.addData("Presence2", (colorSensor.leituraPresece2));
+        telemetry.addData("Presence3", (colorSensor.leituraPresece3));
+        telemetry.addLine("VERDE");
+        telemetry.addData("S1", (colorSensor.leituraVerde1));
+        telemetry.addData("S2", (colorSensor.leituraVerde2));
+        telemetry.addData("S3", (colorSensor.leituraVerde3));
+        telemetry.addLine("ROXO");
+        telemetry.addData("S1", (colorSensor.leituraRoxo1));
+        telemetry.addData("S2", (colorSensor.leituraRoxo2));
+        telemetry.addData("S3", (colorSensor.leituraRoxo3));
 
+        telemetry.addData("bola1", colorSensor.ball1);
+        telemetry.addData("bola2", colorSensor.ball2);
+        telemetry.addData("bola3", colorSensor.ball3);
 
-        telemetry.addData("limeservo", servolime.ServoLime.getPosition());
         telemetry.addLine();
 
         telemetry.addLine();
         telemetry.addData("Capota " , Capota.getPosition());
         telemetry.addLine();
         telemetry.addLine("POSIÇÕES");
-        telemetry.addData("CamX", poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.X));
-        telemetry.addData("CamY",  poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.Y));
-        telemetry.addData("CamYaw",  poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.YAW));
-        telemetry.addData("CamDist",  poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.DISTANCE));
-        telemetry.addLine();
-        telemetry.addData("CamX", poseidentifier.getInfo(PoseIdentifier.Source.CAMERA, PoseIdentifier.DataInfo.X));
-        telemetry.addData("CamY",  poseidentifier.getInfo(PoseIdentifier.Source.CAMERA, PoseIdentifier.DataInfo.Y));
-        telemetry.addData("CamYaw",  poseidentifier.getInfo(PoseIdentifier.Source.CAMERA, PoseIdentifier.DataInfo.YAW));
-        telemetry.addData("CamDist",  poseidentifier.getInfo(PoseIdentifier.Source.CAMERA, PoseIdentifier.DataInfo.DISTANCE));
+        telemetry.addData("LimeX", poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.X));
+        telemetry.addData("LimeY",  poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.Y));
+        telemetry.addData("LimeYaw",  poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.YAW));
+        telemetry.addData("LimeDist",  poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.DISTANCE));
         telemetry.addLine();
         telemetry.addData("PinX", poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X));
         telemetry.addData("PinY",  poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.Y));
         telemetry.addData("PinYaw",  poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.YAW));
         telemetry.addData("PinDist",  poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.DISTANCE));
+        telemetry.addLine();
+
+        telemetry.addData("ErrorX", poseidentifier.getInfo(PoseIdentifier.Source.PINPOINT, PoseIdentifier.DataInfo.X) - poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.X));
+        telemetry.addData("ErrorY",  poseidentifier.getInfo(PoseIdentifier.Source.CAMERA, PoseIdentifier.DataInfo.Y) - poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.Y));
+        telemetry.addData("ErrorYaw",  poseidentifier.getInfo(PoseIdentifier.Source.CAMERA, PoseIdentifier.DataInfo.YAW) - poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.YAW));
+        telemetry.addData("ErrorDist",  poseidentifier.getInfo(PoseIdentifier.Source.CAMERA, PoseIdentifier.DataInfo.DISTANCE) - poseidentifier.getInfo(PoseIdentifier.Source.LIMELIGHT, PoseIdentifier.DataInfo.DISTANCE));
         telemetry.addLine();
 
         telemetry.addLine("ATIRADOR");
@@ -400,20 +512,22 @@ public void init_loop(){
         telemetry.addLine();
         telemetryM.addData("Target Heading", drivetrain.targetHeading);
         telemetryM.addData("Heading", followerteleop.getHeading());
+        telemetryM.addData("erooororreading", drivetrain.error_final);
         telemetry.addLine();
 
-        telemetry.addData("Target Heading", followerteleop.getPose());
         telemetry.addData("Target Heading", drivetrain.targetHeading);
         telemetry.addData("Heading", followerteleop.getHeading());
+        telemetry.addData("erooororreading", drivetrain.error_final);
         telemetry.addLine();
 
 
 
+        telemetry.addData("ID", Limelight.id);
+        telemetry.addData("TagPixels LIME", Limelight.tpixel);
+        telemetry.addData("Balls", Limelight.TotalBalls);
+        telemetry.addData("Pipeline", Limelight.pipeline);
+        telemetry.addData("ModeLime", Limelight.OperationMode);
 
-    //telemetry.addData("TagPixels LIME", Limelight.tpixel);
-        telemetry.addData("TagPixels CAM", aptag.LeituraPixels);
-        telemetry.addData("CAM ERROR", drivetrain.error_final);
-        telemetry.addData("calculo de erro", drivetrain.widht_divididopor2menospixel);
 
         telemetry.addLine();
 
@@ -422,9 +536,6 @@ public void init_loop(){
         telemetry.addLine();
 
         telemetry.addLine();
-        telemetry.addData("RobotPoseX", aptag.LeituraX);
-        telemetry.addData("RobotPoseY", aptag.LeituraY);
-        telemetry.addData("RobotPoseYAW", aptag.LeituraYaw);
 
 
         telemetryM.update(telemetry);

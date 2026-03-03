@@ -11,22 +11,17 @@ public class TagAlign {
 
 
 
-    public void setValues(double LIMEpix,double CAMpix, boolean LIMEstate, boolean CAMstate, double LIMEwidth, double CAMwidth){
-            if (CAMstate){
+    public void setValues(double CAMpix, boolean CAMstate, double CAMwidth){
+            if (CAMstate) {
                 validation = true;
                 width = CAMwidth;
                 pixel = CAMpix;
-               // servo.isLimeAllianceTag(false);
-            } else if (LIMEstate) {
-                validation = true;
-                width = LIMEwidth;
-                pixel = LIMEpix;
-             //   servo.isLimeAllianceTag(true);
+                // servo.isLimeAllianceTag(false);
             }else {
-                validation = false;
-                width = 0;
-                pixel = 0;
-               // servo.isLimeAllianceTag(true);
+         validation = false;
+         width = 0;
+         pixel = 0;
+
 
             }
 

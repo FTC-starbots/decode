@@ -6,6 +6,8 @@ import com.pedropathing.geometry.PedroCoordinates;
 import com.pedropathing.geometry.Pose;
 
 public class PoseIdentifier implements  InterfaceSimple{
+
+    FTCCoordinates converter;
     public enum Source{
         LIMELIGHT,
         CAMERA,
@@ -77,26 +79,15 @@ public class PoseIdentifier implements  InterfaceSimple{
 
     public void infoLIME(double limex,double limey, double limeyaw,double limedist){
 
-        LimePose = new Pose(limex, limey, limeyaw, FTCCoordinates.INSTANCE).getAsCoordinateSystem(PedroCoordinates.INSTANCE);
+        LimePose = new Pose(limex* 39.3701 + 72, limey* 39.3701 + 72, limeyaw);
 
 
         LIMEposeX = LimePose.getX();
         LIMEposeY = LimePose.getY();
         LIMEposeYaw = LimePose.getHeading();
-        LIMEdistance = limedist;
+        LIMEdistance = limedist * 39.3701;
     }
 
-    public void infoCAM(double camx, double camy, double camyaw){
-
-        CamPose = new Pose(camx, camy, camyaw, FTCCoordinates.INSTANCE).getAsCoordinateSystem(PedroCoordinates.INSTANCE);
-
-
-            CAMposeX = CamPose.getX();
-            CAMposeY = CamPose.getY();
-            CAMposeYaw = CamPose.getHeading();
-
-            CAMdistance = Math.sqrt((CAMposeX - 10)*(CAMposeX - 10) + (CAMposeY - 138)*(CAMposeY - 138));
-    }
 
     public void infoPINPOINT(double pinx, double piny, double pinyaw){
         PINPposeX = pinx;

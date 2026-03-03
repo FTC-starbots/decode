@@ -2,10 +2,10 @@ package org.firstinspires.ftc.teamcode.Core.Parts;
 
 
 import com.pedropathing.control.PIDFCoefficients;
-import com.pedropathing.control.PIDFController;
 import com.pedropathing.follower.Follower;
 
 import org.firstinspires.ftc.teamcode.Core.Algorithms.InterfaceSimple;
+import org.firstinspires.ftc.teamcode.Core.Algorithms.PIDFOController;
 import org.firstinspires.ftc.teamcode.Core.Hardware.Lime;
 
 import com.pedropathing.geometry.Pose;
@@ -20,16 +20,17 @@ public class Drivetrain implements InterfaceSimple {
     Lime Limelight = new Lime();
 
     ElapsedTime timer = new ElapsedTime();
+    ElapsedTime rightpos = new ElapsedTime();
 
      public double error_hor;
-    public double error_anti_hor;
+    public double error_tag;
     public double error_final;
 
     public double widht_divididopor2menospixel;
-    PIDFController controllerHeading = new PIDFController(new PIDFCoefficients(2, 0, 0.01, 0));
+    PIDFOController controllerHeading = new PIDFOController(new PIDFCoefficients(2, 0, 0.01, 0));
 
    public double targetHeading;
-    boolean headingLock, aptag;
+   public boolean headingLock, aptag;
 
     double kpa, kia, kda, kfa;
 
@@ -67,80 +68,73 @@ public boolean right_pos;
     public void setVectorX(double x){vectorx = x;}
     public void setVectorY(double y){vectory = y;}
 
+    public double angleWrap(double angle) {
+        return Math.atan2(
+                Math.sin(angle),
+                Math.cos(angle)
+        );
+    }
 
-  public void Drive(boolean isBlue, Gamepad gamepad, Follower followerdrive, boolean AptagLock, double pixel, double width, boolean validation, double offsetpercent, double IdealAngle,double corrreserv){
+  public void Drive(boolean gamepad1, boolean isBlue, Gamepad gamepad, Follower followerdrive, boolean isShooting, double pixel, double width, boolean validation, double offsetpercent, double IdealAngle,double corrreserv){
 
       rotation = (gamepad.left_trigger - gamepad.right_trigger);
 
 
 
-     if (AptagLock){
+     if (isShooting || !gamepad1){
 
          if (validation) {
-             error_final = (((width / 2) - (width * offsetpercent)) - pixel) / (((width / 2) - (width * offsetpercent)) * 0.03);
-             aptag = true;
+             error_tag = 0;
+             //error_tag = (pixel - 640)/640;
          }else{
-             targetHeading = IdealAngle + Math.toRadians(corrreserv) * -10;
-             aptag = false;
+             targetHeading = IdealAngle + error_tag;
 
+             error_final = angleWrap(targetHeading - followerdrive.getHeading());
 
-             error_final = targetHeading - followerdrive.getHeading();
-
-             if (error_final > 180) error_final -= 360;
-             if (error_final < -180) error_final += 360;
          }
      } else{
-         aptag = false;
 
+         error_final = angleWrap(targetHeading - followerdrive.getHeading());
 
-         error_final = targetHeading - followerdrive.getHeading();
-
-         if (error_final > 180) error_final -= 360;
-         if (error_final < -180) error_final += 360;
      }
 
-
-
-     if(AptagLock && validation){
-         controllerHeading.setCoefficients(new PIDFCoefficients(kpa, kia, kda, kfa));
-         timer.reset();
-
-     }else{
-         if(Math.abs(error_final) > 15) controllerHeading.setCoefficients(new PIDFCoefficients(kpf, kif, kdf, kff));
+        if (!gamepad1)controllerHeading.setCoefficients(new PIDFCoefficients(kpf, kif, kdf, kff));
          else controllerHeading.setCoefficients(new PIDFCoefficients(kps, kis, kds, kfs));
 
 
 
-     }
+      if(Math.abs(Math.toDegrees(error_final)) > 5) {
+          controllerHeading.errorIntegral = 0;
+          rightpos.reset();
+      }
 
-    if(Math.abs(error_final) < 5) {
+    if(Math.abs(Math.toDegrees(error_final)) < 5 && rightpos.seconds()>0.5) {
         right_pos = true;
+    }else {
+        right_pos = false;
     }
 
-      controllerHeading.updateError(error_final);
+
+
+        controllerHeading.updateError(error_final);
 
       if(gamepad.left_trigger > 0 || gamepad.right_trigger > 0 ){
           headingLock = false;
           targetHeading = followerdrive.getHeading();
           timer.reset();
       }else {
-          if (timer.seconds()> 0.2) headingLock = true;
+          if (timer.seconds()> 0.1) headingLock = true;
           else targetHeading = followerdrive.getHeading();
       }
 
-      if (aptag){
-          headingLock = true;
-          targetHeading = followerdrive.getHeading();
+
+      if (isBlue) {
+          if (headingLock) followerdrive.setTeleOpDrive(gamepad.left_stick_y , gamepad.left_stick_x, controllerHeading.run(), false);
+          else followerdrive.setTeleOpDrive(gamepad.left_stick_y * 1.2, gamepad.left_stick_x * 1.2, rotation * 0.7, false);
+      }else{
+          if (headingLock) followerdrive.setTeleOpDrive(-gamepad.left_stick_y, -gamepad.left_stick_x, controllerHeading.run(), false);
+          else followerdrive.setTeleOpDrive(-gamepad.left_stick_y * 1.2, -gamepad.left_stick_x * 1.2, rotation * 0.7, false);
       }
-
-if (isBlue) {
-    if (headingLock) followerdrive.setTeleOpDrive(gamepad.left_stick_y , gamepad.left_stick_x, controllerHeading.run(), false);
-    else followerdrive.setTeleOpDrive(gamepad.left_stick_y * 1.2, gamepad.left_stick_x * 1.2, rotation * 0.7, false);
-}else{
-    if (headingLock) followerdrive.setTeleOpDrive(-gamepad.left_stick_y, -gamepad.left_stick_x, controllerHeading.run(), false);
-    else followerdrive.setTeleOpDrive(-gamepad.left_stick_y * 1.2, -gamepad.left_stick_x * 1.2, rotation * 0.7, false);
-
-}
 
 
 
