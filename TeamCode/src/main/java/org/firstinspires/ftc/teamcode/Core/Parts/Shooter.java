@@ -99,31 +99,40 @@ boolean isblue;
 
     @Override
     public void update() {
-        if (isAuto && (auton == 3 || auton == 4)) {
+        if (isAuto /*&& (auton == 3 || auton == 4)*/) {
             if (shooting) {
+                if (validation) {
                 if (isblue) {
-                    if (validation) {
+
                         if (idDetecgted == 20) {
-                            corr = (txLime - (1520 / 2)) / 960;
+                            if (auton == 3 || auton == 4) corr = (txLime - 845) / 680;
+                            else corr = 0;
+
+                            // else if (auton == 1 || auton == 2) corr = (txLime - 900) / 680;
+
                             leftBack.setPower(corr);
                             leftFront.setPower(corr);
                             rightBack.setPower(-corr);
                             rightFront.setPower(-corr);
 
                         }
-                    } else corr = 0;
+
 
                 }else{
 
                     if (idDetecgted == 24) {
-                        corr = (txLime - (1520 / 2)) / 960;
+                        if (auton == 3 || auton == 4) corr = (txLime - 400) / 680;
+                        else corr = 0;
+                        //else if (auton == 1 || auton == 2) corr = (txLime - 380) / 680;
+
                         leftBack.setPower(corr);
                         leftFront.setPower(corr);
                         rightBack.setPower(-corr);
                         rightFront.setPower(-corr);
-                    }else corr = 0;
-                }
+                    }
 
+                }
+                } else corr = 0;
 
             }
         }

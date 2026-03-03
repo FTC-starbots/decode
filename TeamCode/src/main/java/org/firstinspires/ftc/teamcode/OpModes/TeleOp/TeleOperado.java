@@ -93,7 +93,7 @@ public class TeleOperado extends Autonomo {
     public static double servoA = 0.0093, servoB = 1.55;
 
     public static double velA = 3.35;
-    public static int velB = 910, AllBallsConst = 10;
+    public static int velB = 850, AllBallsConst = 10;
 
     public static double offset = 0.0000001;
 
@@ -255,10 +255,10 @@ public void init_loop(){
                     timerPresence.reset();
                 }
 
-                if (timerPresence.seconds() < 0.1) {
+                if (timerPresence.seconds() < 0.15) {
                     timerVerify.reset();
                     colorSensor.readPresence(timerVerify);
-                } else if (timerPresence.seconds() > 0.4) timerPresence.reset();
+                } else if (timerPresence.seconds() > 0.25) timerPresence.reset();
 
             }
 
@@ -266,7 +266,7 @@ public void init_loop(){
                 if (leituraSens == 0) {
                     colorSensor.isPosReading(false);
                     timerColor.reset();
-                    leituraSens = 5;
+                    leituraSens = 20;
                 }
 
                 if (colorSensor.post_reading) {
@@ -276,9 +276,24 @@ public void init_loop(){
                 colorSensor.readColor(timerColor);
             }
 
-            if (launching.post_shoot) colorSensor.resetBalls();
+            if (launching.post_shoot) {
+                colorSensor.resetBalls();
+                colorSensor.resetKalman();
+            }
 
-            // LED.setBallsState(colorSensor.ball1, colorSensor.ball2, colorSensor.ball3);
+            if (colorSensor.ball1 == ColorSensor.BALL.PURPLE) LED.indicadorLed(Leds.ledColor.RED, 1);
+            else if (colorSensor.ball1 == ColorSensor.BALL.GREEN) LED.indicadorLed(Leds.ledColor.GREEN, 1);
+            else LED.indicadorLed(Leds.ledColor.OFF, 1);
+
+            if (colorSensor.ball2 == ColorSensor.BALL.PURPLE) LED.indicadorLed(Leds.ledColor.RED, 2);
+            else if (colorSensor.ball2 == ColorSensor.BALL.GREEN) LED.indicadorLed(Leds.ledColor.GREEN, 2);
+            else LED.indicadorLed(Leds.ledColor.OFF, 2);
+
+            if (colorSensor.ball3 == ColorSensor.BALL.PURPLE) LED.indicadorLed(Leds.ledColor.RED, 3);
+            else if (colorSensor.ball3 == ColorSensor.BALL.GREEN) LED.indicadorLed(Leds.ledColor.GREEN, 3);
+            else LED.indicadorLed(Leds.ledColor.OFF, 3);
+
+            //LED.setBallsState(colorSensor.ball1, colorSensor.ball2, colorSensor.ball3);
 
             launching.setBallsNumber(Limelight.TotalBalls);
             launching.SensorReadings(colorSensor.ball1, colorSensor.ball2, colorSensor.ball3);
@@ -294,11 +309,12 @@ public void init_loop(){
                 intakeControl = 0;
             }
 
+
             if (isReservoirsFull){
                 intake.automaticIntake(true);
-                if (timerIntake.seconds() > 0.5 && timerIntake.seconds() < 1.5) {
+                if (timerIntake.seconds() > 0.8 && timerIntake.seconds() < 1.8) {
                     intake.setMode(Intake.Mode.EJECT);
-                } else if (timerIntake.seconds() > 1.5) {
+                } else if (timerIntake.seconds() > 1.8) {
                     intake.automaticIntake(false);
                 }
             }else {
@@ -319,9 +335,12 @@ public void init_loop(){
 //===LANÇAMENTO==================================================================================
         {
             if (!Shooter.shooting) {
-                    reservatorio.setPosition(reservatorio.Reservoir_1, 0.48);
-                    reservatorio.setPosition(reservatorio.Reservoir_2, 0.5);
-                    reservatorio.setPosition(reservatorio.Reservoir_3, 0.5);
+                if (colorSensor.ball1 != ColorSensor.BALL.NONE) launching.reservatorio.servoPosition(launching.reservatorio.Reservoir_1, Reservoirs.ReservoirsState.MIDDLE);
+                else  launching.reservatorio.servoPosition(launching.reservatorio.Reservoir_1, Reservoirs.ReservoirsState.DOWN);
+                if (colorSensor.ball1 != ColorSensor.BALL.NONE) launching.reservatorio.servoPosition(launching.reservatorio.Reservoir_1, Reservoirs.ReservoirsState.MIDDLE);
+                else  launching.reservatorio.servoPosition(launching.reservatorio.Reservoir_2, Reservoirs.ReservoirsState.DOWN);
+                if (colorSensor.ball1 != ColorSensor.BALL.NONE) launching.reservatorio.servoPosition(launching.reservatorio.Reservoir_1, Reservoirs.ReservoirsState.MIDDLE);
+                else  launching.reservatorio.servoPosition(launching.reservatorio.Reservoir_3, Reservoirs.ReservoirsState.DOWN);
 //
             }
 
@@ -359,11 +378,14 @@ public void init_loop(){
 
 
             if (gamepad1.square || gamepad1.x) {
+                colorSensor.resetKalman();
+                launching.ispost_shoot(false);
                 timerSwitch.reset();
                 isGamepad1 = true;
             }
 
             else if (gamepad2.square || gamepad2.x){
+                colorSensor.resetKalman();
                 timerLeitura.reset();
                 timerSwitch.reset();
                 isGamepad1 = false;
@@ -435,6 +457,17 @@ public void init_loop(){
         telemetry.addData("S4", colorSensor.getLeitura(colorSensor.S4));
         telemetry.addLine();
 
+        telemetry.addData("Presence1", (colorSensor.leituraPresece1));
+        telemetry.addData("Presence2", (colorSensor.leituraPresece2));
+        telemetry.addData("Presence3", (colorSensor.leituraPresece3));
+        telemetry.addLine("VERDE");
+        telemetry.addData("S1", (colorSensor.leituraVerde1));
+        telemetry.addData("S2", (colorSensor.leituraVerde2));
+        telemetry.addData("S3", (colorSensor.leituraVerde3));
+        telemetry.addLine("ROXO");
+        telemetry.addData("S1", (colorSensor.leituraRoxo1));
+        telemetry.addData("S2", (colorSensor.leituraRoxo2));
+        telemetry.addData("S3", (colorSensor.leituraRoxo3));
 
         telemetry.addData("bola1", colorSensor.ball1);
         telemetry.addData("bola2", colorSensor.ball2);

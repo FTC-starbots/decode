@@ -8,6 +8,7 @@ public class Reservoirs {
     public Servo Reservoir_2, Reservoir_1, Reservoir_3;
     public enum ReservoirsState {
         UP,
+        MIDDLE,
         DOWN
 
     }
@@ -35,7 +36,9 @@ public class Reservoirs {
             case UP:
                  Reservoir.setPosition(1);
                 break;
-
+            case MIDDLE:
+                Reservoir.setPosition(0.55);
+                break;
             case DOWN:
                 if(Reservoir == Reservoir_1)Reservoir.setPosition(0.48);
                 else Reservoir.setPosition(0.5);

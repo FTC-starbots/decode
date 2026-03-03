@@ -83,6 +83,26 @@ public class Launching {
             shoot_type = 7;
         }
 
+        if (gamepad.rightBumperWasPressed()){
+            if (Balls <7) {
+                shootOrder[0] = gateOrder[Balls];
+                shootOrder[1] = gateOrder[Balls + 1];
+                shootOrder[2] = gateOrder[Balls + 2];
+                timer_split.reset();
+            }else if (Balls == 7){
+                shootOrder[0] = gateOrder[7];
+                shootOrder[1] = gateOrder[8];
+                shootOrder[2] = gateOrder[8];
+                timer_split.reset();
+            }else {
+                shootOrder[0] = gateOrder[8];
+                shootOrder[1] = gateOrder[8];
+                shootOrder[2] = gateOrder[8];
+                timer_split.reset();
+            }
+        }
+
+
             if (shoot_type == 1) {
                 shoot_all = true;
                 pressed_button.reset();
@@ -136,7 +156,7 @@ public class Launching {
 
 
         if (shoot_all) launch_all_togheter();
-        else if (shoot_sequence) launch_sequence(timer+0.15);
+        else if (shoot_sequence) launch_sequence(timer+0.1);
         else if (shoot_split_sen) launch_all_split_sensor(timer);
         else if (shoot_split) launch_all_split(timer);
 
@@ -146,7 +166,6 @@ public class Launching {
             shoot_sequence = false;
             shoot_split_sen = false;
             shoot_split = false;
-            post_shoot = false;
             shoot_type = 0;
         }
 
@@ -315,17 +334,7 @@ public class Launching {
 
         if(times_atRightVel < 3) {
             if (times_atRightVel == 0 && right_vel && right_pos) {
-                if (Balls <7) {
-                    shootOrder[0] = gateOrder[Balls];
-                    shootOrder[1] = gateOrder[Balls + 1];
-                    shootOrder[2] = gateOrder[Balls + 2];
-                    timer_split.reset();
-                }else {
-                    shootOrder[0] = gateOrder[8];
-                    shootOrder[1] = gateOrder[8];
-                    shootOrder[2] = gateOrder[8];
-                    timer_split.reset();
-                }
+
 
                 if (bola1 == ColorSensor.BALL.NONE && bola2 == ColorSensor.BALL.NONE && bola3 == ColorSensor.BALL.NONE) {
                     post_shoot = true;
@@ -336,18 +345,22 @@ public class Launching {
                     reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
                     corretor = 1;
                     times_atRightVel = 1;
+                    sensor.resetReservoir(1);
                 }else if (shootOrder[0] == bola2){
                     reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
                     corretor = 0;
                     times_atRightVel = 1;
+                    sensor.resetReservoir(2);
                 }else if (shootOrder[0] == bola3){
                     reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
                     corretor = -1;
                     times_atRightVel = 1;
+                    sensor.resetReservoir(3);
                 } else{
                     reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
                     corretor = 1;
                     times_atRightVel = 1;
+                    sensor.resetReservoir(1);
                 }
 
 
@@ -362,18 +375,22 @@ public class Launching {
                     reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
                     corretor = 1;
                     times_atRightVel = 2;
+                    sensor.resetReservoir(1);
                 }else if (shootOrder[1] == bola2){
                     reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
                     corretor = 0;
                     times_atRightVel = 2;
+                    sensor.resetReservoir(2);
                 }else if (shootOrder[1] == bola3){
                     reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
                     corretor = -1;
                     times_atRightVel = 2;
+                    sensor.resetReservoir(3);
                 } else{
                     reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
                     corretor = 0;
                     times_atRightVel = 2;
+                    sensor.resetReservoir(2);
                 }
             }
 
@@ -384,18 +401,22 @@ public class Launching {
                     reservatorio.servoPosition(reservatorio.Reservoir_1, ReservoirsState.UP);
                     corretor = 1;
                     times_atRightVel = 3;
+                    sensor.resetReservoir(1);
                 }else if (shootOrder[2] == bola2){
                     reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
                     corretor = 0;
                     times_atRightVel = 3;
+                    sensor.resetReservoir(2);
                 }else if (shootOrder[2] == bola3){
                     reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
                     corretor = -1;
                     times_atRightVel = 3;
+                    sensor.resetReservoir(3);
                 } else{
                     reservatorio.servoPosition(reservatorio.Reservoir_3, ReservoirsState.UP);
                     corretor = -1;
                     times_atRightVel = 3;
+                    sensor.resetReservoir(3);
                 }
                 post_shoot = true;
                 shoot_sequence = false;

@@ -1,12 +1,20 @@
 package org.firstinspires.ftc.teamcode.Core.Hardware;
 
+import com.pedropathing.control.KalmanFilter;
+import com.pedropathing.control.KalmanFilterParameters;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class ColorSensor {
+    KalmanFilter RES1 = new KalmanFilter(new KalmanFilterParameters(0.05,1), 2, 100,1.2);
+    KalmanFilter RES2 = new KalmanFilter(new KalmanFilterParameters(0.05,1), 2, 100,1.2);
+    KalmanFilter RES3 = new KalmanFilter(new KalmanFilterParameters(0.05,1), 2, 100,1.2);
 
+    KalmanFilter G1 = new KalmanFilter(new KalmanFilterParameters(0.05,1), 2, 100,1.2);
+    KalmanFilter G2 = new KalmanFilter(new KalmanFilterParameters(0.05,1), 2, 100,1.2);
+    KalmanFilter G3 = new KalmanFilter(new KalmanFilterParameters(0.05,1), 2, 100,1.2);
     public enum COLOR{
         RED,
         GREEN,
@@ -28,6 +36,7 @@ public class ColorSensor {
     public AnalogInput S1, S2, S3, S4;
 
 public boolean post_reading;
+int presRead;
 
     BALL color1= BALL.NONE, color2= BALL.NONE, color3= BALL.NONE;
     public BALL ball1 = BALL.NONE, ball2= BALL.NONE, ball3= BALL.NONE;
@@ -104,28 +113,67 @@ public boolean post_reading;
         ball2 = BALL.NONE;
         ball3 = BALL.NONE;
     }
+    public void resetReservoir(int res){
+        switch (res){
+            case 1:
+                ball1 = BALL.NONE;
+                break;
+            case 2:
+                ball2 = BALL.NONE;
+                break;
+            case 3:
+                ball3 = BALL.NONE;
+                break;
+        }
+    }
     public void isPosReading(boolean is){post_reading = is;}
+
+    public void resetKalman(){
+        RES1.reset(2,100,1.2);
+        RES2.reset(2,100,1.2);
+        RES3.reset(2,100,1.2);
+        RES1.reset(1.5,100,1.2);
+        RES2.reset(1.5,30,1.2);
+        RES3.reset(1.5,30,1.2);
+        leituraPresece1 = 2;
+        leituraPresece2 = 2;
+        leituraPresece3 = 2;
+        leituraRoxo1 = 2;
+        leituraRoxo2 = 2;
+        leituraRoxo3 = 2;
+        leituraVerde1 = 2;
+        leituraVerde2 = 2;
+        leituraVerde3 = 2;
+
+    }
+    public void resetPres(){presRead = 0;}
     public void readPresence(ElapsedTime timer){
 
 
-            setCor(COLOR.WHITE);
+                setCor(COLOR.WHITE);
 
-            leituraPresece1 = getLeitura(S1);
+                RES1.update(0, getLeitura(S1));
+                leituraPresece1 = RES1.getState();
 
-            leituraPresece2 = getLeitura(S2);
+                RES2.update(0, getLeitura(S2));
+                leituraPresece2 = RES2.getState();
 
-            leituraPresece3 = getLeitura(S3);
+                RES3.update(0, getLeitura(S3));
+                leituraPresece3 = RES3.getState();
 
 
-            if (1.47 > leituraPresece1) color1 = BALL.PURPLE;
+                if (1.45 > leituraPresece1) color1 = BALL.PURPLE;
+                else color1 = BALL.NONE;
 
-            if (1.47 > leituraPresece2) color2 = BALL.PURPLE;
+                if (1.51 > leituraPresece2) color2 = BALL.PURPLE;
+                else color2 = BALL.NONE;
 
-            if (1.47 > leituraPresece3) color3 = BALL.PURPLE;
+                if (1.55 > leituraPresece3) color3 = BALL.PURPLE;
+                else color3 = BALL.NONE;
 
-            ball1 = color1;
-            ball2 = color2;
-            ball3 = color3;
+                ball1 = color1;
+                ball2 = color2;
+                ball3 = color3;
 
     }
     public void readColor(ElapsedTime timer) {
@@ -133,21 +181,29 @@ public boolean post_reading;
             if (timer.seconds() < 0.05){
                 setCor(COLOR.GREEN);
             } else if (timer.seconds() > 0.1 && timer.seconds() < 0.3){
-                 leituraVerde1 = getLeitura(S1);
+                G1.update(0, getLeitura(S1));
+                leituraVerde1 = G1.getState();
 
-                 leituraVerde2 = getLeitura(S2);
+                G2.update(0, getLeitura(S2));
+                leituraVerde2 = G2.getState();
 
-                 leituraVerde3 = getLeitura(S3);
+                G3.update(0, getLeitura(S3));
+                leituraVerde3 = G3.getState();
+
 
             } else if (timer.seconds() > 0.3 && timer.seconds() < 0.35) {
                 setCor(COLOR.PURPLE);
             }else if (timer.seconds() > 0.4 && timer.seconds() < 0.6){
 
-                 leituraRoxo1 = getLeitura(S1);
+                RES1.update(0, getLeitura(S1));
+                leituraRoxo1 = RES1.getState();
 
-                 leituraRoxo2 = getLeitura(S2);
+                RES2.update(0, getLeitura(S2));
+                leituraRoxo2 = RES2.getState();
 
-                 leituraRoxo3 = getLeitura(S3);
+                RES3.update(0, getLeitura(S3));
+                leituraRoxo3 = RES3.getState();
+
 
             }else if (timer.seconds() > 0.6 && timer.seconds() < 1){
                 if (ball1 != BALL.NONE) {
