@@ -28,6 +28,7 @@ boolean isblue;
     double idDetecgted;
 
     boolean isAuto, validation;
+    Brake freio = new Brake();
 
     PIDFOController controllerHeading = new PIDFOController(new PIDFCoefficients(0, 0, 0, 0));
 
@@ -65,6 +66,7 @@ boolean isblue;
         leftFront =hardware.get(DcMotorEx.class,"leftFront");
         rightBack =hardware.get(DcMotorEx.class,"rightBack");
         rightFront =hardware.get(DcMotorEx.class,"rightFront");
+        freio.start(hardware);
 
 
         Atirador_1.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -157,7 +159,13 @@ boolean isblue;
            Atirador_1.setPower(power);
            Atirador_2.setPower(power);
        } else{
-
+            if(erro<-60) {
+               Atirador_1.setPower(0);
+               Atirador_2.setPower(0);
+                freio.setMode(Brake.Mode.BRAKE);
+           }else{
+               freio.setMode(Brake.Mode.NEUTRAL); 
+           }
            if(erro>60) {
                Atirador_1.setPower(1);
                Atirador_2.setPower(1);
