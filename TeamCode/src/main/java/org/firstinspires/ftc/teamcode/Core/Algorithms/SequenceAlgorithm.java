@@ -2,52 +2,63 @@ package org.firstinspires.ftc.teamcode.Core.Algorithms;
 
 import org.firstinspires.ftc.teamcode.Core.Hardware.ColorSensor;
 
-public class SequenceAlgorithm implements InterfaceSimple{
-    ColorSensor sensor = new ColorSensor();
-    double id;
+public class SequenceAlgorithm {
 
-    public void setMOTIF(double motif){id = motif;}
+    private ColorSensor.BALL[] sequence;
+    private int index = 0;
 
-     ColorSensor.BALL[] gateOrder = new ColorSensor.BALL[9];
+    public void setId(int id) {
 
-    public ColorSensor.BALL[] gateOrder(){
-        if(id == 21){
-            gateOrder[0] = ColorSensor.BALL.GREEN;
-            gateOrder[1] = ColorSensor.BALL.PURPLE;
-            gateOrder[2] = ColorSensor.BALL.PURPLE;
-            gateOrder[3] = ColorSensor.BALL.GREEN;
-            gateOrder[4] = ColorSensor.BALL.PURPLE;
-            gateOrder[5] = ColorSensor.BALL.PURPLE;
-            gateOrder[6] = ColorSensor.BALL.GREEN;
-            gateOrder[7] = ColorSensor.BALL.PURPLE;
-            gateOrder[8] = ColorSensor.BALL.PURPLE;
-        } else if (id == 22) {
-            gateOrder[0] = ColorSensor.BALL.PURPLE;
-            gateOrder[1] = ColorSensor.BALL.GREEN;
-            gateOrder[2] = ColorSensor.BALL.PURPLE;
-            gateOrder[3] = ColorSensor.BALL.PURPLE;
-            gateOrder[4] = ColorSensor.BALL.GREEN;
-            gateOrder[5] = ColorSensor.BALL.PURPLE;
-            gateOrder[6] = ColorSensor.BALL.PURPLE;
-            gateOrder[7] = ColorSensor.BALL.GREEN;
-            gateOrder[8] = ColorSensor.BALL.PURPLE;
-        }else if (id == 23) {
-            gateOrder[0] = ColorSensor.BALL.PURPLE;
-            gateOrder[1] = ColorSensor.BALL.PURPLE;
-            gateOrder[2] = ColorSensor.BALL.GREEN;
-            gateOrder[3] = ColorSensor.BALL.PURPLE;
-            gateOrder[4] = ColorSensor.BALL.PURPLE;
-            gateOrder[5] = ColorSensor.BALL.GREEN;
-            gateOrder[6] = ColorSensor.BALL.PURPLE;
-            gateOrder[7] = ColorSensor.BALL.PURPLE;
-            gateOrder[8] = ColorSensor.BALL.GREEN;
+        if (id == 21) {
+            sequence = new ColorSensor.BALL[]{
+                    ColorSensor.BALL.GREEN, ColorSensor.BALL.PURPLE, ColorSensor.BALL.PURPLE,
+                    ColorSensor.BALL.GREEN, ColorSensor.BALL.PURPLE, ColorSensor.BALL.PURPLE,
+                    ColorSensor.BALL.GREEN, ColorSensor.BALL.PURPLE, ColorSensor.BALL.PURPLE
+            };
         }
-        return gateOrder;
+        else if (id == 22) {
+            sequence = new ColorSensor.BALL[]{
+                    ColorSensor.BALL.PURPLE, ColorSensor.BALL.GREEN, ColorSensor.BALL.PURPLE,
+                    ColorSensor.BALL.PURPLE, ColorSensor.BALL.GREEN, ColorSensor.BALL.PURPLE,
+                    ColorSensor.BALL.PURPLE, ColorSensor.BALL.GREEN, ColorSensor.BALL.PURPLE
+            };
+        }
+        else { // 23
+            sequence = new ColorSensor.BALL[]{
+                    ColorSensor.BALL.PURPLE, ColorSensor.BALL.PURPLE, ColorSensor.BALL.GREEN,
+                    ColorSensor.BALL.PURPLE, ColorSensor.BALL.PURPLE, ColorSensor.BALL.GREEN,
+                    ColorSensor.BALL.PURPLE, ColorSensor.BALL.PURPLE, ColorSensor.BALL.GREEN
+            };
+        }
+
+        index = 0;
     }
 
+    // Atualiza com valor da limelight (0 a 9)
+    public void updateIndex(int ballsInGate) {
 
+        if (ballsInGate < 0) ballsInGate = 0;
+        if (ballsInGate > 9) ballsInGate = 9;
 
-    @Override
-    public void update() {
+        index = ballsInGate;
+    }
+
+    // Retorna sempre 3 bolas (sem null)
+    public ColorSensor.BALL[] getNext3() {
+
+        ColorSensor.BALL[] result = new ColorSensor.BALL[3];
+
+        for (int i = 0; i < 3; i++) {
+
+            int pos = index + i;
+
+            if (pos < sequence.length) {
+                result[i] = sequence[pos];
+            } else {
+                result[i] = sequence[8]; // fallback fixo
+            }
+        }
+
+        return result;
     }
 }

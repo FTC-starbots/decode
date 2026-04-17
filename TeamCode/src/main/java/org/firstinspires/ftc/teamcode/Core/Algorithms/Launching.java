@@ -63,43 +63,51 @@ public class Launching {
 
     public void teleop(Gamepad gamepad, double timer){
         isTeleop = true;
-        if (gamepad.left_bumper){
-
+        if (gamepad.left_bumper || gamepad.a){
+            shoot_all = false;
             shoot_type = 3;
         }
         else if (gamepad.right_bumper){
-
+            shoot_all = false;
             shoot_type = 2;
 
         } else if (gamepad.y || gamepad.triangle) {
             shoot_type = 1;
         } else if (gamepad.dpad_left){
+            shoot_all = false;
             shoot_type = 4;
         }else if (gamepad.dpad_up){
+            shoot_all = false;
             shoot_type = 5;
         }else if (gamepad.dpad_right){
+            shoot_all = false;
             shoot_type = 6;
         }else if (gamepad.dpad_down){
+            shoot_all = false;
             shoot_type = 7;
         }
 
         if (gamepad.rightBumperWasPressed()){
-            if (Balls <7) {
-                shootOrder[0] = gateOrder[Balls];
-                shootOrder[1] = gateOrder[Balls + 1];
-                shootOrder[2] = gateOrder[Balls + 2];
-                timer_split.reset();
-            }else if (Balls == 7){
-                shootOrder[0] = gateOrder[7];
-                shootOrder[1] = gateOrder[8];
-                shootOrder[2] = gateOrder[8];
-                timer_split.reset();
-            }else {
-                shootOrder[0] = gateOrder[8];
-                shootOrder[1] = gateOrder[8];
-                shootOrder[2] = gateOrder[8];
-                timer_split.reset();
-            }
+            shootOrder[0] = ColorSensor.BALL.PURPLE;
+            shootOrder[1] = ColorSensor.BALL.GREEN;
+            shootOrder[2] = ColorSensor.BALL.PURPLE;
+
+//            if (Balls <7) {
+//                shootOrder[0] = gateOrder[Balls];
+//                shootOrder[1] = gateOrder[Balls + 1];
+//                shootOrder[2] = gateOrder[Balls + 2];
+//                timer_split.reset();
+//            }else if (Balls == 7){
+//                shootOrder[0] = gateOrder[7];
+//                shootOrder[1] = gateOrder[8];
+//                shootOrder[2] = gateOrder[8];
+//                timer_split.reset();
+//            }else {
+//                shootOrder[0] = gateOrder[8];
+//                shootOrder[1] = gateOrder[8];
+//                shootOrder[2] = gateOrder[8];
+//                timer_split.reset();
+//            }
         }
 
 
@@ -156,7 +164,7 @@ public class Launching {
 
 
         if (shoot_all) launch_all_togheter();
-        else if (shoot_sequence) launch_sequence(timer+0.1);
+        else if (shoot_sequence) launch_sequence(timer+0.2);
         else if (shoot_split_sen) launch_all_split_sensor(timer);
         else if (shoot_split) launch_all_split(timer);
 
@@ -315,7 +323,7 @@ public class Launching {
 
             }
 
-            if (times_atRightVel == 1 && right_vel && timer_split.seconds() > 0.008) {
+            if (times_atRightVel == 1 && timer_split.seconds() > 0.008) {
                 timer_split.reset();
                 reservatorio.servoPosition(reservatorio.Reservoir_2, ReservoirsState.UP);
                 times_atRightVel = 3;
@@ -335,7 +343,7 @@ public class Launching {
         if(times_atRightVel < 3) {
             if (times_atRightVel == 0 && right_vel && right_pos) {
 
-
+                timer_split.reset();
                 if (bola1 == ColorSensor.BALL.NONE && bola2 == ColorSensor.BALL.NONE && bola3 == ColorSensor.BALL.NONE) {
                     post_shoot = true;
                     shoot_sequence = false;

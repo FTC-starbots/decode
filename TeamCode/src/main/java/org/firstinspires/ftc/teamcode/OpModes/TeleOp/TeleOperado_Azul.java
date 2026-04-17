@@ -281,7 +281,7 @@ public static double kpt= 0.003,kit = 0.0000001,kdt = 0.003 ,kft = 0.05,mint = 0
                                     if ((limelight.getLatestResult().isValid()) && (fr.getFiducialId() == 24 || fr.getFiducialId() == 20)) {
                                         TxOffset = fr.getTargetXPixels();
                                         goal_ap = true;
-                                        limelight_posY = -result.getBotpose().getPosition().x * 35.3;
+                                        limelight_posY = result.getBotpose().getPosition().x * 35.3;
                                         limelight_posX = result.getBotpose().getPosition().y * 35.3;
                                         limelight_yaw = (result.getBotpose().getOrientation().getYaw() - 90);
                                         if (result.getBotposeAvgDist() != 0)

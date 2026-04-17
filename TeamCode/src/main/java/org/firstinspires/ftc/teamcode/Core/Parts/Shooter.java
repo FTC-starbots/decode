@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.InterfaceSimple;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.Launching;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.PIDFOController;
+import org.firstinspires.ftc.teamcode.Core.Hardware.Brake;
 
 public class Shooter implements InterfaceSimple {
     public int velocidade_desejada;
@@ -107,15 +108,15 @@ boolean isblue;
                 if (isblue) {
 
                         if (idDetecgted == 20) {
-                            if (auton == 3 || auton == 4) corr = (txLime - 845) / 680;
-                            else corr = 0;
+                            //if (auton == 3 || auton == 4) corr = (txLime - 845) / 680;
+                             corr = 0;
 
                             // else if (auton == 1 || auton == 2) corr = (txLime - 900) / 680;
 
-                            leftBack.setPower(corr);
-                            leftFront.setPower(corr);
-                            rightBack.setPower(-corr);
-                            rightFront.setPower(-corr);
+//                            leftBack.setPower(corr);
+//                            leftFront.setPower(corr);
+//                            rightBack.setPower(-corr);
+//                            rightFront.setPower(-corr);
 
                         }
 
@@ -123,14 +124,14 @@ boolean isblue;
                 }else{
 
                     if (idDetecgted == 24) {
-                        if (auton == 3 || auton == 4) corr = (txLime - 400) / 680;
-                        else corr = 0;
+                        //if (auton == 3 || auton == 4) corr = (txLime - 640) / 680;
+                         corr = 0;
                         //else if (auton == 1 || auton == 2) corr = (txLime - 380) / 680;
 
-                        leftBack.setPower(corr);
-                        leftFront.setPower(corr);
-                        rightBack.setPower(-corr);
-                        rightFront.setPower(-corr);
+//                        leftBack.setPower(corr);
+//                        leftFront.setPower(corr);
+//                        rightBack.setPower(-corr);
+//                        rightFront.setPower(-corr);
                     }
 
                 }
@@ -159,14 +160,12 @@ boolean isblue;
            Atirador_1.setPower(power);
            Atirador_2.setPower(power);
        } else{
-            if(erro<-60) {
+            if(erro<0) {
                Atirador_1.setPower(0);
                Atirador_2.setPower(0);
-                freio.setMode(Brake.Mode.BRAKE);
-           }else{
-               freio.setMode(Brake.Mode.NEUTRAL); 
+                //freio.setMode(Brake.Mode.BRAKE);
            }
-           if(erro>60) {
+           if(erro>40) {
                Atirador_1.setPower(1);
                Atirador_2.setPower(1);
            }

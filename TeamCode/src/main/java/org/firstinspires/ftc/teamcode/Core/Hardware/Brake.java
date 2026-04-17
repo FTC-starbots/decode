@@ -1,15 +1,16 @@
-package org.firstinspires.ftc.teamcode.Core.Parts;
+package org.firstinspires.ftc.teamcode.Core.Hardware;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Core.Algorithms.InterfaceSimple;
 
 public class Brake implements InterfaceSimple {
-   public DcMotor Freio;
+   public Servo Freio;
 
     public enum Mode{
         BRAKE,
@@ -17,10 +18,9 @@ public class Brake implements InterfaceSimple {
     }
 
     public void start(HardwareMap hardware){
-        Freio = hardware.get(DcMotor.class, "Brake");
+        Freio = hardware.get(Servo.class, "Brake");
     }
     public void setMode(Mode mode){
-        IntakeMode = mode;
         switch (mode){
             case BRAKE:
                 Freio.setPosition(0.65);

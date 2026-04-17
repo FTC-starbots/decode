@@ -37,11 +37,11 @@ public class Reservoirs {
                  Reservoir.setPosition(1);
                 break;
             case MIDDLE:
-                Reservoir.setPosition(0.55);
+                Reservoir.setPosition(0.65);
                 break;
             case DOWN:
                 if(Reservoir == Reservoir_1)Reservoir.setPosition(0.48);
-                else Reservoir.setPosition(0.5);
+                else Reservoir.setPosition(0.49);
                 break;
 
 
