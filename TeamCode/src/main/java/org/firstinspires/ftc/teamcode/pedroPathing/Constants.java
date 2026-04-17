@@ -36,7 +36,7 @@ public class Constants {
 
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.015,0.0,0.00001,0.6,0.01))
             .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.01,0,0.000005,0.6,0.01))
-
+            .turnHeadingErrorThreshold(Math.toRadians(3.4))
             ;
     public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
     public static MecanumConstants driveConstants = new MecanumConstants()

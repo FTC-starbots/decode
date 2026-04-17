@@ -7,6 +7,7 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Core.Algorithms.InterfaceSimple;
 
 import java.util.List;
@@ -22,6 +23,9 @@ public class Lime implements InterfaceSimple {
 
     public boolean tagdetected;
 
+    KalmanFilter filterX = new KalmanFilter(new KalmanFilterParameters(0.05,1), 0, 100,1.5);
+    KalmanFilter filterY = new KalmanFilter(new KalmanFilterParameters(0.05,1), 0, 100,1.5);
+    KalmanFilter filterYaw = new KalmanFilter(new KalmanFilterParameters(0.05,1), 0, 100,1.5);
 
     KalmanFilter GreenFilter = new KalmanFilter(new KalmanFilterParameters(0.05,1), 0, 100,1.2);
     KalmanFilter PurpleFilter = new KalmanFilter(new KalmanFilterParameters(0.05,1), 0, 100,1.2);
@@ -70,17 +74,18 @@ public enum Mode{
     public void update() {
 
     LLResult result = limelight.getLatestResult();
-    if (OperationMode == Mode.TAG) {
+//    if (OperationMode == Mode.TAG) {
 
 
-        List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
-        for (LLResultTypes.FiducialResult fr : fiducialResults) {
+            List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
 
-            if (limelight.getLatestResult().isValid()) {
+            if (result.isValid() && !fiducialResults.isEmpty()) {
+                LLResultTypes.FiducialResult fr = fiducialResults.get(0);
+
                 id = fr.getFiducialId();
-                x = result.getBotpose().getPosition().x;
-                y = result.getBotpose().getPosition().y;
-                angle = result.getBotpose().getOrientation().getYaw();
+                x = fr.getRobotPoseFieldSpace().getPosition().x;
+                y = fr.getRobotPoseFieldSpace().getPosition().y;
+                angle = fr.getRobotPoseFieldSpace().getOrientation().getYaw(AngleUnit.RADIANS);
                 distance = result.getBotposeAvgDist();
                 tx = result.getTx();
                 tdegrees = fr.getTargetXDegrees();
@@ -89,18 +94,20 @@ public enum Mode{
 
             } else {
                 id = 0;
-                x = 0;
-                y = 0;
-                angle = 0;
                 distance = 0;
                 tx = 0;
                 tdegrees = 0;
                 tpixel = 0;
                 tagdetected = false;
             }
-        }
-    } else if (OperationMode == Mode.GATE) {
 
+    /* } else*/ if (OperationMode == Mode.GATE) {
+        id = 0;
+        distance = 0;
+        tx = 0;
+        tdegrees = 0;
+        tpixel = 0;
+        tagdetected = false;
         double[] pythonOutputs = result.getPythonOutput();
 //
         preKalmanTotalBalls = pythonOutputs[3];

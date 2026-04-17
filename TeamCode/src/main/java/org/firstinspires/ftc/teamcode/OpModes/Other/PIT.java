@@ -363,16 +363,16 @@ public double ErroMovY, ErroMovX,last_pose_X, last_pose_Y;
 
 //===FUNÇÕES DE MOVIMENTO========================================================================
         {
-            if (isGamepad1) {
-                if (isManual) drivetrain.Drive(true,isBlue, gamepad1, followerteleop, Shooter.shooting, 0, 100, false, offset, angleIdeal, launching.corretor);
-                else drivetrain.Drive(true,isBlue, gamepad1, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, false, offset, angleIdeal,launching.corretor);
-
-
-            } else {
-                if (isManual) drivetrain.Drive(false,isBlue, gamepad2, followerteleop, Shooter.shooting, 0, 100, false, offset, angleIdeal, launching.corretor);
-                else drivetrain.Drive(false,isBlue, gamepad2, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, false, offset, angleIdeal,launching.corretor);
-
-            }
+//            if (isGamepad1) {
+//                if (isManual) drivetrain.Drive(true,isBlue, gamepad1, followerteleop, Shooter.shooting, 0, 100, false, offset, angleIdeal, launching.corretor);
+//                else drivetrain.Drive(true,isBlue, gamepad1, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, false, offset, angleIdeal,launching.corretor);
+//
+//
+//            } else {
+//                if (isManual) drivetrain.Drive(false,isBlue, gamepad2, followerteleop, Shooter.shooting, 0, 100, false, offset, angleIdeal, launching.corretor);
+//                else drivetrain.Drive(false,isBlue, gamepad2, followerteleop, Shooter.shooting, tagalign.pixel, tagalign.width, false, offset, angleIdeal,launching.corretor);
+//
+//            }
         }
 
 //===FUNÇÕES DE CONTROLE=========================================================================

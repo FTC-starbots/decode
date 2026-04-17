@@ -79,7 +79,7 @@ public class PoseIdentifier implements  InterfaceSimple{
 
     public void infoLIME(double limex,double limey, double limeyaw,double limedist){
 
-        LimePose = new Pose(limex* 39.3701 + 72, limey* 39.3701 + 72, limeyaw);
+        LimePose = new Pose(limex* 39.3701 + 72, limey* 39.3701 + 72, limeyaw - Math.toRadians(45));
 
 
         LIMEposeX = LimePose.getX();

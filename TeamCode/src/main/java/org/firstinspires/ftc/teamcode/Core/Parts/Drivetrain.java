@@ -39,6 +39,8 @@ public class Drivetrain implements InterfaceSimple {
     double kps, kis, kds, kfs;
 
     double vectorx, vectory;
+
+    double lime_tag_ang;
 public boolean right_pos;
 
 
@@ -75,19 +77,32 @@ public boolean right_pos;
         );
     }
 
-  public void Drive(boolean gamepad1, boolean isBlue, Gamepad gamepad, Follower followerdrive, boolean isShooting, double pixel, double width, boolean validation, double offsetpercent, double IdealAngle,double corrreserv){
 
-      rotation = (gamepad.left_trigger - gamepad.right_trigger);
 
+  public void Drive(boolean gamepad1,double id, boolean isBlue, Gamepad gamepad, Follower followerdrive, boolean isShooting, double pixel, double width, boolean validation, double IdealAngle, boolean shoot_tag){
+double rotate_tag = 0;
+        if (gamepad1) {
+    rotation = (gamepad.left_trigger - gamepad.right_trigger);
+}else{
+    rotation = 0;
+            rotate_tag = (gamepad.left_trigger - gamepad.right_trigger);
+}
 
 
      if (isShooting || !gamepad1){
 
-         if (validation) {
-             error_tag = 0;
-             //error_tag = (pixel - 640)/640;
+         if (shoot_tag) {
+             if (validation && (id == 20 || id ==24)) {
+                 headingLock = true;
+                 lime_tag_ang =Math.toRadians( -pixel +(rotate_tag*5));
+                 error_final = lime_tag_ang;
+             }else{
+                 targetHeading = IdealAngle;
+
+                 error_final = angleWrap(targetHeading - followerdrive.getHeading());
+             }
          }else{
-             targetHeading = IdealAngle + error_tag;
+             targetHeading = IdealAngle;
 
              error_final = angleWrap(targetHeading - followerdrive.getHeading());
 
@@ -103,12 +118,14 @@ public boolean right_pos;
 
 
 
-      if(Math.abs(Math.toDegrees(error_final)) > 5) {
+      if(Math.abs(Math.toDegrees(error_final)) > 8 || Math.abs(Math.toDegrees(lime_tag_ang)) > 30 ) {
           controllerHeading.errorIntegral = 0;
           rightpos.reset();
       }
 
-    if(Math.abs(Math.toDegrees(error_final)) < 5 && rightpos.seconds()>0.5) {
+
+
+    if((Math.abs(Math.toDegrees(error_final)) < 8 || Math.abs(Math.toDegrees(lime_tag_ang)) < 30) && rightpos.seconds()>0.3) {
         right_pos = true;
     }else {
         right_pos = false;

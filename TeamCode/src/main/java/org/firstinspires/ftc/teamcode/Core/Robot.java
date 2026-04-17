@@ -20,7 +20,7 @@ public class Robot implements InterfaceSimple {
 
     @Override
     public void update() {
-        servoLime.update();
+//        servoLime.update();
         limelight.update();
         //aptag.update();
         shooter.update();
